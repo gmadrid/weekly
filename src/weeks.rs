@@ -8,16 +8,24 @@
 **/
 use chrono::{Date, Datelike, Duration, Local, TimeZone, Weekday};
 
-type LocalDate = Date<Local>;
+pub type LocalDate = Date<Local>;
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum Relation {
+    Before,
+    During,
+    After,
+}
 
 #[derive(Debug, Clone)]
 pub struct DayDesc {
-    date: LocalDate,
+    pub date: LocalDate,
+    pub relation: Relation,
 }
 
 pub type WeekDesc = [Option<DayDesc>; 7];
 
-pub fn weeks_for_month(date: LocalDate) -> Vec<WeekDesc> {
+pub fn weeks_for_month(date: LocalDate, prune: bool) -> Vec<WeekDesc> {
     let month_start = Local.ymd(date.year(), date.month(), 1);
     let month_week = start_of_week(month_start);
 
@@ -32,7 +40,7 @@ pub fn weeks_for_month(date: LocalDate) -> Vec<WeekDesc> {
             .month()
             == date.month()
     {
-        result.push(week_with_date(week_start));
+        result.push(week_with_date(week_start, prune, date.month()));
 
         week_start = week_start.checked_add_signed(Duration::weeks(1)).unwrap();
     }
@@ -44,17 +52,28 @@ fn empty_week() -> WeekDesc {
     [None, None, None, None, None, None, None]
 }
 
-fn week_with_date(date: LocalDate) -> WeekDesc {
+fn week_with_date(date: LocalDate, prune: bool, this_month: u32) -> WeekDesc {
     // Find the start of the week, and then return the next 7 days.
     let start = start_of_week(date);
     let dates = (0..7)
         .map(|offset| start.checked_add_signed(Duration::days(offset)).unwrap())
-        .map(|d| DayDesc { date: d });
+        .map(|d| DayDesc {
+            date: d,
+            relation: match 0 {
+                _ if d.month() < this_month => Relation::Before,
+                _ if d.month() > this_month => Relation::After,
+                _ => Relation::During,
+            },
+        });
 
     let mut result = empty_week();
 
     for (idx, dd) in dates.enumerate() {
-        result[idx] = Some(dd);
+        result[idx] = if prune && dd.relation != Relation::During {
+            None
+        } else {
+            Some(dd)
+        };
     }
 
     result

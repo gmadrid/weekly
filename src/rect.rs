@@ -1,14 +1,11 @@
-use printpdf::{Line, Mm, Point};
+use crate::point_pair;
+use printpdf::Line;
 
 pub struct PRect {
-    x: f64,
-    y: f64,
+    pub x: f64,
+    pub y: f64,
     pub width: f64,
     pub height: f64,
-}
-
-fn point_pair(x: f64, y: f64) -> (Point, bool) {
-    (Point::new(Mm(x), Mm(y)), false)
 }
 
 impl PRect {
@@ -24,6 +21,11 @@ impl PRect {
     /// Creates a new PRect, identical to self, but with a new width.
     pub fn with_width(&self, width: f64) -> PRect {
         PRect { width, ..*self }
+    }
+
+    /// Creates a new PRect, identical to self, but with a new height.
+    pub fn with_height(&self, height: f64) -> PRect {
+        PRect { height, ..*self }
     }
 
     /// Moves the rectangle keeping the dimensions the same.

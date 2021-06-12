@@ -23,9 +23,15 @@ pub struct DayDesc {
     pub relation: Relation,
 }
 
-pub type WeekDesc = [Option<DayDesc>; 7];
+impl Default for DayDesc {
+    fn default() -> Self {
+	Self { date: Local::now().date(), relation: Relation::During }
+    }
+}
 
-pub fn weeks_for_month(date: LocalDate, prune: bool) -> Vec<WeekDesc> {
+pub type WeekDesc = [DayDesc; 7];
+
+pub fn weeks_for_month(date: LocalDate) -> Vec<WeekDesc> {
     let month_start = Local.ymd(date.year(), date.month(), 1);
     let month_week = start_of_week(month_start);
 
@@ -40,7 +46,7 @@ pub fn weeks_for_month(date: LocalDate, prune: bool) -> Vec<WeekDesc> {
             .month()
             == date.month()
     {
-        result.push(week_with_date(week_start, prune, date.month()));
+        result.push(week_with_date(week_start, date.month()));
 
         week_start = week_start.checked_add_signed(Duration::weeks(1)).unwrap();
     }
@@ -49,10 +55,10 @@ pub fn weeks_for_month(date: LocalDate, prune: bool) -> Vec<WeekDesc> {
 }
 
 fn empty_week() -> WeekDesc {
-    [None, None, None, None, None, None, None]
+    [DayDesc::default(),DayDesc::default(),DayDesc::default(),DayDesc::default(),DayDesc::default(),DayDesc::default(),DayDesc::default(),]
 }
 
-fn week_with_date(date: LocalDate, prune: bool, this_month: u32) -> WeekDesc {
+fn week_with_date(date: LocalDate, this_month: u32) -> WeekDesc {
     // Find the start of the week, and then return the next 7 days.
     let start = start_of_week(date);
     let dates = (0..7)
@@ -69,11 +75,7 @@ fn week_with_date(date: LocalDate, prune: bool, this_month: u32) -> WeekDesc {
     let mut result = empty_week();
 
     for (idx, dd) in dates.enumerate() {
-        result[idx] = if prune && dd.relation != Relation::During {
-            None
-        } else {
-            Some(dd)
-        };
+        result[idx] = dd;
     }
 
     result

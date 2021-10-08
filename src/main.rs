@@ -45,10 +45,8 @@ fn foo() {
         current_layer.add_shape(divider.shape());
     }
 
-    doc.save(&mut BufWriter::new(
-        File::create("/mnt/c/Users/gmadr/Desktop/foo.pdf").unwrap(),
-    ))
-    .unwrap();
+    doc.save(&mut BufWriter::new(File::create("foo.pdf").unwrap()))
+        .unwrap();
 }
 
 fn make_dividers(rect: PRect, num_dividers: u8) -> Vec<PLine> {

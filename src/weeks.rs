@@ -25,7 +25,10 @@ pub struct DayDesc {
 
 impl Default for DayDesc {
     fn default() -> Self {
-	Self { date: Local::now().date(), relation: Relation::During }
+        Self {
+            date: Local::now().date(),
+            relation: Relation::During,
+        }
     }
 }
 
@@ -55,7 +58,15 @@ pub fn weeks_for_month(date: LocalDate) -> Vec<WeekDesc> {
 }
 
 fn empty_week() -> WeekDesc {
-    [DayDesc::default(),DayDesc::default(),DayDesc::default(),DayDesc::default(),DayDesc::default(),DayDesc::default(),DayDesc::default(),]
+    [
+        DayDesc::default(),
+        DayDesc::default(),
+        DayDesc::default(),
+        DayDesc::default(),
+        DayDesc::default(),
+        DayDesc::default(),
+        DayDesc::default(),
+    ]
 }
 
 fn week_with_date(date: LocalDate, this_month: u32) -> WeekDesc {

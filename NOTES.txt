@@ -1,0 +1,26 @@
+Size of page.
+Size of margins - defines outer box.
+
+Specify size of top labels - top box rest is "bottom box"
+
+bottom box is divided into N columns + 1 for the labels
+bottom box is divided into DAYS rows - one for each day in the month
+
+
+
+
+
+
+- want to create a grid in a certain sized box with labels.
+- also put some titles and legends on it.
+- should automatically take a month and make enough rows for that
+- maybe diagonal headers
+- OPT: styling alternate rows
+- OPT: styling lines
+
+- make coordinate system
+- draw arbitrary lines
+- draw rectangles
+- OPT: only draw shared lines once (in grid is easier)
+- use PDF/SVG as output mechanism, but don't require that
+- then print via browser?

@@ -1,11 +1,35 @@
-mod cal;
-mod line;
+mod grid;
 mod pdfutils;
-mod rect;
-mod weeks;
+mod shapes;
+mod units;
 
-pub use cal::print_cal_for_month;
-pub use line::PLine;
-pub use pdfutils::{inches_to_mm, point_pair};
-pub use rect::PRect;
-pub use weeks::{weeks_for_month, LocalDate, WeekDesc};
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum WeeklyError {}
+
+pub type Result<T> = std::result::Result<T, WeeklyError>;
+
+pub use grid::table_grid;
+pub use shapes::line::WLine;
+pub use shapes::rect::WRect;
+pub use units::NumericUnit;
+pub use units::Unit; // TODO: can you get rid of this?
+
+// mod shape;
+//
+//
+//
+//
+//
+// mod cal;
+// //mod line;
+// mod pdfutils;
+// mod rect;
+// mod weeks;
+//
+// pub use cal::print_cal_for_month;
+// pub use line::PLine;
+// pub use pdfutils::{inches_to_mm, point_pair};
+// pub use rect::PRect;
+// pub use weeks::{weeks_for_month, LocalDate, WeekDesc};

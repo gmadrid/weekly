@@ -1,30 +1,37 @@
 use argh::FromArgs;
-use printpdf::{Color, PdfDocument, Rgb};
+use printpdf::PdfDocument;
 use std::fs::File;
 use std::io::BufWriter;
-use weekly::{table_grid, NumericUnit, WLine, WRect};
+use weekly::{table_grid, Instructions, NumericUnit, WRect};
 
 #[derive(Debug, FromArgs)]
 /// Create a monthly checklist.
 struct Args {
-    #[argh(positional, default="\"default.pdf\".to_string()")]
+    #[argh(positional, default = "\"default.pdf\".to_string()")]
     output_filename: String,
 }
 
 fn main_func(args: Args) -> weekly::Result<()> {
     let page_rect = WRect::rect(5.5.inches(), 8.5.inches());
-    let table_bounds = page_rect.inset(0.5.inches(), 0.5.inches());
+    let table_bounds = page_rect.inset(0.25.inches(), 0.25.inches());
     let top_box_height = 2.0.inches();
     let rows = 31;
     let cols = 20;
 
-    let grid = table_grid(rows, cols, &table_bounds, top_box_height, 5.0.mm());
+    let grid = table_grid(
+        rows,
+        cols,
+        &table_bounds,
+        top_box_height,
+        5.0.mm(),
+        page_rect.height(),
+    );
     draw_to_pdf(grid, &args.output_filename, page_rect);
 
     Ok(())
 }
 
-fn draw_to_pdf(lines: Vec<WLine>, output_filename: &str, page_rect: WRect) {
+fn draw_to_pdf(instructions: Instructions, output_filename: &str, page_rect: WRect) {
     let (doc, page, layer) = PdfDocument::new(
         "test",
         page_rect.width().into(),
@@ -32,6 +39,7 @@ fn draw_to_pdf(lines: Vec<WLine>, output_filename: &str, page_rect: WRect) {
         "Layer 1",
     );
     let current_layer = doc.get_page(page).get_layer(layer);
+    instructions.draw_to_layer(&current_layer);
 
     //    let printable_area = page_size.inset(6.0, 5.0);
     // printable margins appear to be top/bottom: 5mm, left: 13mm, right: 20mm
@@ -40,12 +48,12 @@ fn draw_to_pdf(lines: Vec<WLine>, output_filename: &str, page_rect: WRect) {
     //     .with_width(page_size.width - 13.0 - 20.0)
     //     .with_height(page_size.height - 2.0 * 5.0);
 
-    current_layer.set_outline_color(Color::Rgb(Rgb::new(0.0, 0.0, 0.0, None)));
-    current_layer.set_outline_thickness(0.0);
-
-    for line in lines {
-        current_layer.add_shape(line.as_shape(page_rect.height()));
-    }
+    // current_layer.set_outline_color());
+    // current_layer.set_outline_thickness(0.0);
+    //
+    // for line in lines {
+    //     current_layer.add_shape(line.as_shape(page_rect.height()));
+    // }
 
     doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
         .unwrap();

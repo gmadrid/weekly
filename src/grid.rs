@@ -1,5 +1,7 @@
+use crate::pdfutils::Instructions;
 use crate::shapes::line::WLine;
 use crate::{Unit, WRect};
+use printpdf::*;
 
 struct TableGrid {
     rows: u16,
@@ -7,8 +9,9 @@ struct TableGrid {
     bounds: WRect,
     top_label_height: Unit,
     left_label_width: Unit,
+    page_height: Unit,
 
-    lines: Vec<WLine>,
+    instructions: Instructions,
 }
 
 impl TableGrid {
@@ -18,6 +21,7 @@ impl TableGrid {
         bounds: &WRect,
         top_label_height: Unit,
         left_label_width: Unit,
+        page_height: Unit,
     ) -> TableGrid {
         TableGrid {
             rows,
@@ -25,8 +29,9 @@ impl TableGrid {
             bounds: (*bounds).clone(),
             top_label_height,
             left_label_width,
+            page_height,
 
-            lines: Default::default(),
+            instructions: Default::default(),
         }
     }
 
@@ -36,7 +41,8 @@ impl TableGrid {
         for col in 0..self.cols {
             let x = self.bounds.left() + self.left_label_width + col_width * col;
             let line = WLine::line(x, self.bounds.top(), x, self.bounds.bottom());
-            self.lines.push(line);
+            self.instructions
+                .push_shape(line.as_shape(self.page_height));
         }
     }
 
@@ -46,11 +52,15 @@ impl TableGrid {
         for row in 0..self.rows {
             let y = self.bounds.top() + self.top_label_height + row_height * row;
             let line = WLine::line(self.bounds.left(), y, self.bounds.right(), y);
-            self.lines.push(line);
+            self.instructions
+                .push_shape(line.as_shape(self.page_height));
         }
     }
 
     fn generate_grid(&mut self) {
+        self.instructions
+            .set_stroke_color(&Color::Rgb(Rgb::new(0.0, 0.0, 0.0, None)));
+        self.instructions.set_stroke_width(0.0);
         self.render_vertical_bars();
         self.render_horizontal_bars();
     }
@@ -62,8 +72,16 @@ pub fn table_grid(
     bounds: &WRect,
     top_label_height: Unit,
     left_label_width: Unit,
-) -> Vec<WLine> {
-    let mut grid = TableGrid::new(rows, cols, bounds, top_label_height, left_label_width);
+    page_height: Unit,
+) -> Instructions {
+    let mut grid = TableGrid::new(
+        rows,
+        cols,
+        bounds,
+        top_label_height,
+        left_label_width,
+        page_height,
+    );
     grid.generate_grid();
-    grid.lines
+    grid.instructions
 }

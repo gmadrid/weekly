@@ -23,7 +23,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
         cols,
         &table_bounds,
         top_box_height,
-        5.0.mm(),
+        15.0.mm(),
         page_rect.height(),
     );
     draw_to_pdf(grid, &args.output_filename, page_rect);

@@ -1,5 +1,5 @@
-use printpdf::*;
 use crate::units::Unit;
+use printpdf::*;
 
 pub fn point_pair(x: Unit, y: Unit) -> (Point, bool) {
     (Point::new(Mm(x.0), Mm(y.0)), false)
@@ -21,6 +21,10 @@ impl Instructions {
 
     pub fn set_stroke_width(&mut self, width: f64) {
         self.with_top_attributes(|attrs| attrs.stroke_width = Some(width));
+    }
+
+    pub fn set_fill_color(&mut self, color: &Color) {
+        self.with_top_attributes(|attrs| attrs.fill_color = Some(color.clone()));
     }
 
     pub fn with_top_attributes(&mut self, mut f: impl FnMut(&mut Attributes)) {
@@ -59,6 +63,7 @@ impl Instruction {
 pub struct Attributes {
     stroke_width: Option<f64>,
     stroke_color: Option<Color>,
+    fill_color: Option<Color>,
 }
 
 impl Attributes {
@@ -68,6 +73,9 @@ impl Attributes {
         }
         if let Some(stroke_color) = &self.stroke_color {
             layer.set_outline_color(stroke_color.clone());
+        }
+        if let Some(fill_color) = &self.fill_color {
+            layer.set_fill_color(fill_color.clone());
         }
     }
 }

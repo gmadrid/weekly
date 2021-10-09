@@ -1,8 +1,8 @@
 use crate::pdfutils::Instructions;
 use crate::shapes::line::WLine;
-use crate::{NumericUnit, WRect};
-use printpdf::*;
 use crate::units::Unit;
+use crate::WRect;
+use printpdf::*;
 
 struct TableGrid {
     rows: u16,
@@ -58,17 +58,35 @@ impl TableGrid {
         }
     }
 
+    fn render_column_backgrounds(&mut self) {
+        // This is DRY
+        let col_width = (self.bounds.width() - self.left_label_width) / self.cols;
+
+        for col in 0..self.cols {
+            if col % 2 == 0 {
+                let x = self.bounds.left() + self.left_label_width + col_width * col;
+                let rect =
+                    WRect::full_rect(x, self.bounds.top(), x + col_width, self.bounds.bottom());
+                self.instructions
+                    .push_shape(rect.as_shape(self.page_height));
+            }
+        }
+    }
+
     fn generate_grid(&mut self) {
         self.instructions
-            .set_stroke_color(&Color::Rgb(Rgb::new(0.0, 0.0, 0.0, None)));
+            .set_fill_color(&Color::Rgb(Rgb::new(0.9, 0.9, 0.9, None)));
+        self.render_column_backgrounds();
+
         self.instructions.set_stroke_width(0.0);
+
+        self.instructions
+            .set_stroke_color(&Color::Rgb(Rgb::new(0.75, 0.75, 0.75, None)));
         self.render_vertical_bars();
+
+        self.instructions
+            .set_stroke_color(&Color::Rgb(Rgb::new(0.25, 0.25, 0.25, None)));
         self.render_horizontal_bars();
-
-        // let r = self.bounds.inset(1.0.inches(), 1.0.inches());
-        // self.instructions.set_fill_color(Color::Rgb(Rgb::new(0.0, 0.0, 0.0. None)));
-        // self.instructions.push_shape(r.as_shape());
-
     }
 }
 

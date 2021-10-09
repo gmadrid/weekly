@@ -1,6 +1,6 @@
 use crate::pdfutils::point_pair;
-use printpdf::Line;
 use crate::units::Unit;
+use printpdf::Line;
 
 #[derive(Debug)]
 pub struct WLine {

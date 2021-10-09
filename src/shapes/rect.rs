@@ -1,6 +1,6 @@
+use crate::pdfutils::point_pair;
 use crate::units::Unit;
 use printpdf::*;
-use crate::pdfutils::point_pair;
 
 #[derive(Debug, Clone)]
 pub struct WRect {
@@ -18,6 +18,11 @@ impl WRect {
             x2: width,
             y2: height,
         }
+    }
+
+    // TODO: change these names to something better.
+    pub fn full_rect(x1: Unit, y1: Unit, x2: Unit, y2: Unit) -> WRect {
+        WRect { x1, y1, x2, y2 }
     }
 
     pub fn height(&self) -> Unit {
@@ -65,5 +70,6 @@ impl WRect {
             has_fill: true,
             is_closed: true,
             ..Line::default()
-
         }
+    }
+}

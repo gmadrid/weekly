@@ -11,7 +11,7 @@ pub struct WRect {
 }
 
 impl WRect {
-    pub fn rect(width: Unit, height: Unit) -> WRect {
+    pub fn with_dimensions(width: Unit, height: Unit) -> WRect {
         WRect {
             x1: Unit::zero(),
             y1: Unit::zero(),
@@ -21,7 +21,7 @@ impl WRect {
     }
 
     // TODO: change these names to something better.
-    pub fn full_rect(x1: Unit, y1: Unit, x2: Unit, y2: Unit) -> WRect {
+    pub fn new(x1: Unit, y1: Unit, x2: Unit, y2: Unit) -> WRect {
         WRect { x1, y1, x2, y2 }
     }
 

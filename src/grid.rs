@@ -66,7 +66,7 @@ impl TableGrid {
             if col % 2 == 0 {
                 let x = self.bounds.left() + self.left_label_width + col_width * col;
                 let rect =
-                    WRect::full_rect(x, self.bounds.top(), x + col_width, self.bounds.bottom());
+                    WRect::new(x, self.bounds.top(), x + col_width, self.bounds.bottom());
                 self.instructions
                     .push_shape(rect.as_shape(self.page_height));
             }

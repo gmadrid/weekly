@@ -12,7 +12,7 @@ struct Args {
 }
 
 fn main_func(args: Args) -> weekly::Result<()> {
-    let page_rect = WRect::rect(5.5.inches(), 8.5.inches());
+    let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches());
     let table_bounds = page_rect.inset(0.25.inches(), 0.25.inches());
     let top_box_height = 2.0.inches();
     let rows = 31;

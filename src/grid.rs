@@ -1,7 +1,8 @@
 use crate::pdfutils::Instructions;
 use crate::shapes::line::WLine;
-use crate::{Unit, WRect};
+use crate::{NumericUnit, WRect};
 use printpdf::*;
+use crate::units::Unit;
 
 struct TableGrid {
     rows: u16,
@@ -63,6 +64,11 @@ impl TableGrid {
         self.instructions.set_stroke_width(0.0);
         self.render_vertical_bars();
         self.render_horizontal_bars();
+
+        // let r = self.bounds.inset(1.0.inches(), 1.0.inches());
+        // self.instructions.set_fill_color(Color::Rgb(Rgb::new(0.0, 0.0, 0.0. None)));
+        // self.instructions.push_shape(r.as_shape());
+
     }
 }
 

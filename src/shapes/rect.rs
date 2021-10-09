@@ -1,4 +1,6 @@
 use crate::units::Unit;
+use printpdf::*;
+use crate::pdfutils::point_pair;
 
 #[derive(Debug, Clone)]
 pub struct WRect {
@@ -51,4 +53,17 @@ impl WRect {
             y2: self.y2 - ydelta,
         }
     }
-}
+
+    pub fn as_shape(&self, page_height: Unit) -> Line {
+        Line {
+            points: vec![
+                point_pair(self.x1, page_height - self.y1),
+                point_pair(self.x2, page_height - self.y1),
+                point_pair(self.x2, page_height - self.y2),
+                point_pair(self.x1, page_height - self.y2),
+            ],
+            has_fill: true,
+            is_closed: true,
+            ..Line::default()
+
+        }

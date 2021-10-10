@@ -142,3 +142,23 @@ pub struct TextValues {
     y: Unit,
     font: IndirectFontRef,
 }
+
+pub struct Colors {}
+
+impl Colors {
+    pub fn rgb(r: f64, g: f64, b: f64) -> Color {
+        Color::Rgb(Rgb::new(r, g, b, None))
+    }
+
+    pub fn gray(level: f64) -> Color {
+        Colors::rgb(level, level, level)
+    }
+
+    pub fn black() -> Color {
+        Colors::gray(0.0)
+    }
+
+    pub fn red() -> Color {
+        Self::rgb(1.0, 0.0, 0.0)
+    }
+}

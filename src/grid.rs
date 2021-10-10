@@ -1,4 +1,4 @@
-use crate::pdfutils::Instructions;
+use crate::pdfutils::{Colors, Instructions};
 use crate::shapes::line::WLine;
 use crate::units::Unit;
 use crate::{NumericUnit, WRect};
@@ -137,22 +137,19 @@ impl<'a> TableGrid<'a> {
     }
 
     fn generate_grid(&mut self) {
-        self.instructions
-            .set_fill_color(&Color::Rgb(Rgb::new(0.9, 0.9, 0.9, None)));
+        self.instructions.set_fill_color(&Colors::gray(0.9));
         self.render_column_backgrounds();
 
         self.instructions.set_stroke_width(0.0);
 
-        self.instructions
-            .set_stroke_color(&Color::Rgb(Rgb::new(0.75, 0.75, 0.75, None)));
+        self.instructions.set_stroke_color(&Colors::gray(0.75));
         self.render_vertical_bars();
 
-        self.instructions
-            .set_stroke_color(&Color::Rgb(Rgb::new(0.25, 0.25, 0.25, None)));
+        self.instructions.set_stroke_color(&Colors::gray(0.25));
+        //.set_stroke_color(&Color::Rgb(Rgb::new(0.25, 0.25, 0.25, None)));
         self.render_horizontal_bars();
 
-        self.instructions
-            .set_fill_color(&Color::Rgb(Rgb::new(0.0, 0.0, 0.0, None)));
+        self.instructions.set_fill_color(&Colors::black());
         self.render_row_labels();
         self.render_col_labels();
     }

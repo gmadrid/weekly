@@ -11,6 +11,7 @@ pub enum WeeklyError {}
 pub type Result<T> = std::result::Result<T, WeeklyError>;
 
 pub use grid::table_grid;
+pub use pdfutils::Colors;
 pub use pdfutils::Instructions;
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;

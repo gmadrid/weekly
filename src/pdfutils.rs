@@ -158,7 +158,19 @@ impl Colors {
         Colors::gray(0.0)
     }
 
+    pub fn white() -> Color {
+        Colors::gray(1.0)
+    }
+
     pub fn red() -> Color {
         Self::rgb(1.0, 0.0, 0.0)
+    }
+
+    pub fn green() -> Color {
+        Self::rgb(0.0, 1.0, 0.0)
+    }
+
+    pub fn blue() -> Color {
+        Self::rgb(0.0, 0.0, 1.0)
     }
 }

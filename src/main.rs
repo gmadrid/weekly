@@ -84,6 +84,10 @@ fn main_func(args: Args) -> weekly::Result<()> {
         "Floss",
         "",
         "Play chess",
+        "",
+        "Plank",
+        "Stretch",
+        "",
         "Check To Do list",
     ]
     .iter()

@@ -3,9 +3,10 @@ use crate::shapes::line::WLine;
 use crate::units::Unit;
 use crate::{NumericUnit, WRect};
 use printpdf::*;
+use std::cmp::min;
 
 struct TableGrid<'a> {
-    row_labels: Vec<String>,
+    row_labels: &'a [String],
     cols: u16,
     bounds: WRect,
     top_label_height: Unit,
@@ -18,7 +19,7 @@ struct TableGrid<'a> {
 
 impl<'a> TableGrid<'a> {
     fn new<'f>(
-        row_labels: &Vec<String>,
+        row_labels: &'f [String],
         cols: u16,
         bounds: &WRect,
         top_label_height: Unit,
@@ -27,7 +28,7 @@ impl<'a> TableGrid<'a> {
         font: &'f IndirectFontRef,
     ) -> TableGrid<'f> {
         TableGrid {
-            row_labels: row_labels.clone(),
+            row_labels,
             cols,
             bounds: (*bounds).clone(),
             top_label_height,
@@ -35,7 +36,7 @@ impl<'a> TableGrid<'a> {
             page_height,
 
             instructions: Default::default(),
-            font: font,
+            font,
         }
     }
 
@@ -81,16 +82,56 @@ impl<'a> TableGrid<'a> {
             (self.bounds.height() - self.top_label_height) / self.row_labels.len() as u16;
 
         let x = self.bounds.left() + 2.0.mm();
+        let text_height = f64::from(row_height) * 1.9;
         for row in 0..self.row_labels.len() as u16 {
             let y = self.bounds.top() + self.top_label_height + row_height * (row + 1) - 1.5.mm();
-            let text_height = f64::from(row_height) * 1.9;
             self.instructions.push_text(
                 &self.row_labels[row as usize],
                 text_height,
                 x,
                 y,
-                &self.font,
+                self.font,
             );
+        }
+    }
+
+    fn render_col_labels(&mut self) {
+        // This is DRY
+        let row_height =
+            (self.bounds.height() - self.top_label_height) / self.row_labels.len() as u16;
+        let col_width = (self.bounds.width() - self.left_label_width) / self.cols;
+
+        let labels = vec![
+            "Check calendar",
+            "Inbox Zero",
+            "Code reviews",
+            "",
+            "Brush teeth",
+            "Floss",
+            "",
+            "Play chess",
+            "Check To Do list",
+        ];
+
+        // (159, -21) after rotation.
+        let text_height = f64::from(row_height) * 1.9;
+        for col in 0..min(self.cols, labels.len() as u16) {
+            let x = self.bounds.left() + self.left_label_width + col_width * (col + 1) - 1.0.mm();
+            let y = self.page_height - (self.bounds.top() + self.top_label_height - 1.0.mm());
+            self.instructions.push_state();
+            self.instructions.rotate(90.0);
+            self.instructions.translate(y, -x);
+            // Text position is (0,page_height) because we're placing the text by translating (and rotating)
+            // the translation matrix. Using the two coord systems together is really problematic,
+            // so I'm adjusting for it here, and I should switch to Q1 coords in the near future.
+            self.instructions.push_text(
+                labels[col as usize],
+                text_height,
+                Unit::zero(),
+                self.page_height,
+                self.font,
+            );
+            self.instructions.pop_state();
         }
     }
 
@@ -112,11 +153,12 @@ impl<'a> TableGrid<'a> {
         self.instructions
             .set_fill_color(&Color::Rgb(Rgb::new(0.0, 0.0, 0.0, None)));
         self.render_row_labels();
+        self.render_col_labels();
     }
 }
 
 pub fn table_grid(
-    row_labels: &Vec<String>,
+    row_labels: &[String],
     cols: u16,
     bounds: &WRect,
     top_label_height: Unit,

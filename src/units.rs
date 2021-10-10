@@ -13,6 +13,12 @@ impl From<Unit> for printpdf::Mm {
     }
 }
 
+impl From<&Unit> for printpdf::Mm {
+    fn from(unit: &Unit) -> Self {
+        printpdf::Mm(unit.0)
+    }
+}
+
 impl From<Unit> for f64 {
     fn from(unit: Unit) -> Self {
         unit.0
@@ -62,5 +68,21 @@ impl std::ops::Div<u16> for Unit {
 
     fn div(self, rhs: u16) -> Self::Output {
         Unit(self.0 / rhs as f64)
+    }
+}
+
+impl std::ops::Neg for Unit {
+    type Output = Unit;
+
+    fn neg(self) -> Self::Output {
+        Unit(-(self.0))
+    }
+}
+
+impl std::ops::Neg for &Unit {
+    type Output = Unit;
+
+    fn neg(self) -> Self::Output {
+        Unit(-(self.0))
     }
 }

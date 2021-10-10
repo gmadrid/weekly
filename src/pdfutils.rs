@@ -11,6 +11,22 @@ pub struct Instructions {
 }
 
 impl Instructions {
+    pub fn push_state(&mut self) {
+        self.instructions.push(Instruction::PushState);
+    }
+
+    pub fn pop_state(&mut self) {
+        self.instructions.push(Instruction::PopState);
+    }
+
+    pub fn rotate(&mut self, deg: f64) {
+        self.instructions.push(Instruction::Rotate(deg));
+    }
+
+    pub fn translate(&mut self, x: Unit, y: Unit) {
+        self.instructions.push(Instruction::Translate(x, y));
+    }
+
     pub fn push_shape(&mut self, shape: Line) {
         self.instructions.push(Instruction::Shape(shape));
     }
@@ -66,6 +82,11 @@ pub enum Instruction {
     Shape(Line),
     Attrs(Attributes),
     Text(TextValues),
+
+    PushState,
+    PopState,
+    Rotate(f64),
+    Translate(Unit, Unit),
 }
 
 impl Instruction {
@@ -80,6 +101,14 @@ impl Instruction {
                 (page_height - txt.y).into(),
                 &txt.font,
             ),
+            Instruction::PushState => layer.save_graphics_state(),
+            Instruction::PopState => layer.restore_graphics_state(),
+            Instruction::Rotate(r) => layer.set_ctm(CurTransMat::Rotate(*r)),
+            Instruction::Translate(x, y) => {
+                // This doesn't take into account the Y-axis flip.
+                // TODO: get rid of the Y-axis flip.
+                layer.set_ctm(CurTransMat::Translate(x.into(), y.into()));
+            }
         };
     }
 }

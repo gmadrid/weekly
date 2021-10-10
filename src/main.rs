@@ -69,7 +69,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
         Path::new(&args.output_filename)
             .file_stem()
             .map(|o| o.to_string_lossy())
-            .unwrap_or("Grid".into()),
+            .unwrap_or_else(|| "Grid".into()),
         page_rect.width().into(),
         page_rect.height().into(),
         "Layer 1",
@@ -86,6 +86,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
         &times_bold,
     );
     grid.draw_to_layer(&doc.get_page(page).get_layer(layer), page_rect.height());
+
     doc.save(&mut BufWriter::new(
         File::create(args.output_filename).unwrap(),
     ))

@@ -21,6 +21,7 @@ pub struct TableGrid<'a> {
 
     instructions: Instructions,
     font: &'a IndirectFontRef,
+    width_func: Box<dyn Fn(usize) -> f64>,
 }
 
 impl<'a> TableGrid<'a> {
@@ -40,6 +41,7 @@ impl<'a> TableGrid<'a> {
         left_label_width: Unit,
         page_height: Unit,
         font: &'f IndirectFontRef,
+        width_func: Box<dyn Fn(usize) -> f64>,
     ) -> TableGrid<'f> {
         TableGrid {
             row_labels,
@@ -53,6 +55,7 @@ impl<'a> TableGrid<'a> {
 
             instructions: Default::default(),
             font,
+            width_func,
         }
     }
 
@@ -68,10 +71,12 @@ impl<'a> TableGrid<'a> {
     }
 
     fn render_horizontal_bars(&mut self) {
-        let row_height =
-            (self.bounds.height() - self.top_label_height) / self.rows;
+        let row_height = (self.bounds.height() - self.top_label_height) / self.rows;
+        let wf = &self.width_func;
+        self.instructions.set_stroke_color(&Colors::gray(0.25));
 
         for row in 0..self.rows as u16 {
+            self.instructions.set_stroke_width(wf(row as usize));
             let y = self.bounds.top() + self.top_label_height + row_height * row;
             let line = WLine::line(self.bounds.left(), y, self.bounds.right(), y);
             self.instructions
@@ -94,8 +99,7 @@ impl<'a> TableGrid<'a> {
     }
 
     fn render_row_labels(&mut self) {
-        let row_height =
-            (self.bounds.height() - self.top_label_height) / self.rows;
+        let row_height = (self.bounds.height() - self.top_label_height) / self.rows;
 
         let x = self.bounds.left() + 2.0.mm();
         let text_height = f64::from(row_height) * 1.9;
@@ -113,8 +117,7 @@ impl<'a> TableGrid<'a> {
 
     fn render_col_labels(&mut self) {
         // This is DRY
-        let row_height =
-            (self.bounds.height() - self.top_label_height) / self.rows as u16;
+        let row_height = (self.bounds.height() - self.top_label_height) / self.rows as u16;
         let col_width = (self.bounds.width() - self.left_label_width) / self.cols;
 
         // (159, -21) after rotation.
@@ -148,8 +151,6 @@ impl<'a> TableGrid<'a> {
         self.instructions.set_stroke_color(&Colors::gray(0.75));
         self.render_vertical_bars();
 
-        self.instructions.set_stroke_color(&Colors::gray(0.25));
-        //.set_stroke_color(&Color::Rgb(Rgb::new(0.25, 0.25, 0.25, None)));
         self.render_horizontal_bars();
 
         self.instructions.set_fill_color(&Colors::black());

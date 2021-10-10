@@ -1,5 +1,5 @@
 use argh::FromArgs;
-use chrono::{Datelike, Duration, Local, NaiveDate};
+use chrono::{Datelike, Duration, Local, NaiveDate, Weekday};
 use printpdf::{BuiltinFont, PdfDocument};
 use std::fs::File;
 use std::io::BufWriter;
@@ -54,9 +54,13 @@ fn get_date_names(date: &impl Datelike) -> Vec<String> {
     let num_days = days_in_month(date);
     let first_of_month = first_of_month(date);
 
-    (0..num_days).map(|days| {
-        (first_of_month + Duration::days(days)).format("%b %e").to_string()
-    }).collect()
+    (0..num_days)
+        .map(|days| {
+            (first_of_month + Duration::days(days))
+                .format("%b %e")
+                .to_string()
+        })
+        .collect()
 }
 
 fn default_output_filename(date: &NaiveDate) -> PathBuf {
@@ -71,7 +75,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
     let date = args.date.unwrap_or_else(naive_today);
     let date_names = get_date_names(&date);
 
-    let col_labels: Vec<String> =         vec![
+    let col_labels: Vec<String> = vec![
         "Check calendar",
         "Inbox Zero",
         "Code reviews",
@@ -81,11 +85,14 @@ fn main_func(args: Args) -> weekly::Result<()> {
         "",
         "Play chess",
         "Check To Do list",
-    ].iter().map(|s| s.to_string()).collect();
+    ]
+    .iter()
+    .map(|s| s.to_string())
+    .collect();
 
     let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches());
     let table_bounds = page_rect.inset_all(
-        0.25.inches() + 0.125.inches(),  // Extra 1/8" for the rings.
+        0.25.inches() + 0.125.inches(), // Extra 1/8" for the rings.
         0.25.inches(),
         0.25.inches(),
         0.25.inches(),
@@ -106,6 +113,16 @@ fn main_func(args: Args) -> weekly::Result<()> {
     );
     let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
+    let first = first_of_month(&date);
+    let width_func = move |row: usize| {
+        let date = first + Duration::days(row as i64);
+        if date.weekday() == Weekday::Sun {
+            1.0
+        } else {
+            0.0
+        }
+    };
+
     Builder::new()
         .doc_title(doc_title)
         .row_labels(&date_names)
@@ -116,6 +133,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
         .left_label_width(15.0.mm())
         .page_height(page_rect.height())
         .font(&times_bold)
+        .width_func(width_func)
         .generate_instructions()
         .draw_to_layer(&doc.get_page(page).get_layer(layer), page_rect.height());
 

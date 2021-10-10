@@ -3,7 +3,7 @@ use crate::units::Unit;
 use crate::{Instructions, NumericUnit, WRect};
 use printpdf::IndirectFontRef;
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct Builder<'a> {
     doc_title: Option<String>,
     row_labels: Option<&'a [String]>,
@@ -15,6 +15,7 @@ pub struct Builder<'a> {
     left_label_width: Option<Unit>,
     page_height: Option<Unit>,
     font: Option<&'a IndirectFontRef>,
+    width_func: Option<Box<dyn Fn(usize) -> f64>>,
 }
 
 fn set_to_default_if_none<T>(opt: &mut Option<T>)
@@ -62,6 +63,7 @@ impl<'a> Builder<'a> {
             self.left_label_width.unwrap(),
             self.page_height.unwrap(),
             self.font.unwrap(),
+            self.width_func.take().unwrap(),
         )
     }
 
@@ -83,9 +85,17 @@ impl<'a> Builder<'a> {
 
         set_if_none_with(&mut self.page_height, || 8.5.inches());
 
+        set_if_none_with(&mut self.width_func, || Box::new(|_| 0.0));
+
         if self.font.is_none() {
             panic!("A font must be set to create a grid.");
         }
+    }
+
+    pub fn width_func(mut self, f: impl Fn(usize) -> f64 + 'static) -> Builder<'a> {
+        let bf = Box::new(f);
+        self.width_func = Some(bf);
+        self
     }
 
     pub fn doc_title(mut self, title: impl Into<String>) -> Builder<'a> {

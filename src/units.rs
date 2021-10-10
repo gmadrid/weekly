@@ -1,9 +1,21 @@
 #[derive(Debug, PartialEq, Copy, Clone)]
-pub struct Unit(pub(crate) f64);
+pub struct Unit(f64);
 
 impl Unit {
     pub fn zero() -> Unit {
         Unit(0.0)
+    }
+
+    pub fn abs(self) -> Unit {
+        Unit(self.0.abs())
+    }
+
+    pub fn min(self, other: Unit) -> Unit {
+        Unit(self.0.min(other.0))
+    }
+
+    pub fn max(self, other: Unit) -> Unit {
+        Unit(self.0.max(other.0))
     }
 }
 

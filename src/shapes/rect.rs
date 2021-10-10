@@ -26,28 +26,27 @@ impl WRect {
     }
 
     pub fn height(&self) -> Unit {
-        // TODO: get rid of these .0 fields.
-        Unit(f64::abs((self.y2 - self.y1).0))
+        (self.y2 - self.y1).abs()
     }
 
     pub fn width(&self) -> Unit {
-        Unit(f64::abs((self.x2 - self.x1).0))
+        (self.x2 - self.x1).abs()
     }
 
     pub fn left(&self) -> Unit {
-        Unit(self.x1.0.min(self.x2.0))
+        self.x1.min(self.x2)
     }
 
     pub fn right(&self) -> Unit {
-        Unit(self.x1.0.max(self.x2.0))
+        self.x1.max(self.x2)
     }
 
     pub fn top(&self) -> Unit {
-        Unit(self.y1.0.min(self.y2.0))
+        self.y1.min(self.y2)
     }
 
     pub fn bottom(&self) -> Unit {
-        Unit(self.y1.0.max(self.y2.0))
+        self.y1.max(self.y2)
     }
 
     pub fn inset(&self, xdelta: Unit, ydelta: Unit) -> WRect {

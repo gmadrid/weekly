@@ -2,7 +2,7 @@ use crate::units::Unit;
 use printpdf::*;
 
 pub fn point_pair(x: Unit, y: Unit) -> (Point, bool) {
-    (Point::new(Mm(x.0), Mm(y.0)), false)
+    (Point::new(x.into(), y.into()), false)
 }
 
 #[derive(Default, Debug)]

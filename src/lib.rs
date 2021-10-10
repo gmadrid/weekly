@@ -15,7 +15,6 @@ pub use pdfutils::Instructions;
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
 pub use units::NumericUnit;
-//pub use units::Unit; // TODO: can you get rid of this?
 
 // mod shape;
 //

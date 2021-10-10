@@ -74,6 +74,18 @@ fn main_func(args: Args) -> weekly::Result<()> {
     let date = args.date.unwrap_or_else(naive_today);
     let date_names = get_date_names(&date);
 
+    let col_labels: Vec<String> =         vec![
+        "Check calendar",
+        "Inbox Zero",
+        "Code reviews",
+        "",
+        "Brush teeth",
+        "Floss",
+        "",
+        "Play chess",
+        "Check To Do list",
+    ].iter().map(|s| s.to_string()).collect();
+
     let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches());
     let table_bounds = page_rect.inset_all(
         0.25.inches() + 0.125.inches(),
@@ -100,6 +112,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
     Builder::new()
         .doc_title(doc_title)
         .row_labels(&date_names)
+        .col_labels(&col_labels)
         .num_cols(cols as usize)
         .bounds(table_bounds)
         .top_label_height(top_box_height)

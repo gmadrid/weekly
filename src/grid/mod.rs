@@ -5,7 +5,11 @@ use crate::{NumericUnit, WRect};
 use printpdf::*;
 use std::cmp::min;
 
-struct TableGrid<'a> {
+mod builder;
+pub use builder::Builder;
+
+// Maybe the builder should return instructsions, and not the TableGrid.
+pub struct TableGrid<'a> {
     row_labels: &'a [String],
     cols: u16,
     bounds: WRect,
@@ -18,11 +22,16 @@ struct TableGrid<'a> {
 }
 
 impl<'a> TableGrid<'a> {
+    pub fn instructions(mut self) -> Instructions {
+        self.generate_grid();
+        self.instructions
+    }
+
     fn new<'f>(
         _doc_title: &str, // unused for now.
         row_labels: &'f [String],
         cols: u16,
-        bounds: &WRect,
+        bounds: WRect,
         top_label_height: Unit,
         left_label_width: Unit,
         page_height: Unit,
@@ -31,7 +40,7 @@ impl<'a> TableGrid<'a> {
         TableGrid {
             row_labels,
             cols,
-            bounds: (*bounds).clone(),
+            bounds: bounds,
             top_label_height,
             left_label_width,
             page_height,
@@ -153,28 +162,4 @@ impl<'a> TableGrid<'a> {
         self.render_row_labels();
         self.render_col_labels();
     }
-}
-
-pub fn table_grid(
-    doc_title: &str,
-    row_labels: &[String],
-    cols: u16,
-    bounds: &WRect,
-    top_label_height: Unit,
-    left_label_width: Unit,
-    page_height: Unit,
-    font: &IndirectFontRef,
-) -> Instructions {
-    let mut grid = TableGrid::new(
-        doc_title,
-        row_labels,
-        cols,
-        bounds,
-        top_label_height,
-        left_label_width,
-        page_height,
-        font,
-    );
-    grid.generate_grid();
-    grid.instructions
 }

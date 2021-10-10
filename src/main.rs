@@ -4,7 +4,7 @@ use printpdf::{BuiltinFont, PdfDocument};
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
-use weekly::{table_grid, NumericUnit, WRect};
+use weekly::{Builder, NumericUnit, WRect};
 
 const DEFAULT_NUM_COLS: u16 = 25;
 const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
@@ -97,17 +97,17 @@ fn main_func(args: Args) -> weekly::Result<()> {
     );
     let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
-    let grid = table_grid(
-        &doc_title,
-        &date_names,
-        cols,
-        &table_bounds,
-        top_box_height,
-        15.0.mm(),
-        page_rect.height(),
-        &times_bold,
-    );
-    grid.draw_to_layer(&doc.get_page(page).get_layer(layer), page_rect.height());
+    Builder::new()
+        .doc_title(doc_title)
+        .row_labels(&date_names)
+        .num_cols(cols as usize)
+        .bounds(table_bounds)
+        .top_label_height(top_box_height)
+        .left_label_width(15.0.mm())
+        .page_height(page_rect.height())
+        .font(&times_bold)
+        .generate_instructions()
+        .draw_to_layer(&doc.get_page(page).get_layer(layer), page_rect.height());
 
     doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
         .unwrap();

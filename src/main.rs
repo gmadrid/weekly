@@ -41,6 +41,10 @@ fn days_in_month(date: &impl Datelike) -> i64 {
         .num_days()
 }
 
+fn first_of_month(date: &impl Datelike) -> NaiveDate {
+    NaiveDate::from_ymd(date.year(), date.month(), 1)
+}
+
 fn naive_today() -> NaiveDate {
     let today = Local::now().date();
     NaiveDate::from_ymd(today.year(), today.month(), today.day())
@@ -48,18 +52,11 @@ fn naive_today() -> NaiveDate {
 
 fn get_date_names(date: &impl Datelike) -> Vec<String> {
     let num_days = days_in_month(date);
-    let first_of_month = NaiveDate::from_ymd(date.year(), date.month(), 1);
+    let first_of_month = first_of_month(date);
 
-    // TODO: rewrite with collect()
-    let mut labels = vec![];
-    for days in 0..num_days {
-        labels.push(
-            (first_of_month + Duration::days(days))
-                .format("%b %e")
-                .to_string(),
-        );
-    }
-    labels
+    (0..num_days).map(|days| {
+        (first_of_month + Duration::days(days)).format("%b %e").to_string()
+    }).collect()
 }
 
 fn default_output_filename(date: &NaiveDate) -> PathBuf {
@@ -88,7 +85,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
 
     let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches());
     let table_bounds = page_rect.inset_all(
-        0.25.inches() + 0.125.inches(),
+        0.25.inches() + 0.125.inches(),  // Extra 1/8" for the rings.
         0.25.inches(),
         0.25.inches(),
         0.25.inches(),

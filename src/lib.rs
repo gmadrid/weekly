@@ -16,21 +16,3 @@ pub use pdfutils::Instructions;
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
 pub use units::NumericUnit;
-
-// mod shape;
-//
-//
-//
-//
-//
-// mod cal;
-// //mod line;
-// mod pdfutils;
-// mod rect;
-// mod weeks;
-//
-// pub use cal::print_cal_for_month;
-// pub use line::PLine;
-// pub use pdfutils::{inches_to_mm, point_pair};
-// pub use rect::PRect;
-// pub use weeks::{weeks_for_month, LocalDate, WeekDesc};

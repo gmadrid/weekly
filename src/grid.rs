@@ -19,6 +19,7 @@ struct TableGrid<'a> {
 
 impl<'a> TableGrid<'a> {
     fn new<'f>(
+        _doc_title: &str, // unused for now.
         row_labels: &'f [String],
         cols: u16,
         bounds: &WRect,
@@ -158,6 +159,7 @@ impl<'a> TableGrid<'a> {
 }
 
 pub fn table_grid(
+    doc_title: &str,
     row_labels: &[String],
     cols: u16,
     bounds: &WRect,
@@ -167,6 +169,7 @@ pub fn table_grid(
     font: &IndirectFontRef,
 ) -> Instructions {
     let mut grid = TableGrid::new(
+        doc_title,
         row_labels,
         cols,
         bounds,

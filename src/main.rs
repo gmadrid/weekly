@@ -3,12 +3,11 @@ use chrono::{Datelike, Duration, Local, NaiveDate};
 use printpdf::{BuiltinFont, PdfDocument};
 use std::fs::File;
 use std::io::BufWriter;
-use std::path::Path;
+use std::path::PathBuf;
 use weekly::{table_grid, NumericUnit, WRect};
 
 const DEFAULT_NUM_COLS: u16 = 25;
 const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
-const DEFAULT_OUTPUT_FILE: &str = "table_grid.pdf";
 
 #[derive(Debug, FromArgs)]
 /// Create a monthly checklist.
@@ -17,15 +16,20 @@ struct Args {
     /// number of columns in the grid
     num_cols: u16,
 
-    #[argh(positional, default = "DEFAULT_OUTPUT_FILE.to_string()")]
-    output_filename: String,
+    #[argh(option, short = 'o')]
+    /// name of the output file. Defaults to the current month.
+    output_filename: Option<PathBuf>,
 
     #[argh(option, default = "DEFAULT_TOP_LABEL_HEIGHT")]
     /// height (in inches) of the top label area.
     top_label_height: f64,
+
+    /// month for which to generate the checklist
+    #[argh(positional)]
+    date: Option<NaiveDate>,
 }
 
-fn days_in_month(date: &NaiveDate) -> i64 {
+fn days_in_month(date: &impl Datelike) -> i64 {
     let next_month = if date.month() == 12 {
         NaiveDate::from_ymd(date.year() + 1, 1, 1)
     } else {
@@ -37,15 +41,16 @@ fn days_in_month(date: &NaiveDate) -> i64 {
         .num_days()
 }
 
-fn get_date_names() -> Vec<String> {
+fn naive_today() -> NaiveDate {
     let today = Local::now().date();
-    let num_days = days_in_month(&NaiveDate::from_ymd(
-        today.year(),
-        today.month(),
-        today.day(),
-    ));
-    let first_of_month = NaiveDate::from_ymd(today.year(), today.month(), 1);
+    NaiveDate::from_ymd(today.year(), today.month(), today.day())
+}
 
+fn get_date_names(date: &impl Datelike) -> Vec<String> {
+    let num_days = days_in_month(date);
+    let first_of_month = NaiveDate::from_ymd(date.year(), date.month(), 1);
+
+    // TODO: rewrite with collect()
     let mut labels = vec![];
     for days in 0..num_days {
         labels.push(
@@ -57,8 +62,17 @@ fn get_date_names() -> Vec<String> {
     labels
 }
 
+fn default_output_filename(date: &NaiveDate) -> PathBuf {
+    format!("daily_checklist_{}.pdf", date.format("%Y-%m")).into()
+}
+
+fn default_doc_title(date: &NaiveDate) -> String {
+    format!("Daily Checklist - {}", date.format("%B %Y"))
+}
+
 fn main_func(args: Args) -> weekly::Result<()> {
-    let date_names = get_date_names();
+    let date = args.date.unwrap_or_else(naive_today);
+    let date_names = get_date_names(&date);
 
     let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches());
     let table_bounds = page_rect.inset_all(
@@ -70,11 +84,13 @@ fn main_func(args: Args) -> weekly::Result<()> {
     let top_box_height = args.top_label_height.inches();
     let cols = args.num_cols;
 
+    let output_filename = args
+        .output_filename
+        .unwrap_or_else(|| default_output_filename(&date));
+    let doc_title = default_doc_title(&date);
+
     let (doc, page, layer) = PdfDocument::new(
-        Path::new(&args.output_filename)
-            .file_stem()
-            .map(|o| o.to_string_lossy())
-            .unwrap_or_else(|| "Grid".into()),
+        &doc_title,
         page_rect.width().into(),
         page_rect.height().into(),
         "Layer 1",
@@ -82,6 +98,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
     let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
     let grid = table_grid(
+        &doc_title,
         &date_names,
         cols,
         &table_bounds,
@@ -92,10 +109,8 @@ fn main_func(args: Args) -> weekly::Result<()> {
     );
     grid.draw_to_layer(&doc.get_page(page).get_layer(layer), page_rect.height());
 
-    doc.save(&mut BufWriter::new(
-        File::create(args.output_filename).unwrap(),
-    ))
-    .unwrap();
+    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
+        .unwrap();
 
     Ok(())
 }

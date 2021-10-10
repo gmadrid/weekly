@@ -1,11 +1,11 @@
 use crate::pdfutils::Instructions;
 use crate::shapes::line::WLine;
 use crate::units::Unit;
-use crate::WRect;
+use crate::{NumericUnit, WRect};
 use printpdf::*;
 
-struct TableGrid {
-    rows: u16,
+struct TableGrid<'a> {
+    row_labels: Vec<String>,
     cols: u16,
     bounds: WRect,
     top_label_height: Unit,
@@ -13,19 +13,21 @@ struct TableGrid {
     page_height: Unit,
 
     instructions: Instructions,
+    font: &'a IndirectFontRef,
 }
 
-impl TableGrid {
-    fn new(
-        rows: u16,
+impl<'a> TableGrid<'a> {
+    fn new<'f>(
+        row_labels: &Vec<String>,
         cols: u16,
         bounds: &WRect,
         top_label_height: Unit,
         left_label_width: Unit,
         page_height: Unit,
-    ) -> TableGrid {
+        font: &'f IndirectFontRef,
+    ) -> TableGrid<'f> {
         TableGrid {
-            rows,
+            row_labels: row_labels.clone(),
             cols,
             bounds: (*bounds).clone(),
             top_label_height,
@@ -33,6 +35,7 @@ impl TableGrid {
             page_height,
 
             instructions: Default::default(),
+            font: font,
         }
     }
 
@@ -48,9 +51,10 @@ impl TableGrid {
     }
 
     fn render_horizontal_bars(&mut self) {
-        let row_height = (self.bounds.height() - self.top_label_height) / self.rows;
+        let row_height =
+            (self.bounds.height() - self.top_label_height) / self.row_labels.len() as u16;
 
-        for row in 0..self.rows {
+        for row in 0..self.row_labels.len() as u16 {
             let y = self.bounds.top() + self.top_label_height + row_height * row;
             let line = WLine::line(self.bounds.left(), y, self.bounds.right(), y);
             self.instructions
@@ -65,11 +69,28 @@ impl TableGrid {
         for col in 0..self.cols {
             if col % 2 == 0 {
                 let x = self.bounds.left() + self.left_label_width + col_width * col;
-                let rect =
-                    WRect::new(x, self.bounds.top(), x + col_width, self.bounds.bottom());
+                let rect = WRect::new(x, self.bounds.top(), x + col_width, self.bounds.bottom());
                 self.instructions
                     .push_shape(rect.as_shape(self.page_height));
             }
+        }
+    }
+
+    fn render_row_labels(&mut self) {
+        let row_height =
+            (self.bounds.height() - self.top_label_height) / self.row_labels.len() as u16;
+
+        let x = self.bounds.left() + 2.0.mm();
+        for row in 0..self.row_labels.len() as u16 {
+            let y = self.bounds.top() + self.top_label_height + row_height * (row + 1) - 1.5.mm();
+            let text_height = f64::from(row_height) * 1.9;
+            self.instructions.push_text(
+                &self.row_labels[row as usize],
+                text_height,
+                x,
+                y,
+                &self.font,
+            );
         }
     }
 
@@ -87,24 +108,30 @@ impl TableGrid {
         self.instructions
             .set_stroke_color(&Color::Rgb(Rgb::new(0.25, 0.25, 0.25, None)));
         self.render_horizontal_bars();
+
+        self.instructions
+            .set_fill_color(&Color::Rgb(Rgb::new(0.0, 0.0, 0.0, None)));
+        self.render_row_labels();
     }
 }
 
 pub fn table_grid(
-    rows: u16,
+    row_labels: &Vec<String>,
     cols: u16,
     bounds: &WRect,
     top_label_height: Unit,
     left_label_width: Unit,
     page_height: Unit,
+    font: &IndirectFontRef,
 ) -> Instructions {
     let mut grid = TableGrid::new(
-        rows,
+        row_labels,
         cols,
         bounds,
         top_label_height,
         left_label_width,
         page_height,
+        font,
     );
     grid.generate_grid();
     grid.instructions

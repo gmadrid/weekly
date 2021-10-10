@@ -13,6 +13,12 @@ impl From<Unit> for printpdf::Mm {
     }
 }
 
+impl From<Unit> for f64 {
+    fn from(unit: Unit) -> Self {
+        unit.0
+    }
+}
+
 pub trait NumericUnit {
     fn inches(self) -> Unit;
     fn mm(self) -> Unit;

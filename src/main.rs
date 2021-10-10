@@ -1,62 +1,97 @@
 use argh::FromArgs;
-use printpdf::PdfDocument;
+use chrono::{Datelike, Duration, Local, NaiveDate};
+use printpdf::{BuiltinFont, PdfDocument};
 use std::fs::File;
 use std::io::BufWriter;
-use weekly::{table_grid, Instructions, NumericUnit, WRect};
+use std::path::Path;
+use weekly::{table_grid, NumericUnit, WRect};
+
+const DEFAULT_NUM_COLS: u16 = 25;
+const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
+const DEFAULT_OUTPUT_FILE: &str = "table_grid.pdf";
 
 #[derive(Debug, FromArgs)]
 /// Create a monthly checklist.
 struct Args {
-    #[argh(positional, default = "\"default.pdf\".to_string()")]
+    #[argh(option, long = "cols", default = "DEFAULT_NUM_COLS")]
+    /// number of columns in the grid
+    num_cols: u16,
+
+    #[argh(positional, default = "DEFAULT_OUTPUT_FILE.to_string()")]
     output_filename: String,
+
+    #[argh(option, default = "DEFAULT_TOP_LABEL_HEIGHT")]
+    /// height (in inches) of the top label area.
+    top_label_height: f64,
+}
+
+fn days_in_month(date: &NaiveDate) -> i64 {
+    let next_month = if date.month() == 12 {
+        NaiveDate::from_ymd(date.year() + 1, 1, 1)
+    } else {
+        NaiveDate::from_ymd(date.year(), date.month() + 1, 1)
+    };
+
+    next_month
+        .signed_duration_since(NaiveDate::from_ymd(date.year(), date.month(), 1))
+        .num_days()
+}
+
+fn get_date_names() -> Vec<String> {
+    let today = Local::now().date();
+    let num_days = days_in_month(&NaiveDate::from_ymd(
+        today.year(),
+        today.month(),
+        today.day(),
+    ));
+    let first_of_month = NaiveDate::from_ymd(today.year(), today.month(), 1);
+
+    let mut labels = vec![];
+    for days in 0..num_days {
+        labels.push(
+            (first_of_month + Duration::days(days))
+                .format("%b %e")
+                .to_string(),
+        );
+    }
+    labels
 }
 
 fn main_func(args: Args) -> weekly::Result<()> {
+    let date_names = get_date_names();
+
     let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches());
     let table_bounds = page_rect.inset(0.25.inches(), 0.25.inches());
-    let top_box_height = 2.0.inches();
-    let rows = 31;
-    let cols = 20;
+    let top_box_height = args.top_label_height.inches();
+    let cols = args.num_cols;
+
+    let (doc, page, layer) = PdfDocument::new(
+        Path::new(&args.output_filename)
+            .file_stem()
+            .map(|o| o.to_string_lossy())
+            .unwrap_or("Grid".into()),
+        page_rect.width().into(),
+        page_rect.height().into(),
+        "Layer 1",
+    );
+    let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
     let grid = table_grid(
-        rows,
+        &date_names,
         cols,
         &table_bounds,
         top_box_height,
         15.0.mm(),
         page_rect.height(),
+        &times_bold,
     );
-    draw_to_pdf(grid, &args.output_filename, page_rect);
+    grid.draw_to_layer(&doc.get_page(page).get_layer(layer), page_rect.height());
+    doc.save(&mut BufWriter::new(
+        File::create(args.output_filename).unwrap(),
+    ))
+    .unwrap();
 
     Ok(())
-}
-
-fn draw_to_pdf(instructions: Instructions, output_filename: &str, page_rect: WRect) {
-    let (doc, page, layer) = PdfDocument::new(
-        "test",
-        page_rect.width().into(),
-        page_rect.height().into(),
-        "Layer 1",
-    );
-    let current_layer = doc.get_page(page).get_layer(layer);
-    instructions.draw_to_layer(&current_layer);
-
-    //    let printable_area = page_size.inset(6.0, 5.0);
-    // printable margins appear to be top/bottom: 5mm, left: 13mm, right: 20mm
-    // let printable_area = page_size
-    //     .rmove(14.0, 5.0)
-    //     .with_width(page_size.width - 13.0 - 20.0)
-    //     .with_height(page_size.height - 2.0 * 5.0);
-
-    // current_layer.set_outline_color());
-    // current_layer.set_outline_thickness(0.0);
-    //
-    // for line in lines {
-    //     current_layer.add_shape(line.as_shape(page_rect.height()));
-    // }
-
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
 }
 
 fn main() {

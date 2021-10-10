@@ -61,7 +61,12 @@ fn main_func(args: Args) -> weekly::Result<()> {
     let date_names = get_date_names();
 
     let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches());
-    let table_bounds = page_rect.inset(0.25.inches(), 0.25.inches());
+    let table_bounds = page_rect.inset_all(
+        0.25.inches() + 0.125.inches(),
+        0.25.inches(),
+        0.25.inches(),
+        0.25.inches(),
+    );
     let top_box_height = args.top_label_height.inches();
     let cols = args.num_cols;
 

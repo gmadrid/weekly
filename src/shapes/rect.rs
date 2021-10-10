@@ -59,6 +59,21 @@ impl WRect {
         }
     }
 
+    pub fn inset_all(
+        &self,
+        left_inset: Unit,
+        top_inset: Unit,
+        right_inset: Unit,
+        bottom_inset: Unit,
+    ) -> WRect {
+        WRect {
+            x1: self.x1 + left_inset,
+            y1: self.y1 + top_inset,
+            x2: self.x2 - right_inset,
+            y2: self.y2 - bottom_inset,
+        }
+    }
+
     pub fn as_shape(&self, page_height: Unit) -> Line {
         Line {
             points: vec![

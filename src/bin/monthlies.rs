@@ -1,32 +1,16 @@
-use argh::FromArgs;
-use chrono::{Datelike, Local, NaiveDate};
+use chrono::NaiveDate;
 use printpdf::*;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
-use weekly::{Builder, NumericUnit, WRect};
+use weekly::{Builder, Datetools, NumericUnit, WRect};
 
-#[derive(FromArgs)]
-/// Generates a checklist of monthly tasks.
-struct Args {}
-
-fn next_month(date: &NaiveDate) -> NaiveDate {
-    if date.month() == 12 {
-        NaiveDate::from_ymd(date.year() + 1, 1, 1)
-    } else {
-        NaiveDate::from_ymd(date.year(), date.month() + 1, 1)
-    }
-}
-
-fn months_from_date(date: &NaiveDate, n: usize) -> Vec<String> {
-    // unwrap: first of month is always valid.
-    let first_of_month: NaiveDate = date.with_day(1).unwrap();
-
-    let mut curr_month = first_of_month;
+fn names_for_months(start_date: &NaiveDate, n: usize) -> Vec<String> {
+    let mut month = start_date.first_of_month();
     let mut output = vec![];
     for _ in 0..n {
-        output.push(curr_month.format("%b %Y").to_string());
-        curr_month = next_month(&curr_month);
+        output.push(month.format("%b %Y").to_string());
+        month = month.next_month(); //  next_month(&curr_month);
     }
     output
 }
@@ -42,8 +26,8 @@ fn default_doc_title(date: &NaiveDate) -> String {
 fn main_func() -> weekly::Result<()> {
     let num_rows = 35;
     let num_cols = 20;
-    let date = Local::now().date().naive_local();
-    let col_labels = months_from_date(&date, num_cols);
+    let date = weekly::today();
+    let col_labels = names_for_months(&date, num_cols);
     let row_labels: Vec<String> = vec![
         "Pay AmEx",
         "Pay Chase",

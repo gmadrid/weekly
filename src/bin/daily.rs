@@ -1,10 +1,10 @@
 use argh::FromArgs;
-use chrono::{Datelike, Duration, Local, NaiveDate, Weekday};
+use chrono::{Datelike, Duration, NaiveDate, Weekday};
 use printpdf::{BuiltinFont, PdfDocument};
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
-use weekly::{Builder, NumericUnit, WRect};
+use weekly::{Builder, Datetools, NumericUnit, WRect};
 
 const DEFAULT_NUM_COLS: u16 = 25;
 const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
@@ -19,37 +19,10 @@ struct Args {
     date: Vec<NaiveDate>,
 }
 
-fn days_in_month(date: &impl Datelike) -> i64 {
-    let next_month = if date.month() == 12 {
-        NaiveDate::from_ymd(date.year() + 1, 1, 1)
-    } else {
-        NaiveDate::from_ymd(date.year(), date.month() + 1, 1)
-    };
-
-    next_month
-        .signed_duration_since(NaiveDate::from_ymd(date.year(), date.month(), 1))
-        .num_days()
-}
-
-fn first_of_month(date: &impl Datelike) -> NaiveDate {
-    NaiveDate::from_ymd(date.year(), date.month(), 1)
-}
-
-fn naive_today() -> NaiveDate {
-    let today = Local::now().date();
-    NaiveDate::from_ymd(today.year(), today.month(), today.day())
-}
-
 fn get_date_names(date: &impl Datelike) -> Vec<String> {
-    let num_days = days_in_month(date);
-    let first_of_month = first_of_month(date);
-
-    (0..num_days)
-        .map(|days| {
-            (first_of_month + Duration::days(days))
-                .format("%b %e")
-                .to_string()
-        })
+    date.dates_in_month()
+        .into_iter()
+        .map(|d| d.format("%b %e").to_string())
         .collect()
 }
 
@@ -106,7 +79,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     );
     let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
-    let first = first_of_month(date);
+    let first = date.first_of_month();
     let width_func = move |row: usize| {
         let date = first + Duration::days(row as i64);
         if date.weekday() == Weekday::Sun {
@@ -139,7 +112,7 @@ fn main() {
     let args: Args = argh::from_env();
 
     if args.date.is_empty() {
-        if let Err(err) = main_func(&naive_today()) {
+        if let Err(err) = main_func(&weekly::today()) {
             eprintln!("Error: {:?}", err);
         }
     } else {

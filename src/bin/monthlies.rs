@@ -50,6 +50,7 @@ fn main_func() -> weekly::Result<()> {
         "Pay Fidelity",
         "Pay Capital One",
         "Pay mortgage",
+        "Balance checkbook",
         "",
         "Check smoke alarms",
         "Change sleep equip.",
@@ -89,7 +90,6 @@ fn main_func() -> weekly::Result<()> {
         .top_label_height(1.0.inches())
         .left_label_width(1.5.inches())
         .font(&times_bold)
-        //        .width_func(width_func)
         .generate_instructions()
         .draw_to_layer(&doc.get_page(page).get_layer(layer));
 

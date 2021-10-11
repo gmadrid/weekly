@@ -94,8 +94,8 @@ fn main_func(args: Args) -> weekly::Result<()> {
     .map(|s| s.to_string())
     .collect();
 
-    let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches())
-        .move_to(0.0.inches(), 8.5.inches());
+    let page_rect =
+        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
     let table_bounds = page_rect.inset_all_q1(
         0.25.inches() + 0.125.inches(), // Extra 1/8" for the rings.
         0.25.inches(),

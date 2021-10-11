@@ -98,7 +98,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
         .top_label_height(top_box_height)
         .left_label_width(15.0.mm())
         .font(&times_bold)
-        .width_func(width_func)
+        .width_func(&width_func)
         .generate_instructions()
         .draw_to_layer(&doc.get_page(page).get_layer(layer));
 

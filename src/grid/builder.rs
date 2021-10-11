@@ -14,28 +14,7 @@ pub struct Builder<'a> {
     top_label_height: Option<Unit>,
     left_label_width: Option<Unit>,
     font: Option<&'a IndirectFontRef>,
-    width_func: Option<Box<dyn Fn(usize) -> f64>>,
-}
-
-fn set_to_default_if_none<T>(opt: &mut Option<T>)
-where
-    T: Default,
-{
-    if opt.is_none() {
-        opt.replace(T::default());
-    }
-}
-
-fn set_if_none<T>(opt: &mut Option<T>, value: T) {
-    if opt.is_none() {
-        opt.replace(value);
-    }
-}
-
-fn set_if_none_with<T>(opt: &mut Option<T>, f: impl Fn() -> T) {
-    if opt.is_none() {
-        opt.replace(f());
-    }
+    width_func: Option<&'a dyn Fn(usize) -> f64>,
 }
 
 impl<'a> Builder<'a> {
@@ -43,54 +22,46 @@ impl<'a> Builder<'a> {
         Builder::default()
     }
 
-    pub fn generate_instructions(&mut self) -> Instructions {
+    pub fn generate_instructions(&self) -> Instructions {
         self.build().instructions()
     }
 
-    fn build(&mut self) -> TableGrid<'a> {
-        // TODO: should this really be mutable self?
-        self.fill_missing();
+    fn build(&self) -> TableGrid<'a> {
+        let row_labels = self.row_labels.unwrap_or_default();
+        let col_labels = self.col_labels.unwrap_or_default();
 
-        TableGrid::new(
-            self.doc_title.as_ref().unwrap(),
-            self.row_labels.unwrap(),
-            self.col_labels.unwrap(),
-            self.num_rows.unwrap(),
-            self.num_cols.unwrap(),
-            self.bounds.clone().unwrap(),
-            self.top_label_height.unwrap(),
-            self.left_label_width.unwrap(),
-            self.font.unwrap(),
-            self.width_func.take().unwrap(),
-        )
-    }
+        let rows = self.num_rows.unwrap_or_else(|| row_labels.len());
+        let cols = self.num_cols.unwrap_or_else(|| col_labels.len());
 
-    fn fill_missing(&mut self) {
-        set_to_default_if_none(&mut self.doc_title);
-        set_to_default_if_none(&mut self.row_labels);
-        set_to_default_if_none(&mut self.col_labels);
+        let bounds = self
+            .bounds
+            .clone()
+            .unwrap_or_else(|| WRect::with_dimensions(1.0.inches(), 1.0.inches()));
+        let top_label_height = self.top_label_height.unwrap_or_else(|| 0.5.inches());
+        let left_label_width = self.left_label_width.unwrap_or_else(|| 0.5.inches());
 
-        // unwrap, we just set this to a valid value.
-        set_if_none(&mut self.num_rows, self.row_labels.unwrap().len());
-        // unwrap, we just set this to a valid value.
-        set_if_none(&mut self.num_cols, self.col_labels.unwrap().len());
-
-        set_if_none_with(&mut self.bounds, || {
-            WRect::with_dimensions(1.0.inches(), 1.0.inches())
-        });
-        set_if_none_with(&mut self.top_label_height, || 1.0.inches());
-        set_if_none_with(&mut self.left_label_width, || 1.0.inches());
-
-        set_if_none_with(&mut self.width_func, || Box::new(|_| 0.0));
-
-        if self.font.is_none() {
+        let font = if let Some(font) = self.font {
+            font
+        } else {
             panic!("A font must be set to create a grid.");
+        };
+
+        // TODO: do something with doc_title.
+        TableGrid {
+            row_labels,
+            col_labels,
+            rows,
+            cols,
+            bounds,
+            top_label_height,
+            left_label_width,
+            font,
+            width_func: self.width_func,
         }
     }
 
-    pub fn width_func(mut self, f: impl Fn(usize) -> f64 + 'static) -> Builder<'a> {
-        let bf = Box::new(f);
-        self.width_func = Some(bf);
+    pub fn width_func(mut self, f: &'a (dyn Fn(usize) -> f64)) -> Builder<'a> {
+        self.width_func = Some(f);
         self
     }
 

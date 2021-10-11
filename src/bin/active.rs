@@ -37,7 +37,11 @@ fn main() {
     let layer = doc.get_page(page).get_layer(layer);
     instructions.draw_to_layer(&layer);
 
-    let (page_2_index, layer_2_index) = doc.add_page(page_bounds.width().into(), page_bounds.height().into(), "Layer 2");
+    let (page_2_index, layer_2_index) = doc.add_page(
+        page_bounds.width().into(),
+        page_bounds.height().into(),
+        "Layer 2",
+    );
     let layer_2 = doc.get_page(page_2_index).get_layer(layer_2_index);
     instructions.draw_to_layer(&layer_2);
 

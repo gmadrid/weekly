@@ -12,17 +12,9 @@ const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
 #[derive(Debug, FromArgs)]
 /// Create a monthly checklist.
 struct Args {
-    #[argh(option, long = "cols", default = "DEFAULT_NUM_COLS")]
-    /// number of columns in the grid
-    num_cols: u16,
-
     #[argh(option, short = 'o')]
     /// name of the output file. Defaults to the current month.
     output_filename: Option<PathBuf>,
-
-    #[argh(option, default = "DEFAULT_TOP_LABEL_HEIGHT")]
-    /// height (in inches) of the top label area.
-    top_label_height: f64,
 
     /// month for which to generate the checklist
     #[argh(positional)]
@@ -103,8 +95,8 @@ fn main_func(args: Args) -> weekly::Result<()> {
         0.25.inches(),
     );
 
-    let top_box_height = args.top_label_height.inches();
-    let cols = args.num_cols;
+    let top_box_height = DEFAULT_TOP_LABEL_HEIGHT.inches();
+    let cols = DEFAULT_NUM_COLS;
 
     let output_filename = args
         .output_filename

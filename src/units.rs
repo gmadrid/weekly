@@ -67,18 +67,18 @@ impl std::ops::Sub for Unit {
     }
 }
 
-impl std::ops::Mul<u16> for Unit {
+impl std::ops::Mul<usize> for Unit {
     type Output = Unit;
 
-    fn mul(self, rhs: u16) -> Self::Output {
+    fn mul(self, rhs: usize) -> Self::Output {
         Unit(self.0 * rhs as f64)
     }
 }
 
-impl std::ops::Div<u16> for Unit {
+impl std::ops::Div<usize> for Unit {
     type Output = Unit;
 
-    fn div(self, rhs: u16) -> Self::Output {
+    fn div(self, rhs: usize) -> Self::Output {
         Unit(self.0 / rhs as f64)
     }
 }

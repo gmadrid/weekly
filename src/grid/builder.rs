@@ -55,8 +55,8 @@ impl<'a> Builder<'a> {
             self.doc_title.as_ref().unwrap(),
             self.row_labels.unwrap(),
             self.col_labels.unwrap(),
-            self.num_rows.unwrap() as u16, // TODO: make this usize
-            self.num_cols.unwrap() as u16,
+            self.num_rows.unwrap(),
+            self.num_cols.unwrap(),
             self.bounds.clone().unwrap(),
             self.top_label_height.unwrap(),
             self.left_label_width.unwrap(),

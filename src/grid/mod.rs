@@ -12,8 +12,8 @@ pub use builder::Builder;
 pub struct TableGrid<'a> {
     row_labels: &'a [String],
     col_labels: &'a [String],
-    rows: u16,
-    cols: u16,
+    rows: usize,
+    cols: usize,
     bounds: WRect,
     top_label_height: Unit,
     left_label_width: Unit,
@@ -33,8 +33,8 @@ impl<'a> TableGrid<'a> {
         _doc_title: &str, // unused for now.
         row_labels: &'f [String],
         col_labels: &'f [String],
-        rows: u16,
-        cols: u16,
+        rows: usize,
+        cols: usize,
         bounds: WRect,
         top_label_height: Unit,
         left_label_width: Unit,
@@ -71,7 +71,7 @@ impl<'a> TableGrid<'a> {
         let wf = &self.width_func;
         self.instructions.set_stroke_color(&Colors::gray(0.25));
 
-        for row in 0..self.rows as u16 {
+        for row in 0..self.rows {
             self.instructions.set_stroke_width(wf(row as usize));
             let y = self.bounds.top() - self.top_label_height - row_height * row;
             let line = WLine::line(self.bounds.left(), y, self.bounds.right(), y);
@@ -99,7 +99,7 @@ impl<'a> TableGrid<'a> {
 
         let x = self.bounds.left() + 2.0.mm();
         let text_height = f64::from(row_height) * 1.9;
-        for row in 0..min(self.rows, self.row_labels.len() as u16) {
+        for row in 0..min(self.rows, self.row_labels.len()) {
             let y = self.bounds.top() - self.top_label_height - row_height * (row + 1) + 1.5.mm();
             self.instructions.push_text(
                 &self.row_labels[row as usize],
@@ -113,12 +113,12 @@ impl<'a> TableGrid<'a> {
 
     fn render_col_labels(&mut self) {
         // This is DRY
-        let row_height = (self.bounds.height() - self.top_label_height) / self.rows as u16;
+        let row_height = (self.bounds.height() - self.top_label_height) / self.rows;
         let col_width = (self.bounds.width() - self.left_label_width) / self.cols;
 
         // (159, -21) after rotation.
         let text_height = f64::from(row_height) * 1.9;
-        for col in 0..min(self.cols, self.col_labels.len() as u16) {
+        for col in 0..min(self.cols, self.col_labels.len()) {
             let x = self.bounds.left() + self.left_label_width + col_width * (col + 1) - 1.0.mm();
             let y = self.bounds.top() - self.top_label_height + 1.0.mm();
 

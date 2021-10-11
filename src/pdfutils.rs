@@ -60,6 +60,14 @@ impl Instructions {
         self.with_top_attributes(|attrs| attrs.fill_color = Some(color.clone()));
     }
 
+    pub fn set_dash(&mut self, dash_len: i64, gap_len: i64) {
+        self.with_top_attributes(|attrs| attrs.dash = Some((Some(dash_len), gap_len)));
+    }
+
+    pub fn clear_dash(&mut self) {
+        self.with_top_attributes(|attrs| attrs.dash = Some((None, 0)));
+    }
+
     pub fn with_top_attributes(&mut self, mut f: impl FnMut(&mut Attributes)) {
         if let Some(Instruction::Attrs(attrs)) = self.instructions.last_mut() {
             f(attrs);
@@ -116,6 +124,7 @@ pub struct Attributes {
     stroke_width: Option<f64>,
     stroke_color: Option<Color>,
     fill_color: Option<Color>,
+    dash: Option<(Option<i64>, i64)>,
 }
 
 impl Attributes {
@@ -128,6 +137,17 @@ impl Attributes {
         }
         if let Some(fill_color) = &self.fill_color {
             layer.set_fill_color(fill_color.clone());
+        }
+        if let Some((dash_len, gap)) = &self.dash {
+            layer.set_line_dash_pattern(LineDashPattern::new(
+                0,
+                *dash_len,
+                Some(*gap),
+                None,
+                None,
+                None,
+                None,
+            ));
         }
     }
 }

@@ -11,6 +11,9 @@ printpdf = "0.3.4"
 thiserror = "1.0.30"
 
 [[bin]]
+name = "active"
+
+[[bin]]
 name = "daily"
 
 [[bin]]

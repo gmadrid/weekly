@@ -17,4 +17,4 @@ pub use pdfutils::Colors;
 pub use pdfutils::Instructions;
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
-pub use units::NumericUnit;
+pub use units::{NumericUnit, Unit};

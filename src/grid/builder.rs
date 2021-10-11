@@ -13,7 +13,6 @@ pub struct Builder<'a> {
     bounds: Option<WRect>,
     top_label_height: Option<Unit>,
     left_label_width: Option<Unit>,
-    page_height: Option<Unit>,
     font: Option<&'a IndirectFontRef>,
     width_func: Option<Box<dyn Fn(usize) -> f64>>,
 }
@@ -53,7 +52,7 @@ impl<'a> Builder<'a> {
         self.fill_missing();
 
         TableGrid::new(
-            &self.doc_title.as_ref().unwrap(),
+            self.doc_title.as_ref().unwrap(),
             self.row_labels.unwrap(),
             self.col_labels.unwrap(),
             self.num_rows.unwrap() as u16, // TODO: make this usize
@@ -61,7 +60,6 @@ impl<'a> Builder<'a> {
             self.bounds.clone().unwrap(),
             self.top_label_height.unwrap(),
             self.left_label_width.unwrap(),
-            self.page_height.unwrap(),
             self.font.unwrap(),
             self.width_func.take().unwrap(),
         )
@@ -82,8 +80,6 @@ impl<'a> Builder<'a> {
         });
         set_if_none_with(&mut self.top_label_height, || 1.0.inches());
         set_if_none_with(&mut self.left_label_width, || 1.0.inches());
-
-        set_if_none_with(&mut self.page_height, || 8.5.inches());
 
         set_if_none_with(&mut self.width_func, || Box::new(|_| 0.0));
 
@@ -135,11 +131,6 @@ impl<'a> Builder<'a> {
 
     pub fn left_label_width(mut self, left_label_width: Unit) -> Builder<'a> {
         self.left_label_width = Some(left_label_width);
-        self
-    }
-
-    pub fn page_height(mut self, page_height: Unit) -> Builder<'a> {
-        self.page_height = Some(page_height);
         self
     }
 

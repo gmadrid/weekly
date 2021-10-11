@@ -94,13 +94,15 @@ fn main_func(args: Args) -> weekly::Result<()> {
     .map(|s| s.to_string())
     .collect();
 
-    let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches());
-    let table_bounds = page_rect.inset_all(
+    let page_rect = WRect::with_dimensions(5.5.inches(), 8.5.inches())
+        .move_to(0.0.inches(), 8.5.inches());
+    let table_bounds = page_rect.inset_all_q1(
         0.25.inches() + 0.125.inches(), // Extra 1/8" for the rings.
         0.25.inches(),
         0.25.inches(),
         0.25.inches(),
     );
+
     let top_box_height = args.top_label_height.inches();
     let cols = args.num_cols;
 
@@ -135,11 +137,10 @@ fn main_func(args: Args) -> weekly::Result<()> {
         .bounds(table_bounds)
         .top_label_height(top_box_height)
         .left_label_width(15.0.mm())
-        .page_height(page_rect.height())
         .font(&times_bold)
         .width_func(width_func)
         .generate_instructions()
-        .draw_to_layer(&doc.get_page(page).get_layer(layer), page_rect.height());
+        .draw_to_layer(&doc.get_page(page).get_layer(layer));
 
     doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
         .unwrap();

@@ -70,9 +70,9 @@ impl Instructions {
         }
     }
 
-    pub fn draw_to_layer(&self, layer: &PdfLayerReference, page_height: Unit) {
+    pub fn draw_to_layer(&self, layer: &PdfLayerReference) {
         for instruction in &self.instructions {
-            instruction.draw_to_layer(layer, page_height);
+            instruction.draw_to_layer(layer);
         }
     }
 }
@@ -90,7 +90,7 @@ pub enum Instruction {
 }
 
 impl Instruction {
-    fn draw_to_layer(&self, layer: &PdfLayerReference, page_height: Unit) {
+    fn draw_to_layer(&self, layer: &PdfLayerReference) {
         match self {
             Instruction::Shape(line) => layer.add_shape(line.clone()),
             Instruction::Attrs(attrs) => attrs.execute_in_layer(layer),
@@ -98,15 +98,13 @@ impl Instruction {
                 txt.s.clone(),
                 txt.text_height,
                 txt.x.into(),
-                (page_height - txt.y).into(),
+                txt.y.into(),
                 &txt.font,
             ),
             Instruction::PushState => layer.save_graphics_state(),
             Instruction::PopState => layer.restore_graphics_state(),
             Instruction::Rotate(r) => layer.set_ctm(CurTransMat::Rotate(*r)),
             Instruction::Translate(x, y) => {
-                // This doesn't take into account the Y-axis flip.
-                // TODO: get rid of the Y-axis flip.
                 layer.set_ctm(CurTransMat::Translate(x.into(), y.into()));
             }
         };

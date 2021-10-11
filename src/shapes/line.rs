@@ -15,12 +15,9 @@ impl WLine {
         WLine { x1, y1, x2, y2 }
     }
 
-    pub fn as_shape(&self, page_height: Unit) -> Line {
+    pub fn as_shape(&self) -> Line {
         Line {
-            points: vec![
-                point_pair(self.x1, page_height - self.y1),
-                point_pair(self.x2, page_height - self.y2),
-            ],
+            points: vec![point_pair(self.x1, self.y1), point_pair(self.x2, self.y2)],
             has_stroke: true,
             ..Line::default()
         }

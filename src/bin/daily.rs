@@ -95,8 +95,8 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let top_box_height = DEFAULT_TOP_LABEL_HEIGHT.inches();
     let cols = DEFAULT_NUM_COLS;
 
-    let output_filename = default_output_filename(&date);
-    let doc_title = default_doc_title(&date);
+    let output_filename = default_output_filename(date);
+    let doc_title = default_doc_title(date);
 
     let (doc, page, layer) = PdfDocument::new(
         &doc_title,

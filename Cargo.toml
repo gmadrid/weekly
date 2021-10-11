@@ -12,3 +12,6 @@ thiserror = "1.0.30"
 
 [[bin]]
 name = "daily"
+
+[[bin]]
+name = "monthlies"

@@ -11,14 +11,12 @@ const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
 
 #[derive(Debug, FromArgs)]
 /// Create a monthly checklist.
+///
+/// Generates a daily checklist for every date supplied.
 struct Args {
-    #[argh(option, short = 'o')]
-    /// name of the output file. Defaults to the current month.
-    output_filename: Option<PathBuf>,
-
     /// month for which to generate the checklist
     #[argh(positional)]
-    date: Option<NaiveDate>,
+    date: Vec<NaiveDate>,
 }
 
 fn days_in_month(date: &impl Datelike) -> i64 {
@@ -63,9 +61,8 @@ fn default_doc_title(date: &NaiveDate) -> String {
     format!("Daily Checklist - {}", date.format("%B %Y"))
 }
 
-fn main_func(args: Args) -> weekly::Result<()> {
-    let date = args.date.unwrap_or_else(naive_today);
-    let date_names = get_date_names(&date);
+fn main_func(date: &NaiveDate) -> weekly::Result<()> {
+    let date_names = get_date_names(date);
 
     let col_labels: Vec<String> = vec![
         "Check calendar",
@@ -98,9 +95,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
     let top_box_height = DEFAULT_TOP_LABEL_HEIGHT.inches();
     let cols = DEFAULT_NUM_COLS;
 
-    let output_filename = args
-        .output_filename
-        .unwrap_or_else(|| default_output_filename(&date));
+    let output_filename = default_output_filename(&date);
     let doc_title = default_doc_title(&date);
 
     let (doc, page, layer) = PdfDocument::new(
@@ -111,7 +106,7 @@ fn main_func(args: Args) -> weekly::Result<()> {
     );
     let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
-    let first = first_of_month(&date);
+    let first = first_of_month(date);
     let width_func = move |row: usize| {
         let date = first + Duration::days(row as i64);
         if date.weekday() == Weekday::Sun {
@@ -143,8 +138,16 @@ fn main_func(args: Args) -> weekly::Result<()> {
 fn main() {
     let args: Args = argh::from_env();
 
-    if let Err(err) = main_func(args) {
-        eprintln!("Error: {:?}", err);
+    if args.date.is_empty() {
+        if let Err(err) = main_func(&naive_today()) {
+            eprintln!("Error: {:?}", err);
+        }
+    } else {
+        for date in &args.date {
+            if let Err(err) = main_func(date) {
+                eprintln!("Error: {} : {:?}", date.format("%Y-%m"), err);
+            }
+        }
     }
 }
 

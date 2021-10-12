@@ -49,33 +49,31 @@ impl Instructions {
     }
 
     pub fn set_stroke_color(&mut self, color: &Color) {
-        self.with_top_attributes(|attrs| attrs.stroke_color = Some(color.clone()));
+        self.last_attr_mut().stroke_color = Some(color.clone());
     }
 
     pub fn set_stroke_width(&mut self, width: f64) {
-        self.with_top_attributes(|attrs| attrs.stroke_width = Some(width));
+        self.last_attr_mut().stroke_width = Some(width);
     }
 
     pub fn set_fill_color(&mut self, color: &Color) {
-        self.with_top_attributes(|attrs| attrs.fill_color = Some(color.clone()));
+        self.last_attr_mut().fill_color = Some(color.clone());
     }
 
     pub fn set_dash(&mut self, dash_len: i64, gap_len: i64) {
-        self.with_top_attributes(|attrs| attrs.dash = Some((Some(dash_len), gap_len)));
+        self.last_attr_mut().dash = Some((Some(dash_len), gap_len));
     }
 
     pub fn clear_dash(&mut self) {
-        self.with_top_attributes(|attrs| attrs.dash = Some((None, 0)));
+        self.last_attr_mut().dash = Some((None, 0));
     }
 
-    pub fn with_top_attributes(&mut self, mut f: impl FnMut(&mut Attributes)) {
-        if let Some(Instruction::Attrs(attrs)) = self.instructions.last_mut() {
-            f(attrs);
-        } else {
-            let mut attrs = Attributes::default();
-            f(&mut attrs);
-            self.instructions.push(Instruction::Attrs(attrs));
+    pub fn last_attr_mut(&mut self) -> &mut Attributes {
+        if !matches!(self.instructions.last(), Some(Instruction::Attrs(_))) {
+            self.instructions.push(Instruction::Attrs(Attributes::default()));
         }
+        // unwrap: The last three lines ensure that an Attrs is last in the instructions list.
+        return self.instructions.last_mut().unwrap().attrs_mut().unwrap()
     }
 
     pub fn draw_to_layer(&self, layer: &PdfLayerReference) {
@@ -98,6 +96,13 @@ pub enum Instruction {
 }
 
 impl Instruction {
+    fn attrs_mut(&mut self) -> Option<&mut Attributes> {
+        match self {
+            Instruction::Attrs(attrs) => Some(attrs),
+            _ => None,
+        }
+    }
+
     fn draw_to_layer(&self, layer: &PdfLayerReference) {
         match self {
             Instruction::Shape(line) => layer.add_shape(line.clone()),

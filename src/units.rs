@@ -37,6 +37,12 @@ impl From<Unit> for f64 {
     }
 }
 
+impl From<f64> for Unit {
+    fn from(f: f64) -> Self {
+        Unit(f)
+    }
+}
+
 pub trait NumericUnit {
     fn inches(self) -> Unit;
     fn mm(self) -> Unit;
@@ -72,6 +78,14 @@ impl std::ops::Mul<usize> for Unit {
 
     fn mul(self, rhs: usize) -> Self::Output {
         Unit(self.0 * rhs as f64)
+    }
+}
+
+impl std::ops::Mul<Unit> for Unit {
+    type Output = Unit;
+
+    fn mul(self, rhs: Unit) -> Self::Output {
+        Unit(self.0 * rhs.0)
     }
 }
 

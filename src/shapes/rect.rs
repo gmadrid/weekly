@@ -91,10 +91,37 @@ impl WRect {
         Line {
             // In Q1, rects grow downward toward the bottom.
             points: vec![
-                point_pair(self.left, self.top),
-                point_pair(self.left + self.width, self.top),
-                point_pair(self.left + self.width, self.top - self.height),
-                point_pair(self.left, self.top - self.height),
+                point_pair(self.left, self.top, false),
+                point_pair(self.left + self.width, self.top, false),
+                point_pair(self.left + self.width, self.top - self.height, false),
+                point_pair(self.left, self.top - self.height, false),
+            ],
+            has_fill: true,
+            is_closed: true,
+            ..Line::default()
+        }
+    }
+
+    pub fn as_rounded_rect_shape(&self, radius: Unit) -> Line {
+        let pv = Unit::from(1.0 - 0.55228);
+        Line {
+            points: vec![
+                point_pair(self.right() - radius, self.top, true),
+                point_pair(self.right() - (radius * pv), self.top, true),
+                point_pair(self.right(), self.top - (radius * pv), false),
+                point_pair(self.right(), self.top - radius, false),
+                point_pair(self.right(), self.bottom_q1() + radius, true),
+                point_pair(self.right(), self.bottom_q1() + (radius * pv), true),
+                point_pair(self.right() - radius * pv, self.bottom_q1(), false),
+                point_pair(self.right() - radius, self.bottom_q1(), false),
+                point_pair(self.left() + radius, self.bottom_q1(), true),
+                point_pair(self.left + radius * pv, self.bottom_q1(), true),
+                point_pair(self.left(), self.bottom_q1() + radius * pv, false),
+                point_pair(self.left(), self.bottom_q1() + radius, false),
+                point_pair(self.left(), self.top() - radius, true),
+                point_pair(self.left(), self.top() - radius * pv, true),
+                point_pair(self.left() + radius * pv, self.top(), false),
+                point_pair(self.left() + radius, self.top(), false),
             ],
             has_fill: true,
             is_closed: true,

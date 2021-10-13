@@ -18,3 +18,9 @@ name = "daily"
 
 [[bin]]
 name = "monthlies"
+
+[[bin]]
+name = "projects"
+
+[[bin]]
+name = "tester"

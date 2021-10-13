@@ -1,8 +1,8 @@
 use crate::units::Unit;
 use printpdf::*;
 
-pub fn point_pair(x: Unit, y: Unit) -> (Point, bool) {
-    (Point::new(x.into(), y.into()), false)
+pub fn point_pair(x: Unit, y: Unit, next: bool) -> (Point, bool) {
+    (Point::new(x.into(), y.into()), next)
 }
 
 #[derive(Default, Debug)]
@@ -70,10 +70,11 @@ impl Instructions {
 
     pub fn last_attr_mut(&mut self) -> &mut Attributes {
         if !matches!(self.instructions.last(), Some(Instruction::Attrs(_))) {
-            self.instructions.push(Instruction::Attrs(Attributes::default()));
+            self.instructions
+                .push(Instruction::Attrs(Attributes::default()));
         }
         // unwrap: The last three lines ensure that an Attrs is last in the instructions list.
-        return self.instructions.last_mut().unwrap().attrs_mut().unwrap()
+        return self.instructions.last_mut().unwrap().attrs_mut().unwrap();
     }
 
     pub fn draw_to_layer(&self, layer: &PdfLayerReference) {
@@ -195,5 +196,22 @@ impl Colors {
 
     pub fn blue() -> Color {
         Self::rgb(0.0, 0.0, 1.0)
+    }
+}
+
+pub trait LineModifiers {
+    fn stroke(self, value: bool) -> Self;
+    fn fill(self, value: bool) -> Self;
+}
+
+impl LineModifiers for Line {
+    fn stroke(mut self, value: bool) -> Self {
+        self.has_stroke = value;
+        self
+    }
+
+    fn fill(mut self, value: bool) -> Self {
+        self.has_fill = value;
+        self
     }
 }

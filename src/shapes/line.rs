@@ -17,7 +17,10 @@ impl WLine {
 
     pub fn as_shape(&self) -> Line {
         Line {
-            points: vec![point_pair(self.x1, self.y1), point_pair(self.x2, self.y2)],
+            points: vec![
+                point_pair(self.x1, self.y1, false),
+                point_pair(self.x2, self.y2, false),
+            ],
             has_stroke: true,
             ..Line::default()
         }

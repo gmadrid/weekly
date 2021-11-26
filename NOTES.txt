@@ -1,3 +1,14 @@
+Need to:
+- start by defining a new layout
+  - "cards"
+    - title
+    - card areas with subtitle line and gray lines for tasks
+      - maybe a dot to left of line
+- also use remarkable dimensions
+- also use PNG output
+
+
+
 Size of page.
 Size of margins - defines outer box.
 

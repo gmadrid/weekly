@@ -24,3 +24,6 @@ name = "projects"
 
 [[bin]]
 name = "tester"
+
+[[bin]]
+name = "remtest"

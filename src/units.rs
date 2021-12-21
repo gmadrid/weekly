@@ -17,6 +17,10 @@ impl Unit {
     pub fn max(self, other: Unit) -> Unit {
         Unit(self.0.max(other.0))
     }
+
+    pub fn pct(self, percentage: f64) -> Unit {
+        Unit(self.0 * (percentage / 100.0))
+    }
 }
 
 impl From<Unit> for printpdf::Mm {
@@ -78,6 +82,14 @@ impl std::ops::Mul<usize> for Unit {
 
     fn mul(self, rhs: usize) -> Self::Output {
         Unit(self.0 * rhs as f64)
+    }
+}
+
+impl std::ops::Mul<f64> for Unit {
+    type Output = Unit;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Unit(self.0 * rhs)
     }
 }
 

@@ -1,17 +1,16 @@
+use printpdf::PdfDocument;
 use std::fs::File;
 use std::io::BufWriter;
-use printpdf::PdfDocument;
 use weekly::{Colors, Instructions, LineModifiers, NumericUnit, Unit, WRect};
 
 const REMARKABLE_WIDTH: f64 = 157.2;
-const REMARKABLE_HEIGHT: f64 =209.6;
+const REMARKABLE_HEIGHT: f64 = 209.6;
 
 fn main() {
     let doc_title = "Remarkable test";
     let output_filename = "remtest.pdf";
 
-    let page_bounds =
-    WRect::with_dimensions(REMARKABLE_WIDTH.mm(), REMARKABLE_HEIGHT.mm())
+    let page_bounds = WRect::with_dimensions(REMARKABLE_WIDTH.mm(), REMARKABLE_HEIGHT.mm())
         .move_to(0.0.mm(), REMARKABLE_HEIGHT.mm());
 
     let mut instructions = Instructions::default();

@@ -16,7 +16,7 @@ fn remarkable_bounds() -> WRect {
 }
 
 pub fn main() -> weekly::Result<()> {
-    let device_rect = dbg!(remarkable_bounds());
+    let device_rect = remarkable_bounds();
 
     let mut instructions = Instructions::default();
     instructions.set_fill_color(&Colors::red());
@@ -31,7 +31,7 @@ pub fn main() -> weekly::Result<()> {
         device_rect.right(),
         bottom_line_y,
     );
-    instructions.push_shape(dbg!(notes_bottom_line).as_shape());
+    instructions.push_shape(notes_bottom_line.as_shape());
 
     let left_line_x = device_rect.width().pct(100.0 - NOTE_HORIZ_PCT);
 

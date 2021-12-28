@@ -35,7 +35,7 @@ fn default_doc_title(date: &NaiveDate) -> String {
 fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let date_names = get_date_names(date);
 
-    let col_labels: Vec<String> = vec![
+    let col_labels = vec![
         "Plank",
         "Journal",
         "Virtuemap",
@@ -53,10 +53,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
         "",
         "Code reviews",
         "Inbox Zero",
-    ]
-    .iter()
-    .map(|s| s.to_string())
-    .collect();
+    ];
 
     let page_rect =
         WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
@@ -82,7 +79,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
     let first = date.first_of_month();
-    let horiz_line_width_func = move |row: usize| {
+    let horiz_line_width_func = |row: usize| {
         let date = first + Duration::days(row as i64);
         if date.weekday() == Weekday::Sun {
             1.0
@@ -97,11 +94,9 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
             0.0
         }
     };
-    let col_labels_ref = &col_labels;
-    let first = date.first_of_month();
     let cell_background_func = |row: usize, col: usize| {
-        if col < col_labels_ref.len() {
-            let label = col_labels_ref[col].as_str();
+        if col < col_labels.len() {
+            let label = col_labels[col];
             if label == "Code reviews" || label == "Inbox Zero" {
                 let date = first + Duration::days(row as i64);
                 if date.weekday() == Weekday::Sun || date.weekday() == Weekday::Sat {
@@ -112,9 +107,10 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
         None
     };
 
+    let date_names_str: Vec<&str> = date_names.iter().map(|s| s.as_str()).collect();
     Builder::new()
         .doc_title(doc_title)
-        .row_labels(&date_names)
+        .row_labels(&date_names_str)
         .col_labels(&col_labels)
         .num_cols(cols as usize)
         .bounds(table_bounds)

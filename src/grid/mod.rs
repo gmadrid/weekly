@@ -10,8 +10,8 @@ pub use builder::Builder;
 
 // Maybe the builder should return instructions, and not the TableGrid.
 pub struct TableGrid<'a> {
-    row_labels: &'a [String],
-    col_labels: &'a [String],
+    row_labels: &'a [&'a str],
+    col_labels: &'a [&'a str],
     rows: usize,
     cols: usize,
     bounds: WRect,
@@ -105,7 +105,7 @@ impl<'a> TableGrid<'a> {
         let text_height = f64::from(row_height) * 1.9;
         for row in 0..min(self.rows, self.row_labels.len()) {
             let y = self.row_y(row + 1) + 1.5.mm();
-            instructions.push_text(&self.row_labels[row as usize], text_height, x, y, self.font);
+            instructions.push_text(self.row_labels[row as usize], text_height, x, y, self.font);
         }
     }
 
@@ -125,7 +125,7 @@ impl<'a> TableGrid<'a> {
 
             // Text position is (0.0), so that we can rotate the text before translating it.
             instructions.push_text(
-                &self.col_labels[col as usize],
+                self.col_labels[col as usize],
                 text_height,
                 Unit::zero(),
                 Unit::zero(),

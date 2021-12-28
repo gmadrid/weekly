@@ -6,8 +6,8 @@ use printpdf::*;
 #[derive(Default)]
 pub struct Builder<'a> {
     doc_title: Option<String>,
-    row_labels: Option<&'a [String]>,
-    col_labels: Option<&'a [String]>,
+    row_labels: Option<&'a [&'a str]>,
+    col_labels: Option<&'a [&'a str]>,
     num_rows: Option<usize>,
     num_cols: Option<usize>,
     bounds: Option<WRect>,
@@ -87,12 +87,12 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn row_labels(mut self, row_labels: &'a [String]) -> Builder<'a> {
+    pub fn row_labels(mut self, row_labels: &'a [&'a str]) -> Builder<'a> {
         self.row_labels = Some(row_labels);
         self
     }
 
-    pub fn col_labels(mut self, col_labels: &'a [String]) -> Builder<'a> {
+    pub fn col_labels(mut self, col_labels: &'a [&'a str]) -> Builder<'a> {
         self.col_labels = Some(col_labels);
         self
     }

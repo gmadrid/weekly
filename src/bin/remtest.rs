@@ -1,7 +1,7 @@
 use printpdf::PdfDocument;
 use std::fs::File;
 use std::io::BufWriter;
-use weekly::{Colors, Instructions, LineModifiers, NumericUnit, Unit, WRect};
+use weekly::{Colors, Instructions, LineModifiers, NumericUnit, WRect};
 
 const REMARKABLE_WIDTH: f64 = 157.2;
 const REMARKABLE_HEIGHT: f64 = 209.6;

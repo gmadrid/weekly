@@ -9,7 +9,7 @@ fn main() {
 
     // Make the page box and shift it to account for Q1 math.
     let page_bounds =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
+        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.5.inches(), 8.5.inches());
 
     let half_page = page_bounds.resize(page_bounds.width() / 2, page_bounds.height());
     let left_bounds = half_page.inset_all_q1(
@@ -64,7 +64,7 @@ fn draw_tasks_in_bounds(bounds: WRect, instructions: &mut Instructions, task_hei
         let line = WLine::line(bounds.left(), curr_y, bounds.right(), curr_y);
         instructions.push_shape(line.as_shape());
 
-        instructions.set_stroke_color(&Colors::gray(0.9));
+        instructions.set_stroke_color(&Colors::gray(0.5));
         instructions.clear_dash();
 
         let check_rect =

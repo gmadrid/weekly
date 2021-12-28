@@ -10,8 +10,6 @@ const DEFAULT_NUM_COLS: u16 = 25;
 const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
 
 #[derive(Debug, FromArgs)]
-/// Create a monthly checklist.
-///
 /// Generates a daily checklist for every date supplied.
 struct Args {
     /// month for which to generate the checklist

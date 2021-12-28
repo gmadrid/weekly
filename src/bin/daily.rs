@@ -38,19 +38,22 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let date_names = get_date_names(date);
 
     let col_labels: Vec<String> = vec![
+        "Plank",
+        "Journal",
+        "Virtuemap",
+        "",
         "Check calendar",
-        "Inbox Zero",
-        "Code reviews",
+        "Check ToDo list",
         "",
         "Brush teeth",
         "Floss",
         "",
-        "Play chess",
+        "Knit",
+        "Magic",
+        "Chess",
         "",
-        "Plank",
-        "Stretch",
-        "",
-        "Check To Do list",
+        "Code reviews",
+        "Inbox Zero",
     ]
     .iter()
     .map(|s| s.to_string())
@@ -59,7 +62,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let page_rect =
         WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
     let table_bounds = page_rect.inset_all_q1(
-        0.25.inches() + 0.125.inches(), // Extra 1/8" for the rings.
+        0.5.inches() + 0.125.inches(), // Extra 1/8" for the rings.
         0.25.inches(),
         0.25.inches(),
         0.25.inches(),

@@ -3,6 +3,8 @@ use std::fs::File;
 use std::io::BufWriter;
 use weekly::{Colors, Instructions, NumericUnit, WLine, WRect};
 
+// Remarkable claims to want 1404×1872 pixel images. (4/3 aspect ratio)
+// These dimensions below are producing a 928x1237 pixel image.
 const REMARKABLE_WIDTH_MM: f64 = 157.2;
 const REMARKABLE_HEIGHT_MM: f64 = 209.6;
 

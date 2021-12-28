@@ -4,7 +4,7 @@ use printpdf::{BuiltinFont, PdfDocument};
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
-use weekly::{Builder, Datetools, NumericUnit, WRect};
+use weekly::{Builder, Colors, Datetools, NumericUnit, WRect};
 
 const DEFAULT_NUM_COLS: u16 = 25;
 const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
@@ -40,15 +40,16 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
         "Journal",
         "Virtuemap",
         "",
+        "",
         "Check calendar",
         "Check ToDo list",
         "",
         "Brush teeth",
         "Floss",
-        "",
         "Knit",
         "Magic",
         "Chess",
+        "",
         "",
         "Code reviews",
         "Inbox Zero",
@@ -81,13 +82,37 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
     let first = date.first_of_month();
-    let width_func = move |row: usize| {
+    let horiz_line_width_func = move |row: usize| {
         let date = first + Duration::days(row as i64);
         if date.weekday() == Weekday::Sun {
             1.0
         } else {
             0.0
         }
+    };
+    let vert_line_width_func = |col: usize| {
+        if col > 0 && col % 5 == 0 {
+            1.5
+        } else {
+            0.0
+        }
+    };
+    let col_labels_ref = &col_labels;
+    let first = date.first_of_month();
+    let cell_background_func = |row: usize, col: usize| {
+        let date = first + Duration::days(row as i64);
+        if row < 26 {
+            return Some(Colors::gray(0.4))
+        }
+        if col < col_labels_ref.len() {
+            let label = col_labels_ref[col].as_str();
+            if label == "Code reviews" || label == "Inbox Zero" {
+                if date.weekday() == Weekday::Sun || date.weekday() == Weekday::Sat {
+                    return Some(Colors::gray(0.4))
+                }
+            }
+        }
+        None
     };
 
     Builder::new()
@@ -99,7 +124,9 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
         .top_label_height(top_box_height)
         .left_label_width(15.0.mm())
         .font(&times_bold)
-        .width_func(&width_func)
+        .horiz_line_width_func(&horiz_line_width_func)
+        .vert_line_width_func(&vert_line_width_func)
+        .cell_background_func(&cell_background_func)
         .generate_instructions()
         .draw_to_layer(&doc.get_page(page).get_layer(layer));
 

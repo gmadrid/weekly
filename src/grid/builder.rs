@@ -1,7 +1,7 @@
 use crate::grid::TableGrid;
 use crate::units::Unit;
 use crate::{Instructions, NumericUnit, WRect};
-use printpdf::IndirectFontRef;
+use printpdf::*;
 
 #[derive(Default)]
 pub struct Builder<'a> {
@@ -14,7 +14,9 @@ pub struct Builder<'a> {
     top_label_height: Option<Unit>,
     left_label_width: Option<Unit>,
     font: Option<&'a IndirectFontRef>,
-    width_func: Option<&'a dyn Fn(usize) -> f64>,
+    horiz_line_width_func: Option<&'a dyn Fn(usize) -> f64>,
+    vert_line_width_func: Option<&'a dyn Fn(usize) -> f64>,
+    cell_background_func: Option<&'a dyn Fn(usize, usize) -> Option<Color>>,
 }
 
 impl<'a> Builder<'a> {
@@ -56,12 +58,27 @@ impl<'a> Builder<'a> {
             top_label_height,
             left_label_width,
             font,
-            width_func: self.width_func,
+            horiz_line_width_func: self.horiz_line_width_func,
+            vert_line_width_func: self.vert_line_width_func,
+            cell_background_func: self.cell_background_func,
         }
     }
 
-    pub fn width_func(mut self, f: &'a (dyn Fn(usize) -> f64)) -> Builder<'a> {
-        self.width_func = Some(f);
+    pub fn horiz_line_width_func(mut self, f: &'a (dyn Fn(usize) -> f64)) -> Builder<'a> {
+        self.horiz_line_width_func = Some(f);
+        self
+    }
+
+    pub fn vert_line_width_func(mut self, f: &'a (dyn Fn(usize) -> f64)) -> Builder<'a> {
+        self.vert_line_width_func = Some(f);
+        self
+    }
+
+    pub fn cell_background_func(
+        mut self,
+        f: &'a (dyn Fn(usize, usize) -> Option<Color>),
+    ) -> Builder<'a> {
+        self.cell_background_func = Some(f);
         self
     }
 

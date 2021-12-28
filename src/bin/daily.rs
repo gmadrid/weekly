@@ -100,13 +100,10 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let col_labels_ref = &col_labels;
     let first = date.first_of_month();
     let cell_background_func = |row: usize, col: usize| {
-        let date = first + Duration::days(row as i64);
-        if row < 26 {
-            return Some(Colors::gray(0.4))
-        }
         if col < col_labels_ref.len() {
             let label = col_labels_ref[col].as_str();
             if label == "Code reviews" || label == "Inbox Zero" {
+                let date = first + Duration::days(row as i64);
                 if date.weekday() == Weekday::Sun || date.weekday() == Weekday::Sat {
                     return Some(Colors::gray(0.4))
                 }

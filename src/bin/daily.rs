@@ -39,7 +39,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
         "Plank",
         "Journal",
         "Virtuemap",
-        "",
+        "Work on bucket list", // thankful list,
         "",
         "Check calendar",
         "Check ToDo list",
@@ -89,7 +89,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     };
     let vert_line_width_func = |col: usize| {
         if col > 0 && col % 5 == 0 {
-            1.5
+            1.0
         } else {
             0.0
         }
@@ -100,7 +100,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
             if label == "Code reviews" || label == "Inbox Zero" {
                 let date = first + Duration::days(row as i64);
                 if date.weekday() == Weekday::Sun || date.weekday() == Weekday::Sat {
-                    return Some(Colors::gray(0.4))
+                    return Some(Colors::gray(0.7));
                 }
             }
         }

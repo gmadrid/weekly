@@ -146,12 +146,9 @@ impl<'a> TableGrid<'a> {
     fn generate_grid(&self, instructions: &mut Instructions) {
         instructions.set_fill_color(&Colors::gray(0.9));
         self.render_column_backgrounds(instructions);
-
         self.render_cell_backgrounds(instructions);
 
-        instructions.set_stroke_color(&Colors::gray(0.75));
         self.render_vertical_bars(instructions);
-
         self.render_horizontal_bars(instructions);
 
         instructions.set_fill_color(&Colors::black());

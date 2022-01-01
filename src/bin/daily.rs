@@ -37,20 +37,29 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
 
     let col_labels = vec![
         "Plank",
+        "Door stretch",
+        "Walk",
+        "",
+        "",
+
         "Journal",
         "Virtuemap",
         "Work on bucket list", // thankful list,
+        "",
         "",
         "Check calendar",
         "Check ToDo list",
         "",
         "Brush teeth",
         "Floss",
+        "",
+        "",
         "Knit",
         "Magic",
         "Chess",
         "",
         "",
+        "Bug sweep",
         "Code reviews",
         "Inbox Zero",
     ];
@@ -97,7 +106,7 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let cell_background_func = |row: usize, col: usize| {
         if col < col_labels.len() {
             let label = col_labels[col];
-            if label == "Code reviews" || label == "Inbox Zero" {
+            if label == "Code reviews" || label == "Inbox Zero" || label == "Bug sweep"{
                 let date = first + Duration::days(row as i64);
                 if date.weekday() == Weekday::Sun || date.weekday() == Weekday::Sat {
                     return Some(Colors::gray(0.7));

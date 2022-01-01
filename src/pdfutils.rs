@@ -60,6 +60,10 @@ impl Instructions {
         self.last_attr_mut().fill_color = Some(color.clone());
     }
 
+    pub fn clear_fill_color(&mut self) {
+        self.last_attr_mut().fill_color = None;
+    }
+
     pub fn set_dash(&mut self, dash_len: i64, gap_len: i64) {
         self.last_attr_mut().dash = Some((Some(dash_len), gap_len));
     }

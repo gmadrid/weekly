@@ -17,6 +17,7 @@ pub struct Builder<'a> {
     horiz_line_width_func: Option<&'a dyn Fn(usize) -> f64>,
     vert_line_width_func: Option<&'a dyn Fn(usize) -> f64>,
     cell_background_func: Option<&'a dyn Fn(usize, usize) -> Option<Color>>,
+    box_width: Option<Unit>,
 }
 
 impl<'a> Builder<'a> {
@@ -61,6 +62,7 @@ impl<'a> Builder<'a> {
             horiz_line_width_func: self.horiz_line_width_func,
             vert_line_width_func: self.vert_line_width_func,
             cell_background_func: self.cell_background_func,
+            box_width: self.box_width,
         }
     }
 
@@ -71,6 +73,11 @@ impl<'a> Builder<'a> {
 
     pub fn vert_line_width_func(mut self, f: &'a (dyn Fn(usize) -> f64)) -> Builder<'a> {
         self.vert_line_width_func = Some(f);
+        self
+    }
+
+    pub fn box_width(mut self, width: Unit) -> Builder<'a> {
+        self.box_width = Some(width);
         self
     }
 

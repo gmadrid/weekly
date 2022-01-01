@@ -1,6 +1,9 @@
 use argh::FromArgs;
+use chrono::Weekday::{Fri, Mon, Thu, Tue, Wed};
 use chrono::{Datelike, Duration, NaiveDate, Weekday};
+use lazy_static::lazy_static;
 use printpdf::{BuiltinFont, PdfDocument};
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
@@ -15,6 +18,124 @@ struct Args {
     /// month for which to generate the checklist
     #[argh(positional)]
     date: Vec<NaiveDate>,
+}
+
+#[derive(Default, Debug)]
+struct DailyTask<'a> {
+    name: &'a str,
+    // No set means ALL days. Empty set means NO days.
+    days: Option<HashSet<Weekday>>,
+}
+
+lazy_static! {
+    static ref TASKS: Vec<DailyTask<'static>> = {
+        vec![
+            DailyTask {
+                name: "Plank",
+                days: None,
+            },
+            DailyTask {
+                name: "Door stretch",
+                days: None,
+            },
+            DailyTask {
+                name: "Walk",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "Journal",
+                days: None,
+            },
+            DailyTask {
+                name: "Virtuemap",
+                days: None,
+            },
+            DailyTask {
+                name: "Add item to bucket list",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "Check calendar",
+                days: None,
+            },
+            DailyTask {
+                name: "Check ToDo list",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "Brush teeth",
+                days: None,
+            },
+            DailyTask {
+                name: "Floss",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "Knit",
+                days: None,
+            },
+            DailyTask {
+                name: "Magic",
+                days: None,
+            },
+            DailyTask {
+                name: "Chess",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "",
+                days: None,
+            },
+            DailyTask {
+                name: "Bug sweep",
+                days: Some(weekdays_only()),
+            },
+            DailyTask {
+                name: "Code reviews",
+                days: Some(weekdays_only()),
+            },
+            DailyTask {
+                name: "Inbox Zero",
+                days: Some(weekdays_only()),
+            },
+        ]
+    };
+}
+
+fn weekdays_only() -> HashSet<Weekday> {
+    vec![Mon, Tue, Wed, Thu, Fri].into_iter().collect()
 }
 
 fn get_date_names(date: &impl Datelike) -> Vec<String> {
@@ -35,34 +156,7 @@ fn default_doc_title(date: &NaiveDate) -> String {
 fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let date_names = get_date_names(date);
 
-    let col_labels = vec![
-        "Plank",
-        "Door stretch",
-        "Walk",
-        "",
-        "",
-
-        "Journal",
-        "Virtuemap",
-        "Work on bucket list", // thankful list,
-        "",
-        "",
-        "Check calendar",
-        "Check ToDo list",
-        "",
-        "Brush teeth",
-        "Floss",
-        "",
-        "",
-        "Knit",
-        "Magic",
-        "Chess",
-        "",
-        "",
-        "Bug sweep",
-        "Code reviews",
-        "Inbox Zero",
-    ];
+    let col_labels: Vec<&str> = TASKS.iter().map(|t| t.name).collect();
 
     let page_rect =
         WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
@@ -104,11 +198,10 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
         }
     };
     let cell_background_func = |row: usize, col: usize| {
-        if col < col_labels.len() {
-            let label = col_labels[col];
-            if label == "Code reviews" || label == "Inbox Zero" || label == "Bug sweep"{
+        if col < TASKS.len() {
+            if let Some(day_set) = &TASKS[col].days {
                 let date = first + Duration::days(row as i64);
-                if date.weekday() == Weekday::Sun || date.weekday() == Weekday::Sat {
+                if !day_set.contains(&date.weekday()) {
                     return Some(Colors::gray(0.7));
                 }
             }
@@ -119,6 +212,8 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let date_names_str: Vec<&str> = date_names.iter().map(|s| s.as_str()).collect();
     Builder::new()
         .doc_title(doc_title)
+        // TODO: Make this dependent on the cell size?
+        .box_width(2.0.mm())
         .row_labels(&date_names_str)
         .col_labels(&col_labels)
         .num_cols(cols as usize)

@@ -1,7 +1,7 @@
 use crate::pdfutils::{Colors, Instructions};
 use crate::shapes::line::WLine;
 use crate::units::Unit;
-use crate::{NumericUnit, WRect};
+use crate::{LineModifiers, NumericUnit, WRect};
 use printpdf::*;
 use std::cmp::min;
 
@@ -17,6 +17,7 @@ pub struct TableGrid<'a> {
     bounds: WRect,
     top_label_height: Unit,
     left_label_width: Unit,
+    box_width: Option<Unit>,
 
     font: &'a IndirectFontRef,
     horiz_line_width_func: Option<&'a dyn Fn(usize) -> f64>,
@@ -135,6 +136,30 @@ impl<'a> TableGrid<'a> {
         }
     }
 
+    fn render_check_boxes(&self, instructions: &mut Instructions) {
+        instructions.clear_fill_color();
+        instructions.set_stroke_color(&Colors::gray(0.7));
+        instructions.set_stroke_width(0.0);
+        if let Some(box_width) = self.box_width {
+            let x_offset = (self.col_width() - box_width) / 2;
+            let y_offset = (self.row_height() - box_width) / 2;
+            for row in 0..self.rows {
+                for col in 0..self.cols {
+                    // TODO: get rid of this unwrap
+                    if let None = self.cell_background_func.unwrap()(row, col) {
+                        instructions.push_shape(
+                            WRect::with_dimensions(box_width, box_width)
+                                .move_to(self.col_x(col) + x_offset, self.row_y(row) - y_offset)
+                                .as_shape()
+                                .fill(false)
+                                .stroke(true),
+                        );
+                    }
+                }
+            }
+        }
+    }
+
     fn row_height(&self) -> Unit {
         (self.bounds.height() - self.top_label_height) / self.rows
     }
@@ -150,6 +175,8 @@ impl<'a> TableGrid<'a> {
 
         self.render_vertical_bars(instructions);
         self.render_horizontal_bars(instructions);
+
+        self.render_check_boxes(instructions);
 
         instructions.set_fill_color(&Colors::black());
         self.render_row_labels(instructions);

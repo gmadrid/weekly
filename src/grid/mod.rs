@@ -138,7 +138,7 @@ impl<'a> TableGrid<'a> {
 
     fn render_check_boxes(&self, instructions: &mut Instructions) {
         instructions.clear_fill_color();
-        instructions.set_stroke_color(&Colors::gray(0.7));
+        instructions.set_stroke_color(&Colors::gray(0.25));
         instructions.set_stroke_width(0.0);
         if let Some(box_width) = self.box_width {
             let x_offset = (self.col_width() - box_width) / 2;

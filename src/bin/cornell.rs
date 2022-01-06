@@ -1,7 +1,7 @@
 use printpdf::PdfDocument;
 use std::fs::File;
 use std::io::BufWriter;
-use weekly::{Colors, Instructions, NumericUnit, WLine, WRect};
+use weekly::{AsPdfLine, Colors, Instructions, NumericUnit, WLine, WRect};
 
 // Remarkable claims to want 1404×1872 pixel images. (4/3 aspect ratio)
 // These dimensions below are producing a 928x1237 pixel image.
@@ -33,12 +33,12 @@ pub fn main() -> weekly::Result<()> {
         device_rect.right(),
         bottom_line_y,
     );
-    instructions.push_shape(notes_bottom_line.as_shape());
+    instructions.push_shape(notes_bottom_line.as_pdf_line());
 
     let left_line_x = device_rect.width().pct(100.0 - NOTE_HORIZ_PCT);
 
     let notes_left_line = WLine::line(left_line_x, bottom_line_y, left_line_x, device_rect.top());
-    instructions.push_shape(notes_left_line.as_shape());
+    instructions.push_shape(notes_left_line.as_pdf_line());
 
     instructions.set_stroke_width(0.0);
     instructions.set_stroke_color(&Colors::gray(0.8));
@@ -48,7 +48,7 @@ pub fn main() -> weekly::Result<()> {
     })
     .take_while(|y| *y < device_rect.top() - RULE_HEIGHT_IN.inches())
     .map(|y| WLine::line(left_line_x, y, device_rect.right(), y))
-    .for_each(|l| instructions.push_shape(l.as_shape()));
+    .for_each(|l| instructions.push_shape(l.as_pdf_line()));
 
     let doc_title = "Cornell note page";
     let output_filename = "cornell.pdf";

@@ -1,7 +1,7 @@
 use printpdf::PdfDocument;
 use std::fs::File;
 use std::io::BufWriter;
-use weekly::{Colors, Instructions, LineModifiers, NumericUnit, WRect};
+use weekly::{AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, WRect};
 
 const REMARKABLE_WIDTH: f64 = 157.2;
 const REMARKABLE_HEIGHT: f64 = 209.6;
@@ -19,7 +19,7 @@ fn main() {
     instructions.set_stroke_color(&Colors::black());
 
     let black_rect = dbg!(page_bounds.inset_q1(2.0.mm(), 2.0.mm()));
-    let rect_shape = black_rect.as_shape().fill(false).stroke(true);
+    let rect_shape = black_rect.as_pdf_line().fill(false).stroke(true);
     instructions.push_shape(rect_shape);
 
     let (doc, page, layer) = PdfDocument::new(

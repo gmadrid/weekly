@@ -1,8 +1,8 @@
-use crate::pdfutils::{Colors, Instructions};
+use crate::pdfutils::{Colors, Instructions, LineModifiers};
 use crate::shapes::line::WLine;
 use crate::shapes::AsPdfLine;
 use crate::units::Unit;
-use crate::{LineModifiers, NumericUnit, WRect};
+use crate::{NumericUnit, WRect};
 use printpdf::*;
 use std::cmp::min;
 
@@ -93,7 +93,7 @@ impl<'a> TableGrid<'a> {
                     if let Some(color) = f(row, col) {
                         let this_rect = cell_rect.move_to(self.col_x(col), self.row_y(row));
                         instructions.set_fill_color(&color);
-                        instructions.push_shape(this_rect.as_shape());
+                        instructions.push_shape(this_rect.as_pdf_line());
                     }
                 }
             }
@@ -147,11 +147,11 @@ impl<'a> TableGrid<'a> {
             for row in 0..self.rows {
                 for col in 0..self.cols {
                     // TODO: get rid of this unwrap
-                    if let None = self.cell_background_func.unwrap()(row, col) {
+                    if self.cell_background_func.unwrap()(row, col).is_none() {
                         instructions.push_shape(
                             WRect::with_dimensions(box_width, box_width)
                                 .move_to(self.col_x(col) + x_offset, self.row_y(row) - y_offset)
-                                .as_shape()
+                                .as_pdf_line()
                                 .fill(false)
                                 .stroke(true),
                         );

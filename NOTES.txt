@@ -34,3 +34,5 @@ Next tasks:
     - dimensions
     - styles
     - content
+- Figure out the Remarkable story to make creating templates
+  as easy as possible.

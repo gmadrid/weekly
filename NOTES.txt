@@ -1,7 +1,7 @@
 Commands
 
 active - UNFINISHED
-  Basically, a ToDo list. Two columns of lines with checkboxes.
+  Basically, a To Do list. Two columns of lines with checkboxes.
   It's not finished at all.
 
 cornell - Cornell notes with college ruled lines.
@@ -21,3 +21,16 @@ projects - Project cards.
 remtest - Random test app to explore Remarkable stuff.
 
 tester - A file for playing with stuff.
+
+
+Next tasks:
+
+- Too much of the PDF wrangling is exposed.
+  - wrap into a module (or library) to facilitate
+    - rendering
+    - conversion to images of desired sizes
+- Flesh out the Grid abstractions to allow using more places.
+  - Use a trait instead of callbacks to populate
+    - dimensions
+    - styles
+    - content

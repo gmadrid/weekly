@@ -16,4 +16,5 @@ pub use grid::Builder;
 pub use pdfutils::{Colors, Instructions, LineModifiers};
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
+pub use shapes::AsPdfLine;
 pub use units::{NumericUnit, Unit};

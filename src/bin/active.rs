@@ -1,7 +1,7 @@
 use printpdf::*;
 use std::fs::File;
 use std::io::BufWriter;
-use weekly::{Colors, Instructions, NumericUnit, Unit, WLine, WRect};
+use weekly::{AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect};
 
 fn main() {
     let doc_title = "Simple task list";
@@ -62,7 +62,7 @@ fn draw_tasks_in_bounds(bounds: WRect, instructions: &mut Instructions, task_hei
         instructions.set_dash(3, 2);
 
         let line = WLine::line(bounds.left(), curr_y, bounds.right(), curr_y);
-        instructions.push_shape(line.as_shape());
+        instructions.push_shape(line.as_pdf_line());
 
         instructions.set_stroke_color(&Colors::gray(0.9));
         instructions.clear_dash();
@@ -70,7 +70,7 @@ fn draw_tasks_in_bounds(bounds: WRect, instructions: &mut Instructions, task_hei
         let check_rect =
             base_check_rect.move_to(bounds.left() + task_height / 4, curr_y - task_height / 4);
         if check_rect.bottom_q1() > bounds.bottom_q1() {
-            let mut shape = check_rect.as_shape();
+            let mut shape = check_rect.as_pdf_line();
             shape.has_fill = false;
             shape.has_stroke = true;
             instructions.push_shape(shape);

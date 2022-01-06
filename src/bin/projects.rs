@@ -1,7 +1,7 @@
 use printpdf::PdfDocument;
 use std::fs::File;
 use std::io::BufWriter;
-use weekly::{Colors, Instructions, LineModifiers, NumericUnit, Unit, WLine, WRect};
+use weekly::{AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, Unit, WLine, WRect};
 
 fn main() {
     let doc_title = "Project template";
@@ -70,7 +70,7 @@ fn fill_project_into_rect(rect: WRect, instructions: &mut Instructions) {
             rect.right(),
             rect.top() - 0.25.inches(),
         )
-        .as_shape(),
+        .as_pdf_line(),
     );
 
     instructions.set_stroke_color(&Colors::gray(0.75));
@@ -87,7 +87,7 @@ fn fill_box_with_lines(boxx: &WRect, offset: Unit, gap: Unit, instructions: &mut
 
     while curr_y > boxx.bottom_q1() {
         let line = WLine::line(boxx.left(), curr_y, boxx.right(), curr_y);
-        instructions.push_shape(line.as_shape());
+        instructions.push_shape(line.as_pdf_line());
         curr_y = curr_y - gap;
     }
 }

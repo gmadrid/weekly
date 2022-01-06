@@ -1,5 +1,6 @@
 use crate::pdfutils::{Colors, Instructions};
 use crate::shapes::line::WLine;
+use crate::shapes::AsPdfLine;
 use crate::units::Unit;
 use crate::{NumericUnit, WRect};
 use printpdf::*;
@@ -35,7 +36,7 @@ impl<'a> TableGrid<'a> {
         for col in 0..self.cols {
             let x = self.bounds.left() + self.left_label_width + col_width * col;
             let line = WLine::line(x, self.bounds.top(), x, self.bounds.bottom_q1());
-            instructions.push_shape(line.as_shape());
+            instructions.push_shape(line.as_pdf_line());
         }
     }
 
@@ -49,7 +50,7 @@ impl<'a> TableGrid<'a> {
 
             let y = self.bounds.top() - self.top_label_height - row_height * row;
             let line = WLine::line(self.bounds.left(), y, self.bounds.right(), y);
-            instructions.push_shape(line.as_shape());
+            instructions.push_shape(line.as_pdf_line());
         }
     }
 
@@ -63,7 +64,7 @@ impl<'a> TableGrid<'a> {
                 let x = self.bounds.left() + self.left_label_width + col_width * col;
                 // let rect = WRect::new(x, self.bounds.top(), x + col_width, self.bounds.bottom_q1());
                 let rect = base_col_rect.move_to(x, self.bounds.top());
-                instructions.push_shape(rect.as_shape());
+                instructions.push_shape(rect.as_pdf_line());
             }
         }
     }

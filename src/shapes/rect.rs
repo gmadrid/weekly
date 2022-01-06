@@ -1,4 +1,5 @@
 use crate::pdfutils::point_pair;
+use crate::shapes::AsPdfLine;
 use crate::units::Unit;
 use printpdf::*;
 
@@ -87,21 +88,6 @@ impl WRect {
         }
     }
 
-    pub fn as_shape(&self) -> Line {
-        Line {
-            // In Q1, rects grow downward toward the bottom.
-            points: vec![
-                point_pair(self.left, self.top, false),
-                point_pair(self.left + self.width, self.top, false),
-                point_pair(self.left + self.width, self.top - self.height, false),
-                point_pair(self.left, self.top - self.height, false),
-            ],
-            has_fill: true,
-            is_closed: true,
-            ..Line::default()
-        }
-    }
-
     pub fn as_rounded_rect_shape(&self, radius: Unit) -> Line {
         let pv = Unit::from(1.0 - 0.55228);
         Line {
@@ -122,6 +108,23 @@ impl WRect {
                 point_pair(self.left(), self.top() - radius * pv, true),
                 point_pair(self.left() + radius * pv, self.top(), false),
                 point_pair(self.left() + radius, self.top(), false),
+            ],
+            has_fill: true,
+            is_closed: true,
+            ..Line::default()
+        }
+    }
+}
+
+impl AsPdfLine for WRect {
+    fn as_pdf_line(&self) -> Line {
+        Line {
+            // In Q1, rects grow downward toward the bottom.
+            points: vec![
+                point_pair(self.left, self.top, false),
+                point_pair(self.left + self.width, self.top, false),
+                point_pair(self.left + self.width, self.top - self.height, false),
+                point_pair(self.left, self.top - self.height, false),
             ],
             has_fill: true,
             is_closed: true,

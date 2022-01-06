@@ -1,37 +1,23 @@
-Need to:
-- start by defining a new layout
-  - "cards"
-    - title
-    - card areas with subtitle line and gray lines for tasks
-      - maybe a dot to left of line
-- also use remarkable dimensions
-- also use PNG output
+Commands
 
+active - UNFINISHED
+  Basically, a ToDo list. Two columns of lines with checkboxes.
+  It's not finished at all.
 
+cornell - Cornell notes with college ruled lines.
+  Intended to be a Remarkable template.
 
-Size of page.
-Size of margins - defines outer box.
+daily - Daily tasks checklist.
+  A month of days. Heavily uses the Grid object.
+  Probably the most advanced and polished sheet so far.
 
-Specify size of top labels - top box rest is "bottom box"
+monthlies - Monthly checklist. _Years_ of months.
+  Probably want to make it one year.
+  Uses Grid object, but it's pretty basic.
 
-bottom box is divided into N columns + 1 for the labels
-bottom box is divided into DAYS rows - one for each day in the month
+projects - Project cards.
+  Looks nice. Has some rounded lines.
 
+remtest - Random test app to explore Remarkable stuff.
 
-
-
-
-
-- want to create a grid in a certain sized box with labels.
-- also put some titles and legends on it.
-- should automatically take a month and make enough rows for that
-- maybe diagonal headers
-- OPT: styling alternate rows
-- OPT: styling lines
-
-- make coordinate system
-- draw arbitrary lines
-- draw rectangles
-- OPT: only draw shared lines once (in grid is easier)
-- use PDF/SVG as output mechanism, but don't require that
-- then print via browser?
+tester - A file for playing with stuff.

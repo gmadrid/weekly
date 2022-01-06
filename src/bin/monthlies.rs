@@ -28,7 +28,7 @@ fn main_func() -> weekly::Result<()> {
     let num_cols = 20;
     let date = weekly::today();
     let col_labels = names_for_months(&date, num_cols);
-    let row_labels: Vec<String> = vec![
+    let row_labels = vec![
         "Pay AmEx",
         "Pay Chase",
         "Pay Fidelity",
@@ -39,10 +39,7 @@ fn main_func() -> weekly::Result<()> {
         "Check smoke alarms",
         "Change sleep equip.",
         "Run FI simulation",
-    ]
-    .into_iter()
-    .map(|s| s.to_string())
-    .collect();
+    ];
 
     let page_rect =
         WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
@@ -64,10 +61,11 @@ fn main_func() -> weekly::Result<()> {
     );
     let times_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold).unwrap();
 
+    let col_label_strs: Vec<&str> = col_labels.iter().map(|s| s.as_str()).collect();
     Builder::new()
         .doc_title(doc_title)
         .row_labels(&row_labels)
-        .col_labels(&col_labels)
+        .col_labels(&col_label_strs)
         .num_rows(num_rows)
         .num_cols(num_cols)
         .bounds(table_bounds)

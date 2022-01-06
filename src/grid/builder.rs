@@ -1,20 +1,23 @@
 use crate::grid::TableGrid;
 use crate::units::Unit;
 use crate::{Instructions, NumericUnit, WRect};
-use printpdf::IndirectFontRef;
+use printpdf::*;
 
 #[derive(Default)]
 pub struct Builder<'a> {
     doc_title: Option<String>,
-    row_labels: Option<&'a [String]>,
-    col_labels: Option<&'a [String]>,
+    row_labels: Option<&'a [&'a str]>,
+    col_labels: Option<&'a [&'a str]>,
     num_rows: Option<usize>,
     num_cols: Option<usize>,
     bounds: Option<WRect>,
     top_label_height: Option<Unit>,
     left_label_width: Option<Unit>,
     font: Option<&'a IndirectFontRef>,
-    width_func: Option<&'a dyn Fn(usize) -> f64>,
+    horiz_line_width_func: Option<&'a dyn Fn(usize) -> f64>,
+    vert_line_width_func: Option<&'a dyn Fn(usize) -> f64>,
+    cell_background_func: Option<&'a dyn Fn(usize, usize) -> Option<Color>>,
+    box_width: Option<Unit>,
 }
 
 impl<'a> Builder<'a> {
@@ -56,12 +59,33 @@ impl<'a> Builder<'a> {
             top_label_height,
             left_label_width,
             font,
-            width_func: self.width_func,
+            horiz_line_width_func: self.horiz_line_width_func,
+            vert_line_width_func: self.vert_line_width_func,
+            cell_background_func: self.cell_background_func,
+            box_width: self.box_width,
         }
     }
 
-    pub fn width_func(mut self, f: &'a (dyn Fn(usize) -> f64)) -> Builder<'a> {
-        self.width_func = Some(f);
+    pub fn horiz_line_width_func(mut self, f: &'a (dyn Fn(usize) -> f64)) -> Builder<'a> {
+        self.horiz_line_width_func = Some(f);
+        self
+    }
+
+    pub fn vert_line_width_func(mut self, f: &'a (dyn Fn(usize) -> f64)) -> Builder<'a> {
+        self.vert_line_width_func = Some(f);
+        self
+    }
+
+    pub fn box_width(mut self, width: Unit) -> Builder<'a> {
+        self.box_width = Some(width);
+        self
+    }
+
+    pub fn cell_background_func(
+        mut self,
+        f: &'a (dyn Fn(usize, usize) -> Option<Color>),
+    ) -> Builder<'a> {
+        self.cell_background_func = Some(f);
         self
     }
 
@@ -70,12 +94,12 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn row_labels(mut self, row_labels: &'a [String]) -> Builder<'a> {
+    pub fn row_labels(mut self, row_labels: &'a [&'a str]) -> Builder<'a> {
         self.row_labels = Some(row_labels);
         self
     }
 
-    pub fn col_labels(mut self, col_labels: &'a [String]) -> Builder<'a> {
+    pub fn col_labels(mut self, col_labels: &'a [&'a str]) -> Builder<'a> {
         self.col_labels = Some(col_labels);
         self
     }

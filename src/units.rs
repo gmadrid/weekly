@@ -101,6 +101,14 @@ impl std::ops::Mul<Unit> for Unit {
     }
 }
 
+impl std::ops::Div for Unit {
+    type Output = usize;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        (self.0 / rhs.0).trunc() as Self::Output
+    }
+}
+
 impl std::ops::Div<usize> for Unit {
     type Output = Unit;
 

@@ -1,5 +1,5 @@
-use crate::{GridDescription, Unit, WRect};
-use printpdf::IndirectFontRef;
+use crate::{GridDescription, Instructions, Unit, WRect};
+use printpdf::{Color, IndirectFontRef};
 use std::borrow::Cow;
 
 #[derive(Debug)]
@@ -43,6 +43,21 @@ where
 
     pub fn vert_line_width(&self, index: usize) -> f64 {
         self.description.vert_line_width(index)
+    }
+
+    pub fn column_background(&self, index: usize) -> Option<Color> {
+        self.description.column_background(index)
+    }
+
+    pub fn render_cell_contents(
+        &self,
+        row: usize,
+        col: usize,
+        rect: &WRect,
+        instructions: &mut Instructions,
+    ) {
+        self.description
+            .render_cell_contents(row, col, rect, instructions);
     }
 }
 

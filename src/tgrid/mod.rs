@@ -1,5 +1,5 @@
 use crate::tgrid::renderparams::RenderParams;
-use crate::{AsPdfLine, Instructions, NumericUnit, Unit, WLine};
+use crate::{AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect};
 use description::GridDescription;
 
 pub mod description;
@@ -112,12 +112,43 @@ where
         }
     }
 
+    fn render_column_backgrounds(&self, instructions: &mut Instructions) {
+        let base_col_rect =
+            WRect::with_dimensions(self.params.col_width, self.params.grid_bounds.height());
+
+        for col in 0..self.params.num_cols {
+            if let Some(color) = self.params.column_background(col) {
+                let x = self.col_x(col);
+                let rect = base_col_rect.move_to(x, self.params.grid_bounds.top());
+                instructions.set_fill_color(&color);
+                instructions.push_shape(rect.as_pdf_line());
+            }
+        }
+    }
+
+    fn render_cell_contents(&self, instructions: &mut Instructions) {
+        let cell_rect = WRect::with_dimensions(self.params.col_width, self.params.row_height);
+
+        for row in 0..self.params.num_rows {
+            for col in 0..self.params.num_cols {
+                let this_rect = cell_rect.move_to(self.col_x(col), self.row_y(row));
+                self.params
+                    .render_cell_contents(row, col, &this_rect, instructions);
+            }
+        }
+    }
+
     pub fn generate_instructions(&self) -> Instructions {
         let mut instructions = Instructions::default();
+
+        self.render_column_backgrounds(&mut instructions);
+        self.render_cell_contents(&mut instructions);
 
         self.render_horizontal_lines(&mut instructions);
         self.render_vertical_lines(&mut instructions);
 
+        // TODO: allow changing text colors.
+        instructions.set_fill_color(&Colors::black());
         self.render_row_labels(&mut instructions);
         self.render_col_labels(&mut instructions);
 

@@ -1,7 +1,10 @@
 use chrono::{Datelike, NaiveDate, Weekday};
-use printpdf::{BuiltinFont, IndirectFontRef, PdfDocumentReference};
+use printpdf::{BuiltinFont, Color, IndirectFontRef, PdfDocumentReference};
 use std::borrow::Cow;
-use weekly::{save_one_page_document, sizes, today, Datetools, NumericUnit, TGrid, Unit, WRect};
+use weekly::{
+    save_one_page_document, sizes, today, AsPdfLine, Colors, Datetools, LineModifiers, NumericUnit,
+    TGrid, Unit, WRect,
+};
 use weekly::{GridDescription, Instructions};
 
 mod data {
@@ -14,7 +17,7 @@ mod data {
     pub struct DailyTask<'a> {
         pub name: &'a str,
         // No set means ALL days. Empty set means NO days.
-        days: Option<HashSet<Weekday>>,
+        pub days: Option<HashSet<Weekday>>,
     }
 
     fn weekdays_only() -> HashSet<Weekday> {
@@ -204,9 +207,57 @@ impl GridDescription for DailyDescription {
         }
     }
 
+    fn column_background(&self, index: usize) -> Option<Color> {
+        if index % 2 == 0 {
+            Some(Colors::gray(0.9))
+        } else {
+            None
+        }
+    }
+
+    fn render_cell_contents(
+        &self,
+        row: usize,
+        col: usize,
+        cell_rect: &WRect,
+        instructions: &mut Instructions,
+    ) {
+        let mut should_draw_checkbox = true;
+        if col < data::TASKS.len() {
+            if let Some(day_set) = &data::TASKS[col].days {
+                let date = &self.dates_in_month[row];
+                if !day_set.contains(&date.weekday()) {
+                    instructions.set_fill_color(&Colors::gray(0.7));
+                    instructions.push_shape(cell_rect.as_pdf_line());
+                    should_draw_checkbox = false;
+                }
+            }
+        }
+
+        if should_draw_checkbox {
+            render_checkbox(cell_rect, instructions);
+        }
+    }
+
     fn font(&self) -> &IndirectFontRef {
         &self.font
     }
+}
+
+fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
+    let box_width = 3.0.mm();
+
+    let x_offset = (cell_rect.width() - box_width) / 2;
+    let y_offset = (cell_rect.height() - box_width) / 2;
+
+    let checkbox_rect = WRect::with_dimensions(box_width, box_width)
+        .move_to(cell_rect.left() + x_offset, cell_rect.top() - y_offset);
+
+    instructions.clear_fill_color();
+    instructions.set_stroke_color(&Colors::gray(0.25));
+    instructions.set_stroke_width(0.0);
+
+    instructions.push_shape(checkbox_rect.as_pdf_line().fill(false).stroke(true));
 }
 
 fn render_dailies(doc: &PdfDocumentReference, page_rect: &WRect) -> Instructions {

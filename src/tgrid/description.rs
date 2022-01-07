@@ -1,7 +1,7 @@
-use printpdf::IndirectFontRef;
+use printpdf::{Color, IndirectFontRef};
 use std::borrow::Cow;
 
-use crate::{NumericUnit, Unit, WRect};
+use crate::{Instructions, NumericUnit, Unit, WRect};
 
 pub trait GridDescription {
     // Returns the page bounds of the table.
@@ -63,6 +63,19 @@ pub trait GridDescription {
     }
     fn vert_line_width(&self, _index: usize) -> f64 {
         1.0
+    }
+
+    fn column_background(&self, _index: usize) -> Option<Color> {
+        None
+    }
+
+    fn render_cell_contents(
+        &self,
+        _row: usize,
+        _col: usize,
+        _cell_rect: &WRect,
+        _instructions: &mut Instructions,
+    ) {
     }
 
     // Font to use for labels.

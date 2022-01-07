@@ -1,16 +1,14 @@
 use chrono::{Datelike, NaiveDate, Weekday};
-use printpdf::{BuiltinFont, IndirectFontRef, PdfDocument};
+use printpdf::{BuiltinFont, IndirectFontRef, PdfDocumentReference};
 use std::borrow::Cow;
-use std::fs::File;
-use std::io::BufWriter;
-use weekly::GridDescription;
-use weekly::{today, Datetools, NumericUnit, TGrid, Unit, WRect};
+use weekly::{save_one_page_document, sizes, today, Datetools, NumericUnit, TGrid, Unit, WRect};
+use weekly::{GridDescription, Instructions};
 
 mod data {
-    use std::collections::HashSet;
     use chrono::Weekday;
     use chrono::Weekday::{Fri, Mon, Thu, Tue, Wed};
     use lazy_static::lazy_static;
+    use std::collections::HashSet;
 
     #[derive(Default, Debug)]
     pub struct DailyTask<'a> {
@@ -211,31 +209,15 @@ impl GridDescription for DailyDescription {
     }
 }
 
-fn main() {
-    // TODO: basically, all of this is boilerplate.
-    let doc_title = "Foo";
-    let output_filename = "foo.pdf";
-
-    let page_rect =
-        WRect::with_dimensions(8.5.inches(), 11.0.inches()).move_to(0.0.inches(), 11.0.inches());
-
-    let (doc, page, layer) = PdfDocument::new(
-        doc_title,
-        page_rect.width().into(),
-        page_rect.height().into(),
-        "Layer 1",
-    );
-
-    let description = DailyDescription::for_month(
-        &today(),
-        page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches()),
-        doc.add_builtin_font(BuiltinFont::TimesBold).unwrap(),
-    );
+fn render_dailies(doc: &PdfDocumentReference, page_rect: &WRect) -> Instructions {
+    let grid_rect =
+        page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
+    let font = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
+    let description = DailyDescription::for_month(&today(), grid_rect, font);
     let grid = TGrid::with_description(description);
-
     grid.generate_instructions()
-        .draw_to_layer(&doc.get_page(page).get_layer(layer));
+}
 
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
+fn main() {
+    save_one_page_document("Quux", "quux.pdf", &sizes::letter(), render_dailies);
 }

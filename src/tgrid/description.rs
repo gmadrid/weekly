@@ -58,8 +58,12 @@ pub trait GridDescription {
     // Line width of the grid like _before_ the indexed row(col).
     // index will be 0..=num_rows(num_cols). If index == num_rows(num_cols),
     // it is the final line _after_ the last row(col).
-    fn horiz_line_width(&self, _index: usize) -> f64{ 1.0 }
-    fn vert_line_width(&self, _index: usize) -> f64 { 1.0 }
+    fn horiz_line_width(&self, _index: usize) -> f64 {
+        1.0
+    }
+    fn vert_line_width(&self, _index: usize) -> f64 {
+        1.0
+    }
 
     // Font to use for labels.
     // TODO: this is a leaky abstraction, since it relies on PDF print stuff.

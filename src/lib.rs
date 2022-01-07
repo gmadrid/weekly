@@ -2,7 +2,8 @@ use thiserror::Error;
 
 pub use datetools::{today, Datetools};
 pub use grid::Builder;
-pub use pdfutils::{Colors, Instructions, LineModifiers};
+pub use pdfutils::sizes;
+pub use pdfutils::{save_one_page_document, Colors, Instructions, LineModifiers};
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
 pub use shapes::AsPdfLine;

@@ -1,18 +1,12 @@
-use printpdf::PdfDocument;
-use std::fs::File;
-use std::io::BufWriter;
-use weekly::{AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, WRect};
+use printpdf::PdfDocumentReference;
+use weekly::{
+    save_one_page_document, AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, WRect,
+};
 
 const REMARKABLE_WIDTH: f64 = 157.2;
 const REMARKABLE_HEIGHT: f64 = 209.6;
 
-fn main() {
-    let doc_title = "Remarkable test";
-    let output_filename = "remtest.pdf";
-
-    let page_bounds = WRect::with_dimensions(REMARKABLE_WIDTH.mm(), REMARKABLE_HEIGHT.mm())
-        .move_to(0.0.mm(), REMARKABLE_HEIGHT.mm());
-
+fn render_remtest(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions {
     let mut instructions = Instructions::default();
     instructions.set_fill_color(&Colors::red());
     instructions.set_stroke_width(1.0);
@@ -22,16 +16,15 @@ fn main() {
     let rect_shape = black_rect.as_pdf_line().fill(false).stroke(true);
     instructions.push_shape(rect_shape);
 
-    let (doc, page, layer) = PdfDocument::new(
-        doc_title,
-        page_bounds.width().into(),
-        page_bounds.height().into(),
-        "Layer 1",
-    );
+    instructions
+}
 
-    let layer = doc.get_page(page).get_layer(layer);
-    instructions.draw_to_layer(&layer);
+fn main() {
+    let doc_title = "Remarkable test";
+    let output_filename = "remtest.pdf";
 
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
+    let page_bounds = WRect::with_dimensions(REMARKABLE_WIDTH.mm(), REMARKABLE_HEIGHT.mm())
+        .move_to(0.0.mm(), REMARKABLE_HEIGHT.mm());
+
+    save_one_page_document(doc_title, output_filename, &page_bounds, render_remtest);
 }

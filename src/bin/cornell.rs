@@ -1,7 +1,5 @@
-use printpdf::PdfDocument;
-use std::fs::File;
-use std::io::BufWriter;
-use weekly::{AsPdfLine, Colors, Instructions, NumericUnit, WLine, WRect};
+use printpdf::PdfDocumentReference;
+use weekly::{save_one_page_document, AsPdfLine, Colors, Instructions, NumericUnit, WLine, WRect};
 
 // Remarkable claims to want 1404×1872 pixel images. (4/3 aspect ratio)
 // These dimensions below are producing a 928x1237 pixel image.
@@ -17,9 +15,7 @@ fn remarkable_bounds() -> WRect {
         .move_to(0.0.mm(), REMARKABLE_HEIGHT_MM.mm())
 }
 
-pub fn main() -> weekly::Result<()> {
-    let device_rect = remarkable_bounds();
-
+fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> Instructions {
     let mut instructions = Instructions::default();
     instructions.set_fill_color(&Colors::red());
     instructions.set_stroke_width(0.75);
@@ -50,21 +46,15 @@ pub fn main() -> weekly::Result<()> {
     .map(|y| WLine::line(left_line_x, y, device_rect.right(), y))
     .for_each(|l| instructions.push_shape(l.as_pdf_line()));
 
+    instructions
+}
+
+pub fn main() -> weekly::Result<()> {
     let doc_title = "Cornell note page";
     let output_filename = "cornell.pdf";
+    let device_rect = remarkable_bounds();
 
-    let (doc, page, layer) = PdfDocument::new(
-        doc_title,
-        device_rect.width().into(),
-        device_rect.height().into(),
-        "Layer 1",
-    );
-
-    let layer = doc.get_page(page).get_layer(layer);
-    instructions.draw_to_layer(&layer);
-
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
+    save_one_page_document(doc_title, output_filename, &device_rect, render_cornell);
 
     Ok(())
 }

@@ -1,15 +1,10 @@
-use printpdf::PdfDocument;
-use std::fs::File;
-use std::io::BufWriter;
-use weekly::{AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, Unit, WLine, WRect};
+use printpdf::PdfDocumentReference;
+use weekly::{
+    save_one_page_document, AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, Unit,
+    WLine, WRect,
+};
 
-fn main() {
-    let doc_title = "Project template";
-    let output_filename = "projects.pdf";
-
-    let page_bounds =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
-
+fn render_projects(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions {
     let content_bounds =
         page_bounds.inset_all_q1(0.325.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
 
@@ -36,19 +31,17 @@ fn main() {
     fill_project_into_rect(bottom_left, &mut instructions);
     fill_project_into_rect(bottom_right, &mut instructions);
 
-    // TODO: write a save_to_pdf() on instructions.  Maybe also a write_to_new_page().
-    let (doc, page, layer) = PdfDocument::new(
-        doc_title,
-        page_bounds.width().into(),
-        page_bounds.height().into(),
-        "Layer 1",
-    );
-    //let times_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold).unwrap();
-    let layer = doc.get_page(page).get_layer(layer);
-    instructions.draw_to_layer(&layer);
+    instructions
+}
 
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
+fn main() {
+    let doc_title = "Project template";
+    let output_filename = "projects.pdf";
+
+    let page_bounds =
+        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
+
+    save_one_page_document(doc_title, output_filename, &page_bounds, render_projects);
 }
 
 fn fill_project_into_rect(rect: WRect, instructions: &mut Instructions) {

@@ -1,5 +1,9 @@
 use crate::units::Unit;
+use crate::WRect;
 use printpdf::*;
+use std::fs::File;
+use std::io::BufWriter;
+use std::path::Path;
 
 pub fn point_pair(x: Unit, y: Unit, next: bool) -> (Point, bool) {
     (Point::new(x.into(), y.into()), next)
@@ -218,4 +222,34 @@ impl LineModifiers for Line {
         self.has_fill = value;
         self
     }
+}
+
+pub mod sizes {
+    use crate::{NumericUnit, WRect};
+
+    pub fn letter() -> WRect {
+        WRect::with_dimensions(8.5.inches(), 11.0.inches()).move_to(0.0.inches(), 11.0.inches())
+    }
+}
+
+pub fn save_one_page_document<F>(
+    title: &str,
+    filename: impl AsRef<Path>,
+    page_bounds: &WRect,
+    callback: F,
+) where
+    F: FnOnce(&PdfDocumentReference, &WRect) -> Instructions,
+{
+    let (doc, page, layer) = PdfDocument::new(
+        title,
+        page_bounds.width().into(),
+        page_bounds.height().into(),
+        "Layer 1",
+    );
+
+    callback(&doc, page_bounds).draw_to_layer(&doc.get_page(page).get_layer(layer));
+
+    // TODO: deal with these unwraps.
+    doc.save(&mut BufWriter::new(File::create(filename).unwrap()))
+        .unwrap();
 }

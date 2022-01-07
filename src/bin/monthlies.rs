@@ -1,9 +1,7 @@
 use chrono::NaiveDate;
 use printpdf::*;
-use std::fs::File;
-use std::io::BufWriter;
 use std::path::PathBuf;
-use weekly::{Builder, Datetools, NumericUnit, WRect};
+use weekly::{save_one_page_document, Builder, Datetools, Instructions, NumericUnit, WRect};
 
 fn names_for_months(start_date: &NaiveDate, n: usize) -> Vec<String> {
     let mut month = start_date.first_of_month();
@@ -23,11 +21,14 @@ fn default_doc_title(date: &NaiveDate) -> String {
     format!("Monthly Checklist (starting {})", date.format("%B %Y"))
 }
 
-fn main_func() -> weekly::Result<()> {
+fn render_monthlies(
+    date: &NaiveDate,
+    doc: &PdfDocumentReference,
+    page_rect: &WRect,
+) -> Instructions {
     let num_rows = 35;
     let num_cols = 20;
-    let date = weekly::today();
-    let col_labels = names_for_months(&date, num_cols);
+    let col_labels = names_for_months(date, num_cols);
     let row_labels = vec![
         "Pay AmEx",
         "Pay Chase",
@@ -41,8 +42,6 @@ fn main_func() -> weekly::Result<()> {
         "Run FI simulation",
     ];
 
-    let page_rect =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
     let table_bounds = page_rect.inset_all_q1(
         0.25.inches() + 0.125.inches(), // Extra 1/8" for the rings.
         0.25.inches(),
@@ -50,20 +49,10 @@ fn main_func() -> weekly::Result<()> {
         0.25.inches(),
     );
 
-    let doc_title = default_doc_title(&date);
-    let output_filename = default_output_filename(&date);
-
-    let (doc, page, layer) = PdfDocument::new(
-        &doc_title,
-        page_rect.width().into(),
-        page_rect.height().into(),
-        "Layer 1",
-    );
     let times_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold).unwrap();
 
     let col_label_strs: Vec<&str> = col_labels.iter().map(|s| s.as_str()).collect();
     Builder::new()
-        .doc_title(doc_title)
         .row_labels(&row_labels)
         .col_labels(&col_label_strs)
         .num_rows(num_rows)
@@ -73,10 +62,18 @@ fn main_func() -> weekly::Result<()> {
         .left_label_width(1.5.inches())
         .font(&times_bold)
         .generate_instructions()
-        .draw_to_layer(&doc.get_page(page).get_layer(layer));
+}
 
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
+fn main_func() -> weekly::Result<()> {
+    let date = weekly::today();
+    let title = default_doc_title(&date);
+    let filename = default_output_filename(&date);
+
+    let page_bounds =
+        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
+    save_one_page_document(&title, &filename, &page_bounds, |d, r| {
+        render_monthlies(&date, d, r)
+    });
 
     Ok(())
 }

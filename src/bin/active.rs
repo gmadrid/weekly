@@ -1,16 +1,9 @@
 use printpdf::*;
-use std::fs::File;
-use std::io::BufWriter;
-use weekly::{AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect};
+use weekly::{
+    save_one_page_document, AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect,
+};
 
-fn main() {
-    let doc_title = "Simple task list";
-    let output_filename = "task-list.pdf";
-
-    // Make the page box and shift it to account for Q1 math.
-    let page_bounds =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.5.inches(), 8.5.inches());
-
+fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions {
     let half_page = page_bounds.resize(page_bounds.width() / 2, page_bounds.height());
     let left_bounds = half_page.inset_all_q1(
         0.25.inches() + 0.125.inches(),
@@ -23,32 +16,20 @@ fn main() {
     let mut instructions = Instructions::default();
 
     let task_height = 0.25.inches();
-
     draw_tasks_in_bounds(left_bounds, &mut instructions, task_height);
     draw_tasks_in_bounds(right_bounds, &mut instructions, task_height);
 
-    let (doc, page, layer) = PdfDocument::new(
-        doc_title,
-        page_bounds.width().into(),
-        page_bounds.height().into(),
-        "Layer 1",
-    );
-    //let times_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold).unwrap();
-    let layer = doc.get_page(page).get_layer(layer);
-    instructions.draw_to_layer(&layer);
+    instructions
+}
 
-    let (page_2_index, layer_2_index) = doc.add_page(
-        page_bounds.width().into(),
-        page_bounds.height().into(),
-        "Layer 2",
-    );
-    let layer_2 = doc.get_page(page_2_index).get_layer(layer_2_index);
-    instructions.draw_to_layer(&layer_2);
+fn main() {
+    let doc_title = "Simple task list";
+    let output_filename = "task-list.pdf";
+    // Make the page box and shift it to account for Q1 math.
+    let page_bounds =
+        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.5.inches(), 8.5.inches());
 
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
-
-    //    Ok(())
+    save_one_page_document(doc_title, output_filename, &page_bounds, render_active);
 }
 
 fn draw_tasks_in_bounds(bounds: WRect, instructions: &mut Instructions, task_height: Unit) {

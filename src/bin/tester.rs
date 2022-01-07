@@ -1,7 +1,8 @@
-use printpdf::PdfDocument;
-use std::fs::File;
-use std::io::BufWriter;
-use weekly::{AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, Unit, WLine, WRect};
+use printpdf::PdfDocumentReference;
+use weekly::{
+    save_one_page_document, AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, Unit,
+    WLine, WRect,
+};
 
 /// Draw horizontal lines starting at 'offset' from the top of the box and at every 'gap'
 /// after it. Fill the box with these lines.
@@ -17,14 +18,7 @@ fn fill_box_with_lines(boxx: &WRect, offset: Unit, gap: Unit, instructions: &mut
     }
 }
 
-fn main() {
-    let doc_title = "Testing new stuff";
-    let output_filename = "tester.pdf";
-
-    // Make the page box and shift it to account for Q1 math.
-    let page_bounds =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
-
+fn render_tester(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions {
     let top_left = page_bounds.resize(page_bounds.width() / 2, page_bounds.height() / 2);
     top_left.inset_q1(0.125.inches(), 0.125.inches());
     let bottom_right = top_left.move_to(page_bounds.width() / 2, page_bounds.height() / 2);
@@ -74,16 +68,16 @@ fn main() {
         &mut instructions,
     );
 
-    let (doc, page, layer) = PdfDocument::new(
-        doc_title,
-        page_bounds.width().into(),
-        page_bounds.height().into(),
-        "Layer 1",
-    );
-    //let times_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold).unwrap();
-    let layer = doc.get_page(page).get_layer(layer);
-    instructions.draw_to_layer(&layer);
+    instructions
+}
 
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
+fn main() {
+    let doc_title = "Testing new stuff";
+    let output_filename = "tester.pdf";
+
+    // Make the page box and shift it to account for Q1 math.
+    let page_bounds =
+        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
+
+    save_one_page_document(doc_title, output_filename, &page_bounds, render_tester);
 }

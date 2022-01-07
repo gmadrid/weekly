@@ -64,8 +64,8 @@ where
 
         let has_row_labels = description.row_label_width().is_some();
         let has_col_labels = description.col_label_height().is_some();
-        let row_label_width = description.row_label_width().unwrap_or(Unit::zero());
-        let col_label_height = description.col_label_height().unwrap_or(Unit::zero());
+        let row_label_width = description.row_label_width().unwrap_or_else(Unit::zero);
+        let col_label_height = description.col_label_height().unwrap_or_else(Unit::zero);
 
         let num_rows = description.num_rows().unwrap_or_else(|| {
             // unwrap: we check that both num_rows and row_height cannot be none.

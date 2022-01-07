@@ -2,12 +2,12 @@ use argh::FromArgs;
 use chrono::Weekday::{Fri, Mon, Thu, Tue, Wed};
 use chrono::{Datelike, Duration, NaiveDate, Weekday};
 use lazy_static::lazy_static;
-use printpdf::{BuiltinFont, PdfDocument};
+use printpdf::{BuiltinFont, PdfDocumentReference};
 use std::collections::HashSet;
-use std::fs::File;
-use std::io::BufWriter;
 use std::path::PathBuf;
-use weekly::{Builder, Colors, Datetools, NumericUnit, WRect};
+use weekly::{
+    save_one_page_document, Builder, Colors, Datetools, Instructions, NumericUnit, WRect,
+};
 
 const DEFAULT_NUM_COLS: u16 = 25;
 const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
@@ -153,13 +153,11 @@ fn default_doc_title(date: &NaiveDate) -> String {
     format!("Daily Checklist - {}", date.format("%B %Y"))
 }
 
-fn main_func(date: &NaiveDate) -> weekly::Result<()> {
+fn render_daily(date: &NaiveDate, doc: &PdfDocumentReference, page_rect: &WRect) -> Instructions {
     let date_names = get_date_names(date);
 
     let col_labels: Vec<&str> = TASKS.iter().map(|t| t.name).collect();
 
-    let page_rect =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
     let table_bounds = page_rect.inset_all_q1(
         0.5.inches() + 0.125.inches(), // Extra 1/8" for the rings.
         0.25.inches(),
@@ -170,15 +168,6 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
     let top_box_height = DEFAULT_TOP_LABEL_HEIGHT.inches();
     let cols = DEFAULT_NUM_COLS;
 
-    let output_filename = default_output_filename(date);
-    let doc_title = default_doc_title(date);
-
-    let (doc, page, layer) = PdfDocument::new(
-        &doc_title,
-        page_rect.width().into(),
-        page_rect.height().into(),
-        "Layer 1",
-    );
     let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
 
     let first = date.first_of_month();
@@ -211,7 +200,6 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
 
     let date_names_str: Vec<&str> = date_names.iter().map(|s| s.as_str()).collect();
     Builder::new()
-        .doc_title(doc_title)
         // TODO: Make this dependent on the cell size?
         .box_width(2.0.mm())
         .row_labels(&date_names_str)
@@ -225,10 +213,17 @@ fn main_func(date: &NaiveDate) -> weekly::Result<()> {
         .vert_line_width_func(&vert_line_width_func)
         .cell_background_func(&cell_background_func)
         .generate_instructions()
-        .draw_to_layer(&doc.get_page(page).get_layer(layer));
+}
 
-    doc.save(&mut BufWriter::new(File::create(output_filename).unwrap()))
-        .unwrap();
+fn main_func(date: &NaiveDate) -> weekly::Result<()> {
+    let output_filename = default_output_filename(date);
+    let doc_title = default_doc_title(date);
+    let page_rect =
+        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
+
+    save_one_page_document(&doc_title, &output_filename, &page_rect, |d, r| {
+        render_daily(date, d, r)
+    });
 
     Ok(())
 }

@@ -67,11 +67,9 @@ where
 {
     fn from(description: D) -> Self {
         if description.row_height().is_none() && description.num_rows().is_none() {
-            // TODO: make this return a Result
             panic!("either row height or num rows must be set");
         }
         if description.col_width().is_none() && description.num_cols().is_none() {
-            // TODO: make this return a Result
             panic!("either col width or num cols must be set");
         }
 

@@ -27,7 +27,7 @@ fn default_doc_title(date: &NaiveDate) -> String {
 
 struct MonthlyDescription {
     bounds: WRect,
-    start_month: NaiveDate,
+    month_names: Vec<String>,
     font: IndirectFontRef,
 }
 
@@ -58,7 +58,7 @@ impl MonthlyDescription {
     {
         MonthlyDescription {
             bounds: grid_rect.clone(),
-            start_month: date.first_of_month(),
+            month_names: names_for_months(&date.first_of_month(), Self::NUM_ROWS),
             font,
         }
     }
@@ -94,10 +94,8 @@ impl GridDescription for MonthlyDescription {
     }
 
     fn col_label(&self, index: usize) -> Cow<'static, str> {
-        // TODO: precompute this expensive call.
-        names_for_months(&self.start_month, self.num_cols().unwrap())[index]
-            .clone()
-            .into()
+        // TODO: can we get rid of this clone()?
+        self.month_names[index].clone().into()
     }
 
     fn column_background(&self, index: usize) -> Option<Color> {

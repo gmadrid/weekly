@@ -237,7 +237,8 @@ pub fn save_one_page_document<F>(
     filename: impl AsRef<Path>,
     page_bounds: &WRect,
     callback: F,
-) -> Result<()> where
+) -> Result<()>
+where
     F: FnOnce(&PdfDocumentReference, &WRect) -> Result<Instructions>,
 {
     let (doc, page, layer) = PdfDocument::new(
@@ -250,5 +251,5 @@ pub fn save_one_page_document<F>(
     callback(&doc, page_bounds)?.draw_to_layer(&doc.get_page(page).get_layer(layer));
 
     doc.save(&mut BufWriter::new(File::create(filename)?))?;
-    Ok(( ))
+    Ok(())
 }

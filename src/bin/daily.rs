@@ -270,7 +270,11 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
     instructions.push_shape(checkbox_rect.as_pdf_line().fill(false).stroke(true));
 }
 
-fn render_dailies(date: &NaiveDate, doc: &PdfDocumentReference, page_rect: &WRect) -> weekly::Result<Instructions> {
+fn render_dailies(
+    date: &NaiveDate,
+    doc: &PdfDocumentReference,
+    page_rect: &WRect,
+) -> weekly::Result<Instructions> {
     let grid_rect =
         page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
     let font = doc.add_builtin_font(BuiltinFont::TimesBold)?;

@@ -1,7 +1,11 @@
-use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDate};
 use printpdf::*;
+use std::borrow::Cow;
 use std::path::PathBuf;
-use weekly::{save_one_page_document, Builder, Datetools, Instructions, NumericUnit, WRect};
+use weekly::{
+    save_one_page_document, Colors, Datetools, GridDescription, Instructions, NumericUnit, TGrid,
+    Unit, WRect,
+};
 
 fn names_for_months(start_date: &NaiveDate, n: usize) -> Vec<String> {
     let mut month = start_date.first_of_month();
@@ -21,15 +25,17 @@ fn default_doc_title(date: &NaiveDate) -> String {
     format!("Monthly Checklist (starting {})", date.format("%B %Y"))
 }
 
-fn render_monthlies(
-    date: &NaiveDate,
-    doc: &PdfDocumentReference,
-    page_rect: &WRect,
-) -> weekly::Result<Instructions> {
-    let num_rows = 35;
-    let num_cols = 20;
-    let col_labels = names_for_months(date, num_cols);
-    let row_labels = vec![
+struct MonthlyDescription {
+    bounds: WRect,
+    start_month: NaiveDate,
+    font: IndirectFontRef,
+}
+
+impl MonthlyDescription {
+    const NUM_ROWS: usize = 35;
+    const NUM_COLS: usize = 20;
+
+    const ROW_LABELS: [&'static str; 10] = [
         "Pay AmEx",
         "Pay Chase",
         "Pay Fidelity",
@@ -42,26 +48,83 @@ fn render_monthlies(
         "Run FI simulation",
     ];
 
-    let table_bounds = page_rect.inset_all_q1(
-        0.25.inches() + 0.125.inches(), // Extra 1/8" for the rings.
-        0.25.inches(),
-        0.25.inches(),
-        0.25.inches(),
-    );
+    pub fn for_start_month<DL>(
+        date: &DL,
+        grid_rect: &WRect,
+        font: IndirectFontRef,
+    ) -> MonthlyDescription
+    where
+        DL: Datelike,
+    {
+        MonthlyDescription {
+            bounds: grid_rect.clone(),
+            start_month: date.first_of_month(),
+            font,
+        }
+    }
+}
 
-    let times_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold)?;
+impl GridDescription for MonthlyDescription {
+    fn bounds(&self) -> WRect {
+        self.bounds.clone()
+    }
 
-    let col_label_strs: Vec<&str> = col_labels.iter().map(|s| s.as_str()).collect();
-    Ok(Builder::new()
-        .row_labels(&row_labels)
-        .col_labels(&col_label_strs)
-        .num_rows(num_rows)
-        .num_cols(num_cols)
-        .bounds(table_bounds)
-        .top_label_height(1.0.inches())
-        .left_label_width(1.5.inches())
-        .font(&times_bold)
-        .generate_instructions())
+    fn num_rows(&self) -> Option<usize> {
+        Some(Self::NUM_ROWS)
+    }
+
+    fn num_cols(&self) -> Option<usize> {
+        Some(Self::NUM_COLS)
+    }
+
+    fn row_label_width(&self) -> Option<Unit> {
+        Some(2.0.inches())
+    }
+
+    fn col_label_height(&self) -> Option<Unit> {
+        Some(1.0.inches())
+    }
+
+    fn row_label(&self, index: usize) -> Cow<'static, str> {
+        if index < Self::ROW_LABELS.len() {
+            Self::ROW_LABELS[index].into()
+        } else {
+            "".into()
+        }
+    }
+
+    fn col_label(&self, index: usize) -> Cow<'static, str> {
+        // TODO: precompute this expensive call.
+        names_for_months(&self.start_month, self.num_cols().unwrap())[index]
+            .clone()
+            .into()
+    }
+
+    fn column_background(&self, index: usize) -> Option<Color> {
+        if index % 2 == 0 {
+            Some(Colors::gray(0.9))
+        } else {
+            None
+        }
+    }
+
+    fn font(&self) -> &IndirectFontRef {
+        &self.font
+    }
+}
+
+fn render_monthlies(
+    date: &NaiveDate,
+    doc: &PdfDocumentReference,
+    page_rect: &WRect,
+) -> weekly::Result<Instructions> {
+    let table_bounds =
+        page_rect.inset_all_q1(0.25.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
+
+    let font = doc.add_builtin_font(BuiltinFont::HelveticaBold)?;
+    let description = MonthlyDescription::for_start_month(date, &table_bounds, font);
+    let grid = TGrid::with_description(description);
+    Ok(grid.generate_instructions())
 }
 
 fn main_func() -> weekly::Result<()> {
@@ -69,8 +132,7 @@ fn main_func() -> weekly::Result<()> {
     let title = default_doc_title(&date);
     let filename = default_output_filename(&date);
 
-    let page_bounds =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
+    let page_bounds = weekly::sizes::letter();
     save_one_page_document(&title, &filename, &page_bounds, |d, r| {
         render_monthlies(&date, d, r)
     })

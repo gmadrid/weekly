@@ -22,7 +22,7 @@ fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resul
     Ok(instructions)
 }
 
-fn main() -> weekly::Result<()>{
+fn main() -> weekly::Result<()> {
     let doc_title = "Simple task list";
     let output_filename = "task-list.pdf";
     // Make the page box and shift it to account for Q1 math.

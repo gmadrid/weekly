@@ -19,7 +19,7 @@ fn render_remtest(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resu
     Ok(instructions)
 }
 
-fn main() -> weekly::Result<()>{
+fn main() -> weekly::Result<()> {
     let doc_title = "Remarkable test";
     let output_filename = "remtest.pdf";
 

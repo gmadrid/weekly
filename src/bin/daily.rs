@@ -270,13 +270,13 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
     instructions.push_shape(checkbox_rect.as_pdf_line().fill(false).stroke(true));
 }
 
-fn render_dailies(date: &NaiveDate, doc: &PdfDocumentReference, page_rect: &WRect) -> Instructions {
+fn render_dailies(date: &NaiveDate, doc: &PdfDocumentReference, page_rect: &WRect) -> weekly::Result<Instructions> {
     let grid_rect =
         page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
-    let font = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
+    let font = doc.add_builtin_font(BuiltinFont::TimesBold)?;
     let description = DailyDescription::for_month(date, grid_rect, font);
     let grid = TGrid::with_description(description);
-    grid.generate_instructions()
+    Ok(grid.generate_instructions())
 }
 
 fn default_output_filename(date: &NaiveDate) -> PathBuf {
@@ -293,8 +293,7 @@ fn main_func(date: &NaiveDate) -> Result<()> {
 
     save_one_page_document(&doc_title, &output_filename, &sizes::letter(), |d, p| {
         render_dailies(date, d, p)
-    });
-    Ok(())
+    })
 }
 
 fn main() {

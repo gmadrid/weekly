@@ -18,7 +18,7 @@ fn fill_box_with_lines(boxx: &WRect, offset: Unit, gap: Unit, instructions: &mut
     }
 }
 
-fn render_tester(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions {
+fn render_tester(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
     let top_left = page_bounds.resize(page_bounds.width() / 2, page_bounds.height() / 2);
     top_left.inset_q1(0.125.inches(), 0.125.inches());
     let bottom_right = top_left.move_to(page_bounds.width() / 2, page_bounds.height() / 2);
@@ -68,10 +68,10 @@ fn render_tester(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions 
         &mut instructions,
     );
 
-    instructions
+    Ok(instructions)
 }
 
-fn main() {
+fn main() -> weekly::Result<()> {
     let doc_title = "Testing new stuff";
     let output_filename = "tester.pdf";
 
@@ -79,5 +79,5 @@ fn main() {
     let page_bounds =
         WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
 
-    save_one_page_document(doc_title, output_filename, &page_bounds, render_tester);
+    save_one_page_document(doc_title, output_filename, &page_bounds, render_tester)
 }

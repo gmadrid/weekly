@@ -1,5 +1,5 @@
 use crate::units::Unit;
-use crate::WRect;
+use crate::{Result, WRect};
 use printpdf::*;
 use std::fs::File;
 use std::io::BufWriter;
@@ -237,8 +237,8 @@ pub fn save_one_page_document<F>(
     filename: impl AsRef<Path>,
     page_bounds: &WRect,
     callback: F,
-) where
-    F: FnOnce(&PdfDocumentReference, &WRect) -> Instructions,
+) -> Result<()> where
+    F: FnOnce(&PdfDocumentReference, &WRect) -> Result<Instructions>,
 {
     let (doc, page, layer) = PdfDocument::new(
         title,
@@ -247,9 +247,8 @@ pub fn save_one_page_document<F>(
         "Layer 1",
     );
 
-    callback(&doc, page_bounds).draw_to_layer(&doc.get_page(page).get_layer(layer));
+    callback(&doc, page_bounds)?.draw_to_layer(&doc.get_page(page).get_layer(layer));
 
-    // TODO: deal with these unwraps.
-    doc.save(&mut BufWriter::new(File::create(filename).unwrap()))
-        .unwrap();
+    doc.save(&mut BufWriter::new(File::create(filename)?))?;
+    Ok(( ))
 }

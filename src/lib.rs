@@ -19,6 +19,12 @@ mod tgrid;
 mod units;
 
 #[derive(Debug, Error)]
-pub enum WeeklyError {}
+pub enum WeeklyError {
+    #[error("IO error: {0}")]
+    IoError(#[from] std::io::Error),
+
+    #[error("PrintPdf error: {0}")]
+    PrintPdfError(#[from] printpdf::Error),
+}
 
 pub type Result<T> = std::result::Result<T, WeeklyError>;

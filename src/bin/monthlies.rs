@@ -25,7 +25,7 @@ fn render_monthlies(
     date: &NaiveDate,
     doc: &PdfDocumentReference,
     page_rect: &WRect,
-) -> Instructions {
+) -> weekly::Result<Instructions> {
     let num_rows = 35;
     let num_cols = 20;
     let col_labels = names_for_months(date, num_cols);
@@ -49,10 +49,10 @@ fn render_monthlies(
         0.25.inches(),
     );
 
-    let times_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold).unwrap();
+    let times_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold)?;
 
     let col_label_strs: Vec<&str> = col_labels.iter().map(|s| s.as_str()).collect();
-    Builder::new()
+    Ok(Builder::new()
         .row_labels(&row_labels)
         .col_labels(&col_label_strs)
         .num_rows(num_rows)
@@ -61,7 +61,7 @@ fn render_monthlies(
         .top_label_height(1.0.inches())
         .left_label_width(1.5.inches())
         .font(&times_bold)
-        .generate_instructions()
+        .generate_instructions())
 }
 
 fn main_func() -> weekly::Result<()> {
@@ -73,9 +73,7 @@ fn main_func() -> weekly::Result<()> {
         WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
     save_one_page_document(&title, &filename, &page_bounds, |d, r| {
         render_monthlies(&date, d, r)
-    });
-
-    Ok(())
+    })
 }
 
 fn main() {

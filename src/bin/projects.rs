@@ -4,7 +4,7 @@ use weekly::{
     WLine, WRect,
 };
 
-fn render_projects(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions {
+fn render_projects(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
     let content_bounds =
         page_bounds.inset_all_q1(0.325.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
 
@@ -31,17 +31,17 @@ fn render_projects(_: &PdfDocumentReference, page_bounds: &WRect) -> Instruction
     fill_project_into_rect(bottom_left, &mut instructions);
     fill_project_into_rect(bottom_right, &mut instructions);
 
-    instructions
+    Ok(instructions)
 }
 
-fn main() {
+fn main() -> weekly::Result<()> {
     let doc_title = "Project template";
     let output_filename = "projects.pdf";
 
     let page_bounds =
         WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
 
-    save_one_page_document(doc_title, output_filename, &page_bounds, render_projects);
+    save_one_page_document(doc_title, output_filename, &page_bounds, render_projects)
 }
 
 fn fill_project_into_rect(rect: WRect, instructions: &mut Instructions) {

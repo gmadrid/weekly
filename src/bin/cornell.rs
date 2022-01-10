@@ -15,7 +15,7 @@ fn remarkable_bounds() -> WRect {
         .move_to(0.0.mm(), REMARKABLE_HEIGHT_MM.mm())
 }
 
-fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> Instructions {
+fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
     let mut instructions = Instructions::default();
     instructions.set_fill_color(&Colors::red());
     instructions.set_stroke_width(0.75);
@@ -46,7 +46,7 @@ fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> Instructions
     .map(|y| WLine::line(left_line_x, y, device_rect.right(), y))
     .for_each(|l| instructions.push_shape(l.as_pdf_line()));
 
-    instructions
+    Ok(instructions)
 }
 
 pub fn main() -> weekly::Result<()> {
@@ -54,7 +54,5 @@ pub fn main() -> weekly::Result<()> {
     let output_filename = "cornell.pdf";
     let device_rect = remarkable_bounds();
 
-    save_one_page_document(doc_title, output_filename, &device_rect, render_cornell);
-
-    Ok(())
+    save_one_page_document(doc_title, output_filename, &device_rect, render_cornell)
 }

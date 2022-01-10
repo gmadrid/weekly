@@ -3,7 +3,7 @@ use weekly::{
     save_one_page_document, AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect,
 };
 
-fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions {
+fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
     let half_page = page_bounds.resize(page_bounds.width() / 2, page_bounds.height());
     let left_bounds = half_page.inset_all_q1(
         0.25.inches() + 0.125.inches(),
@@ -19,17 +19,17 @@ fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> Instructions 
     draw_tasks_in_bounds(left_bounds, &mut instructions, task_height);
     draw_tasks_in_bounds(right_bounds, &mut instructions, task_height);
 
-    instructions
+    Ok(instructions)
 }
 
-fn main() {
+fn main() -> weekly::Result<()>{
     let doc_title = "Simple task list";
     let output_filename = "task-list.pdf";
     // Make the page box and shift it to account for Q1 math.
     let page_bounds =
         WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.5.inches(), 8.5.inches());
 
-    save_one_page_document(doc_title, output_filename, &page_bounds, render_active);
+    save_one_page_document(doc_title, output_filename, &page_bounds, render_active)
 }
 
 fn draw_tasks_in_bounds(bounds: WRect, instructions: &mut Instructions, task_height: Unit) {

@@ -1,148 +1,282 @@
 use argh::FromArgs;
-use chrono::Weekday::{Fri, Mon, Thu, Tue, Wed};
-use chrono::{Datelike, Duration, NaiveDate, Weekday};
-use lazy_static::lazy_static;
-use printpdf::{BuiltinFont, PdfDocumentReference};
-use std::collections::HashSet;
+use chrono::{Datelike, NaiveDate, Weekday};
+use printpdf::{BuiltinFont, Color, IndirectFontRef, PdfDocumentReference};
+use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, Builder, Colors, Datetools, Instructions, NumericUnit, WRect,
+    save_one_page_document, sizes, AsPdfLine, Colors, Datetools, LineModifiers, NumericUnit,
+    Result, TGrid, Unit, WRect,
 };
-
-const DEFAULT_NUM_COLS: u16 = 25;
-const DEFAULT_TOP_LABEL_HEIGHT: f64 = 2.0;
+use weekly::{GridDescription, Instructions};
 
 #[derive(Debug, FromArgs)]
 /// Generates a daily checklist for every date supplied.
 struct Args {
     /// month for which to generate the checklist
     #[argh(positional)]
-    date: Vec<NaiveDate>,
+    dates: Vec<NaiveDate>,
 }
 
-#[derive(Default, Debug)]
-struct DailyTask<'a> {
-    name: &'a str,
-    // No set means ALL days. Empty set means NO days.
-    days: Option<HashSet<Weekday>>,
+mod data {
+    use chrono::Weekday;
+    use chrono::Weekday::{Fri, Mon, Thu, Tue, Wed};
+    use lazy_static::lazy_static;
+    use std::collections::HashSet;
+
+    #[derive(Default, Debug)]
+    pub struct DailyTask<'a> {
+        pub name: &'a str,
+        // No set means ALL days. Empty set means NO days.
+        pub days: Option<HashSet<Weekday>>,
+    }
+
+    fn weekdays_only() -> HashSet<Weekday> {
+        vec![Mon, Tue, Wed, Thu, Fri].into_iter().collect()
+    }
+
+    lazy_static! {
+        pub static ref TASKS: Vec<DailyTask<'static>> = {
+            vec![
+                DailyTask {
+                    name: "Plank",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Door stretch",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Walk",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Journal",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Virtuemap",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Add item to bucket list",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Check calendar",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Check ToDo list",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Brush teeth",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Floss",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Knit",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Magic",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Chess",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Bug sweep",
+                    days: Some(weekdays_only()),
+                },
+                DailyTask {
+                    name: "Code reviews",
+                    days: Some(weekdays_only()),
+                },
+                DailyTask {
+                    name: "Inbox Zero",
+                    days: Some(weekdays_only()),
+                },
+            ]
+        };
+    }
 }
 
-lazy_static! {
-    static ref TASKS: Vec<DailyTask<'static>> = {
-        vec![
-            DailyTask {
-                name: "Plank",
-                days: None,
-            },
-            DailyTask {
-                name: "Door stretch",
-                days: None,
-            },
-            DailyTask {
-                name: "Walk",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "Journal",
-                days: None,
-            },
-            DailyTask {
-                name: "Virtuemap",
-                days: None,
-            },
-            DailyTask {
-                name: "Add item to bucket list",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "Check calendar",
-                days: None,
-            },
-            DailyTask {
-                name: "Check ToDo list",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "Brush teeth",
-                days: None,
-            },
-            DailyTask {
-                name: "Floss",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "Knit",
-                days: None,
-            },
-            DailyTask {
-                name: "Magic",
-                days: None,
-            },
-            DailyTask {
-                name: "Chess",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "",
-                days: None,
-            },
-            DailyTask {
-                name: "Bug sweep",
-                days: Some(weekdays_only()),
-            },
-            DailyTask {
-                name: "Code reviews",
-                days: Some(weekdays_only()),
-            },
-            DailyTask {
-                name: "Inbox Zero",
-                days: Some(weekdays_only()),
-            },
-        ]
-    };
+struct DailyDescription {
+    bounds: WRect,
+    dates_in_month: Vec<NaiveDate>,
+    font: IndirectFontRef,
 }
 
-fn weekdays_only() -> HashSet<Weekday> {
-    vec![Mon, Tue, Wed, Thu, Fri].into_iter().collect()
+impl DailyDescription {
+    pub fn for_month<DL>(date: &DL, bounds: WRect, font: IndirectFontRef) -> DailyDescription
+    where
+        DL: Datelike,
+    {
+        DailyDescription {
+            bounds,
+            dates_in_month: date.dates_in_month(),
+            font,
+        }
+    }
 }
 
-fn get_date_names(date: &impl Datelike) -> Vec<String> {
-    date.dates_in_month()
-        .into_iter()
-        .map(|d| d.format("%b %e").to_string())
-        .collect()
+impl GridDescription for DailyDescription {
+    fn bounds(&self) -> WRect {
+        self.bounds.clone()
+    }
+
+    fn num_rows(&self) -> Option<usize> {
+        Some(self.dates_in_month.len())
+    }
+
+    fn num_cols(&self) -> Option<usize> {
+        Some(25)
+    }
+
+    fn row_label_width(&self) -> Option<Unit> {
+        Some(1.0.inches())
+    }
+
+    fn col_label_height(&self) -> Option<Unit> {
+        Some(2.0.inches())
+    }
+
+    fn row_label(&self, index: usize) -> Cow<'static, str> {
+        self.dates_in_month[index]
+            .format("%b %e")
+            .to_string()
+            .into()
+    }
+
+    fn col_label(&self, index: usize) -> Cow<'static, str> {
+        if index < data::TASKS.len() {
+            data::TASKS[index].name.into()
+        } else {
+            "".into()
+        }
+    }
+
+    fn horiz_line_width(&self, row: usize) -> f64 {
+        if row < self.dates_in_month.len() {
+            if self.dates_in_month[row].weekday() == Weekday::Sun {
+                1.0
+            } else {
+                0.0
+            }
+        } else {
+            0.0
+        }
+    }
+
+    fn vert_line_width(&self, col: usize) -> f64 {
+        if col > 0 && col % 5 == 0 {
+            1.0
+        } else {
+            0.0
+        }
+    }
+
+    fn column_background(&self, index: usize) -> Option<Color> {
+        if index % 2 == 0 {
+            Some(Colors::gray(0.9))
+        } else {
+            None
+        }
+    }
+
+    fn render_cell_contents(
+        &self,
+        row: usize,
+        col: usize,
+        cell_rect: &WRect,
+        instructions: &mut Instructions,
+    ) {
+        let mut should_draw_checkbox = true;
+        if col < data::TASKS.len() {
+            if let Some(day_set) = &data::TASKS[col].days {
+                let date = &self.dates_in_month[row];
+                if !day_set.contains(&date.weekday()) {
+                    instructions.set_fill_color(&Colors::gray(0.7));
+                    instructions.push_shape(cell_rect.as_pdf_line());
+                    should_draw_checkbox = false;
+                }
+            }
+        }
+
+        if should_draw_checkbox {
+            render_checkbox(cell_rect, instructions);
+        }
+    }
+
+    fn font(&self) -> &IndirectFontRef {
+        &self.font
+    }
+}
+
+fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
+    let box_width = 3.0.mm();
+
+    let x_offset = (cell_rect.width() - box_width) / 2;
+    let y_offset = (cell_rect.height() - box_width) / 2;
+
+    let checkbox_rect = WRect::with_dimensions(box_width, box_width)
+        .move_to(cell_rect.left() + x_offset, cell_rect.top() - y_offset);
+
+    instructions.clear_fill_color();
+    instructions.set_stroke_color(&Colors::gray(0.25));
+    instructions.set_stroke_width(0.0);
+
+    instructions.push_shape(checkbox_rect.as_pdf_line().fill(false).stroke(true));
+}
+
+fn render_dailies(date: &NaiveDate, doc: &PdfDocumentReference, page_rect: &WRect) -> Instructions {
+    let grid_rect =
+        page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
+    let font = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
+    let description = DailyDescription::for_month(date, grid_rect, font);
+    let grid = TGrid::with_description(description);
+    grid.generate_instructions()
 }
 
 fn default_output_filename(date: &NaiveDate) -> PathBuf {
@@ -153,90 +287,25 @@ fn default_doc_title(date: &NaiveDate) -> String {
     format!("Daily Checklist - {}", date.format("%B %Y"))
 }
 
-fn render_daily(date: &NaiveDate, doc: &PdfDocumentReference, page_rect: &WRect) -> Instructions {
-    let date_names = get_date_names(date);
-
-    let col_labels: Vec<&str> = TASKS.iter().map(|t| t.name).collect();
-
-    let table_bounds = page_rect.inset_all_q1(
-        0.5.inches() + 0.125.inches(), // Extra 1/8" for the rings.
-        0.25.inches(),
-        0.25.inches(),
-        0.25.inches(),
-    );
-
-    let top_box_height = DEFAULT_TOP_LABEL_HEIGHT.inches();
-    let cols = DEFAULT_NUM_COLS;
-
-    let times_bold = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
-
-    let first = date.first_of_month();
-    let horiz_line_width_func = |row: usize| {
-        let date = first + Duration::days(row as i64);
-        if date.weekday() == Weekday::Sun {
-            1.0
-        } else {
-            0.0
-        }
-    };
-    let vert_line_width_func = |col: usize| {
-        if col > 0 && col % 5 == 0 {
-            1.0
-        } else {
-            0.0
-        }
-    };
-    let cell_background_func = |row: usize, col: usize| {
-        if col < TASKS.len() {
-            if let Some(day_set) = &TASKS[col].days {
-                let date = first + Duration::days(row as i64);
-                if !day_set.contains(&date.weekday()) {
-                    return Some(Colors::gray(0.7));
-                }
-            }
-        }
-        None
-    };
-
-    let date_names_str: Vec<&str> = date_names.iter().map(|s| s.as_str()).collect();
-    Builder::new()
-        // TODO: Make this dependent on the cell size?
-        .box_width(2.0.mm())
-        .row_labels(&date_names_str)
-        .col_labels(&col_labels)
-        .num_cols(cols as usize)
-        .bounds(table_bounds)
-        .top_label_height(top_box_height)
-        .left_label_width(15.0.mm())
-        .font(&times_bold)
-        .horiz_line_width_func(&horiz_line_width_func)
-        .vert_line_width_func(&vert_line_width_func)
-        .cell_background_func(&cell_background_func)
-        .generate_instructions()
-}
-
-fn main_func(date: &NaiveDate) -> weekly::Result<()> {
+fn main_func(date: &NaiveDate) -> Result<()> {
     let output_filename = default_output_filename(date);
     let doc_title = default_doc_title(date);
-    let page_rect =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.0.inches(), 8.5.inches());
 
-    save_one_page_document(&doc_title, &output_filename, &page_rect, |d, r| {
-        render_daily(date, d, r)
+    save_one_page_document(&doc_title, &output_filename, &sizes::letter(), |d, p| {
+        render_dailies(date, d, p)
     });
-
     Ok(())
 }
 
 fn main() {
     let args: Args = argh::from_env();
 
-    if args.date.is_empty() {
+    if args.dates.is_empty() {
         if let Err(err) = main_func(&weekly::today()) {
             eprintln!("Error: {:?}", err);
         }
     } else {
-        for date in &args.date {
+        for date in &args.dates {
             if let Err(err) = main_func(date) {
                 eprintln!("Error: {} : {:?}", date.format("%Y-%m"), err);
             }

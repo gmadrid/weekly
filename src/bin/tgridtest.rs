@@ -1,11 +1,21 @@
+use argh::FromArgs;
 use chrono::{Datelike, NaiveDate, Weekday};
 use printpdf::{BuiltinFont, Color, IndirectFontRef, PdfDocumentReference};
 use std::borrow::Cow;
+use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, sizes, today, AsPdfLine, Colors, Datetools, LineModifiers, NumericUnit,
-    TGrid, Unit, WRect,
+    save_one_page_document, sizes, AsPdfLine, Colors, Datetools, LineModifiers, NumericUnit,
+    Result, TGrid, Unit, WRect,
 };
 use weekly::{GridDescription, Instructions};
+
+#[derive(Debug, FromArgs)]
+/// Generates a daily checklist for every date supplied.
+struct Args {
+    /// month for which to generate the checklist
+    #[argh(positional)]
+    dates: Vec<NaiveDate>,
+}
 
 mod data {
     use chrono::Weekday;
@@ -260,15 +270,45 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
     instructions.push_shape(checkbox_rect.as_pdf_line().fill(false).stroke(true));
 }
 
-fn render_dailies(doc: &PdfDocumentReference, page_rect: &WRect) -> Instructions {
+fn render_dailies(date: &NaiveDate, doc: &PdfDocumentReference, page_rect: &WRect) -> Instructions {
     let grid_rect =
         page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
     let font = doc.add_builtin_font(BuiltinFont::TimesBold).unwrap();
-    let description = DailyDescription::for_month(&today(), grid_rect, font);
+    let description = DailyDescription::for_month(date, grid_rect, font);
     let grid = TGrid::with_description(description);
     grid.generate_instructions()
 }
 
+fn default_output_filename(date: &NaiveDate) -> PathBuf {
+    format!("qdaily_checklist_{}.pdf", date.format("%Y-%m")).into()
+}
+
+fn default_doc_title(date: &NaiveDate) -> String {
+    format!("Daily Checklist - {}", date.format("%B %Y"))
+}
+
+fn main_func(date: &NaiveDate) -> Result<()> {
+    let output_filename = default_output_filename(date);
+    let doc_title = default_doc_title(date);
+
+    save_one_page_document(&doc_title, &output_filename, &sizes::letter(), |d, p| {
+        render_dailies(date, d, p)
+    });
+    Ok(())
+}
+
 fn main() {
-    save_one_page_document("Quux", "quux.pdf", &sizes::letter(), render_dailies);
+    let args: Args = argh::from_env();
+
+    if args.dates.is_empty() {
+        if let Err(err) = main_func(&weekly::today()) {
+            eprintln!("Error: {:?}", err);
+        }
+    } else {
+        for date in &args.dates {
+            if let Err(err) = main_func(date) {
+                eprintln!("Error: {} : {:?}", date.format("%Y-%m"), err);
+            }
+        }
+    }
 }

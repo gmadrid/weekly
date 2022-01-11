@@ -1,3 +1,4 @@
+use crate::pdfutils::Attributes;
 use crate::{GridDescription, Instructions, Unit, WRect};
 use printpdf::{Color, IndirectFontRef};
 use std::borrow::Cow;
@@ -37,7 +38,7 @@ where
         self.description.col_label(index)
     }
 
-    pub fn horiz_line_style(&self, index: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
+    pub fn horiz_line_style(&self, index: usize) -> Option<Attributes> {
         self.description.horiz_line_style(index)
     }
 

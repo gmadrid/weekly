@@ -4,8 +4,8 @@ use printpdf::{BuiltinFont, Color, IndirectFontRef, PdfDocumentReference};
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, sizes, AsPdfLine, Colors, Datetools, LineModifiers, NumericUnit,
-    Result, TGrid, Unit, WRect,
+    save_one_page_document, sizes, AsPdfLine, Attributes, Colors, Datetools, LineModifiers,
+    NumericUnit, Result, TGrid, Unit, WRect,
 };
 use weekly::{GridDescription, Instructions};
 
@@ -199,11 +199,12 @@ impl GridDescription for DailyDescription {
         }
     }
 
-    fn horiz_line_style(&self, row: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
+    fn horiz_line_style(&self, row: usize) -> Option<Attributes> {
+        let attrs = Attributes::default().with_stroke_color(&Colors::black());
         if row < self.dates_in_month.len() && self.dates_in_month[row].weekday() == Weekday::Sun {
-            Some((1.0, Colors::black(), None))
+            Some(attrs.with_stroke_width(1.0))
         } else {
-            Some((0.0, Colors::black(), None))
+            Some(attrs.with_stroke_width(0.0))
         }
     }
 

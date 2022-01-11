@@ -142,6 +142,55 @@ pub struct Attributes {
 }
 
 impl Attributes {
+    pub fn with_stroke_width(mut self, width: f64) -> Self {
+        self.stroke_width = Some(width);
+        self
+    }
+
+    pub fn with_stroke_color(mut self, color: &Color) -> Self {
+        self.stroke_color = Some(color.clone());
+        self
+    }
+
+    pub fn with_dash(mut self, dash: i64, gap: i64) -> Self {
+        self.dash = Some((Some(dash), gap));
+        self
+    }
+
+    pub fn render(&self, instructions: &mut Instructions, f: impl FnOnce(&mut Instructions)) {
+        let setting_something = self.stroke_width.is_some()
+            || self.stroke_color.is_some()
+            || self.fill_color.is_some()
+            || self.dash.is_some();
+
+        if setting_something {
+            instructions.push_state();
+        }
+
+        if let Some(width) = self.stroke_width {
+            instructions.set_stroke_width(width);
+        }
+        if let Some(stroke_color) = &self.stroke_color {
+            instructions.set_stroke_color(stroke_color);
+        }
+        if let Some(fill_color) = &self.fill_color {
+            instructions.set_fill_color(fill_color);
+        }
+        if let Some(dash) = self.dash {
+            if let (Some(length), gap) = dash {
+                instructions.set_dash(length, gap);
+            } else {
+                instructions.clear_dash();
+            }
+        }
+
+        f(instructions);
+
+        if setting_something {
+            instructions.pop_state();
+        }
+    }
+
     pub fn execute_in_layer(&self, layer: &PdfLayerReference) {
         if let Some(stroke_width) = &self.stroke_width {
             layer.set_outline_thickness(*stroke_width);

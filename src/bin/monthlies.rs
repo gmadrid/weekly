@@ -3,8 +3,8 @@ use printpdf::*;
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, Colors, Datetools, GridDescription, Instructions, NumericUnit, TGrid,
-    Unit, WRect,
+    save_one_page_document, Attributes, Colors, Datetools, GridDescription, Instructions,
+    NumericUnit, TGrid, Unit, WRect,
 };
 
 fn names_for_months(start_date: &NaiveDate, n: usize) -> Vec<String> {
@@ -98,8 +98,12 @@ impl GridDescription for MonthlyDescription {
         self.month_names[index].clone().into()
     }
 
-    fn horiz_line_style(&self, _row: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
-        Some((1.0, Colors::blue(), None))
+    fn horiz_line_style(&self, _row: usize) -> Option<Attributes> {
+        Some(
+            Attributes::default()
+                .with_stroke_width(1.0)
+                .with_stroke_color(&Colors::black()),
+        )
     }
 
     fn column_background(&self, index: usize) -> Option<Color> {

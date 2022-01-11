@@ -1,6 +1,7 @@
 use printpdf::{Color, IndirectFontRef};
 use std::borrow::Cow;
 
+use crate::pdfutils::Attributes;
 use crate::{Colors, Instructions, NumericUnit, Unit, WRect};
 
 pub trait GridDescription {
@@ -58,11 +59,10 @@ pub trait GridDescription {
     // index will be 0..=num_rows(num_cols). If index == num_rows(num_cols),
     // it is the final line _after_ the last row(col).
     //
-    // Returns optional (line_width, line_color, line_foo).
+    // Returns optional attributes for rendering.
     // Returning None will not draw a line.
-    // TODO: these styles should go into a struct.
-    fn horiz_line_style(&self, _index: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
-        Some((1.0, Colors::black(), None))
+    fn horiz_line_style(&self, _index: usize) -> Option<Attributes> {
+        None
     }
     fn vert_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
         Some((1.0, Colors::black(), ()))

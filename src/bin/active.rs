@@ -1,7 +1,7 @@
 use printpdf::*;
 use weekly::{
-    save_one_page_document, AsPdfLine, Colors, GridDescription, Instructions, NumericUnit, TGrid,
-    Unit, WLine, WRect,
+    save_one_page_document, AsPdfLine, Attributes, Colors, GridDescription, Instructions,
+    NumericUnit, TGrid, Unit, WLine, WRect,
 };
 
 struct ActiveDescription {
@@ -37,8 +37,13 @@ impl GridDescription for ActiveDescription {
         Some(self.task_height)
     }
 
-    fn horiz_line_style(&self, _index: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
-        Some((1.0, Colors::gray(0.5), Some((3, 2))))
+    fn horiz_line_style(&self, _index: usize) -> Option<Attributes> {
+        Some(
+            Attributes::default()
+                .with_stroke_width(1.0)
+                .with_stroke_color(&Colors::gray(0.5))
+                .with_dash(3, 2),
+        )
     }
 
     fn vert_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {

@@ -199,11 +199,11 @@ impl GridDescription for DailyDescription {
         }
     }
 
-    fn horiz_line_style(&self, row: usize) -> Option<(f64, Color, ())> {
+    fn horiz_line_style(&self, row: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
         if row < self.dates_in_month.len() && self.dates_in_month[row].weekday() == Weekday::Sun {
-            Some((1.0, Colors::black(), ()))
+            Some((1.0, Colors::black(), None))
         } else {
-            Some((0.0, Colors::black(), ()))
+            Some((0.0, Colors::black(), None))
         }
     }
 

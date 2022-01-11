@@ -98,8 +98,8 @@ impl GridDescription for MonthlyDescription {
         self.month_names[index].clone().into()
     }
 
-    fn horiz_line_style(&self, _row: usize) -> Option<(f64, Color, ())> {
-        Some((1.0, Colors::blue(), ()))
+    fn horiz_line_style(&self, _row: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
+        Some((1.0, Colors::blue(), None))
     }
 
     fn column_background(&self, index: usize) -> Option<Color> {

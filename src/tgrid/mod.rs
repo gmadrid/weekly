@@ -28,11 +28,20 @@ where
             left + self.params.row_label_width + self.params.col_width * self.params.num_cols;
         let top = self.params.grid_bounds.top() - self.params.col_label_height;
         for row in 0..=self.params.num_rows {
-            if let Some((line_width, _, _)) = self.params.horiz_line_style(row) {
+            if let Some((line_width, color, dots)) = self.params.horiz_line_style(row) {
                 instructions.set_stroke_width(line_width);
+                instructions.set_stroke_color(&color);
+
+                if let Some((length, gap)) = dots {
+                    instructions.set_dash(length, gap);
+                }
 
                 let y = top - self.params.row_height * row;
-                instructions.push_shape(WLine::line(left, y, right, y).as_pdf_line())
+                instructions.push_shape(WLine::line(left, y, right, y).as_pdf_line());
+
+                if dots.is_some() {
+                    instructions.clear_dash();
+                }
             }
         }
     }

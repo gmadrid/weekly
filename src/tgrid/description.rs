@@ -61,8 +61,8 @@ pub trait GridDescription {
     // Returns optional (line_width, line_color, line_foo).
     // Returning None will not draw a line.
     // TODO: these styles should go into a struct.
-    fn horiz_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
-        Some((1.0, Colors::black(), ()))
+    fn horiz_line_style(&self, _index: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
+        Some((1.0, Colors::black(), None))
     }
     fn vert_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
         Some((1.0, Colors::black(), ()))

@@ -37,7 +37,7 @@ where
         self.description.col_label(index)
     }
 
-    pub fn horiz_line_style(&self, index: usize) -> Option<(f64, Color, ())> {
+    pub fn horiz_line_style(&self, index: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
         self.description.horiz_line_style(index)
     }
 

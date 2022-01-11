@@ -37,6 +37,10 @@ impl GridDescription for ActiveDescription {
         Some(self.task_height)
     }
 
+    fn horiz_line_style(&self, _index: usize) -> Option<(f64, Color, Option<(i64, i64)>)> {
+        Some((1.0, Colors::gray(0.5), Some((3, 2))))
+    }
+
     fn vert_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
         None
     }

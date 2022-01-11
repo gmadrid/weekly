@@ -1,9 +1,41 @@
 use printpdf::*;
-use weekly::{
-    save_one_page_document, AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect,
-};
+use weekly::{save_one_page_document, AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect, GridDescription, TGrid};
 
-fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
+struct ActiveDescription {
+    bounds: WRect,
+    font: IndirectFontRef,
+    task_height: Unit,
+}
+
+impl ActiveDescription {
+    pub fn with_bounds(bounds: WRect, font: IndirectFontRef, task_height: Unit) -> ActiveDescription {
+        ActiveDescription { bounds, font, task_height }
+    }
+}
+
+impl GridDescription for ActiveDescription {
+    fn bounds(&self) -> WRect {
+        self.bounds.clone()
+    }
+
+    fn num_cols(&self) -> Option<usize> {
+        Some(1)
+    }
+
+    fn row_height(&self) -> Option<Unit> {
+        Some(self.task_height)
+    }
+
+    fn vert_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
+        None
+    }
+
+    fn font(&self) -> &IndirectFontRef {
+        &self.font
+    }
+}
+
+fn render_active(doc: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
     let half_page = page_bounds.resize(page_bounds.width() / 2, page_bounds.height());
     let left_bounds = half_page.inset_all_q1(
         0.25.inches() + 0.125.inches(),
@@ -17,7 +49,12 @@ fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resul
 
     let task_height = 0.25.inches();
     draw_tasks_in_bounds(left_bounds, &mut instructions, task_height);
-    draw_tasks_in_bounds(right_bounds, &mut instructions, task_height);
+    //draw_tasks_in_bounds(right_bounds, &mut instructions, task_height);
+
+    let font = doc.add_builtin_font(BuiltinFont::HelveticaBold)?;
+    let description = ActiveDescription::with_bounds(right_bounds, font, task_height);
+    let grid = TGrid::with_description(description);
+    grid.append_to_instructions(&mut instructions);
 
     Ok(instructions)
 }
@@ -25,9 +62,7 @@ fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resul
 fn main() -> weekly::Result<()> {
     let doc_title = "Simple task list";
     let output_filename = "task-list.pdf";
-    // Make the page box and shift it to account for Q1 math.
-    let page_bounds =
-        WRect::with_dimensions(5.5.inches(), 8.5.inches()).move_to(0.5.inches(), 8.5.inches());
+    let page_bounds = weekly::sizes::letter();
 
     save_one_page_document(doc_title, output_filename, &page_bounds, render_active)
 }

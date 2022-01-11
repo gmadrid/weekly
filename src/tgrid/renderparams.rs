@@ -37,12 +37,12 @@ where
         self.description.col_label(index)
     }
 
-    pub fn horiz_line_width(&self, index: usize) -> f64 {
-        self.description.horiz_line_width(index)
+    pub fn horiz_line_style(&self, index: usize) -> Option<(f64, Color, ())> {
+        self.description.horiz_line_style(index)
     }
 
-    pub fn vert_line_width(&self, index: usize) -> f64 {
-        self.description.vert_line_width(index)
+    pub fn vert_line_style(&self, index: usize) -> Option<(f64, Color, ())> {
+        self.description.vert_line_style(index)
     }
 
     pub fn column_background(&self, index: usize) -> Option<Color> {

@@ -1,7 +1,7 @@
 use printpdf::{Color, IndirectFontRef};
 use std::borrow::Cow;
 
-use crate::{Instructions, NumericUnit, Unit, WRect};
+use crate::{Colors, Instructions, NumericUnit, Unit, WRect};
 
 pub trait GridDescription {
     // Returns the page bounds of the table.
@@ -55,14 +55,17 @@ pub trait GridDescription {
         "".into()
     }
 
-    // Line width of the grid like _before_ the indexed row(col).
     // index will be 0..=num_rows(num_cols). If index == num_rows(num_cols),
     // it is the final line _after_ the last row(col).
-    fn horiz_line_width(&self, _index: usize) -> f64 {
-        1.0
+    //
+    // Returns optional (line_width, line_color, line_foo).
+    // Returning None will not draw a line.
+    // TODO: these styles should go into a struct.
+    fn horiz_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
+        Some((1.0, Colors::black(), ()))
     }
-    fn vert_line_width(&self, _index: usize) -> f64 {
-        1.0
+    fn vert_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
+        Some((1.0, Colors::black(), ()))
     }
 
     fn column_background(&self, _index: usize) -> Option<Color> {

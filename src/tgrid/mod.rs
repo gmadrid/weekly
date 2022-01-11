@@ -28,11 +28,13 @@ where
             left + self.params.row_label_width + self.params.col_width * self.params.num_cols;
         let top = self.params.grid_bounds.top() - self.params.col_label_height;
         for row in 0..(self.params.num_rows + 1) {
-            // TODO: don't call this unless it's changed.
-            instructions.set_stroke_width(self.params.horiz_line_width(row));
+            if let Some((line_width, _, _)) = self.params.horiz_line_style(row) {
+                // TODO: don't call this unless it's changed.
+                instructions.set_stroke_width(line_width);
 
-            let y = top - self.params.row_height * row;
-            instructions.push_shape(WLine::line(left, y, right, y).as_pdf_line())
+                let y = top - self.params.row_height * row;
+                instructions.push_shape(WLine::line(left, y, right, y).as_pdf_line())
+            }
         }
     }
 
@@ -45,12 +47,14 @@ where
         // gets styled.
         // TODO: find a way to indicate that it's the last line so we can
         // avoid styling it.
-        for col in 0..self.params.num_cols {
+        for col in 0..=self.params.num_cols {
             // TODO: don't call this unless it's changed.
-            instructions.set_stroke_width(self.params.vert_line_width(col));
+            if let Some((line_width, _, _)) = self.params.vert_line_style(col) {
+                instructions.set_stroke_width(line_width);
 
-            let x = left + self.params.col_width * col;
-            instructions.push_shape(WLine::line(x, top, x, bottom).as_pdf_line())
+                let x = left + self.params.col_width * col;
+                instructions.push_shape(WLine::line(x, top, x, bottom).as_pdf_line())
+            }
         }
     }
 
@@ -138,9 +142,7 @@ where
         }
     }
 
-    pub fn generate_instructions(&self) -> Instructions {
-        let mut instructions = Instructions::default();
-
+    pub fn append_to_instructions(&self, mut instructions: &mut Instructions) {
         self.render_column_backgrounds(&mut instructions);
         self.render_cell_contents(&mut instructions);
 
@@ -151,7 +153,11 @@ where
         instructions.set_fill_color(&Colors::black());
         self.render_row_labels(&mut instructions);
         self.render_col_labels(&mut instructions);
+    }
 
+    pub fn generate_instructions(&self) -> Instructions {
+        let mut instructions = Instructions::default();
+        self.append_to_instructions(&mut instructions);
         instructions
     }
 }

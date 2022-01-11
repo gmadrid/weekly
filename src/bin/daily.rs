@@ -149,6 +149,8 @@ struct DailyDescription {
 }
 
 impl DailyDescription {
+    const NUM_COLS: usize = 25;
+
     pub fn for_month<DL>(date: &DL, bounds: WRect, font: IndirectFontRef) -> DailyDescription
     where
         DL: Datelike,
@@ -171,7 +173,7 @@ impl GridDescription for DailyDescription {
     }
 
     fn num_cols(&self) -> Option<usize> {
-        Some(25)
+        Some(Self::NUM_COLS)
     }
 
     fn row_label_width(&self) -> Option<Unit> {
@@ -197,23 +199,19 @@ impl GridDescription for DailyDescription {
         }
     }
 
-    fn horiz_line_width(&self, row: usize) -> f64 {
-        if row < self.dates_in_month.len() {
-            if self.dates_in_month[row].weekday() == Weekday::Sun {
-                1.0
-            } else {
-                0.0
-            }
+    fn horiz_line_style(&self, row: usize) -> Option<(f64, Color, ())> {
+        if row < self.dates_in_month.len() && self.dates_in_month[row].weekday() == Weekday::Sun {
+            Some((1.0, Colors::black(), ()))
         } else {
-            0.0
+            Some((0.0, Colors::black(), ()))
         }
     }
 
-    fn vert_line_width(&self, col: usize) -> f64 {
-        if col > 0 && col % 5 == 0 {
-            1.0
+    fn vert_line_style(&self, col: usize) -> Option<(f64, Color, ())> {
+        if col > 0 && col < Self::NUM_COLS && col % 5 == 0 {
+            Some((1.0, Colors::black(), ()))
         } else {
-            0.0
+            Some((0.0, Colors::black(), ()))
         }
     }
 

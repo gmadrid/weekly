@@ -1,5 +1,8 @@
 use printpdf::*;
-use weekly::{save_one_page_document, AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect, GridDescription, TGrid};
+use weekly::{
+    save_one_page_document, AsPdfLine, Colors, GridDescription, Instructions, NumericUnit, TGrid,
+    Unit, WLine, WRect,
+};
 
 struct ActiveDescription {
     bounds: WRect,
@@ -8,8 +11,16 @@ struct ActiveDescription {
 }
 
 impl ActiveDescription {
-    pub fn with_bounds(bounds: WRect, font: IndirectFontRef, task_height: Unit) -> ActiveDescription {
-        ActiveDescription { bounds, font, task_height }
+    pub fn with_bounds(
+        bounds: WRect,
+        font: IndirectFontRef,
+        task_height: Unit,
+    ) -> ActiveDescription {
+        ActiveDescription {
+            bounds,
+            font,
+            task_height,
+        }
     }
 }
 
@@ -28,6 +39,24 @@ impl GridDescription for ActiveDescription {
 
     fn vert_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
         None
+    }
+
+    fn render_cell_contents(
+        &self,
+        _row: usize,
+        _col: usize,
+        cell_rect: &WRect,
+        instructions: &mut Instructions,
+    ) {
+        let check_rect = WRect::with_dimensions(self.task_height / 2, self.task_height / 2)
+            .move_to(
+                cell_rect.left() + self.task_height / 4,
+                cell_rect.top() - self.task_height / 4,
+            );
+        let mut shape = check_rect.as_pdf_line();
+        shape.has_fill = false;
+        shape.has_stroke = true;
+        instructions.push_shape(shape);
     }
 
     fn font(&self) -> &IndirectFontRef {

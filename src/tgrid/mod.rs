@@ -42,10 +42,6 @@ where
         let bottom =
             top - self.params.col_label_height - self.params.row_height * self.params.num_rows;
         let left = self.params.grid_bounds.left() + self.params.row_label_width;
-        // NOTE: I'm not drawing the last line because it looks funny when it
-        // gets styled.
-        // TODO: find a way to indicate that it's the last line so we can
-        // avoid styling it.
         for col in 0..=self.params.num_cols {
             if let Some(attrs) = self.params.vert_line_style(col) {
                 attrs.render(instructions, |instructions| {
@@ -146,6 +142,12 @@ where
         self.render_column_backgrounds(instructions);
         self.render_cell_contents(instructions);
 
+        // These are the default values for the horiz/vert lines.
+        // Ideally, we will set this at the very start and push/pop state as we go.
+        // TODO: push/pop state and set this at the very start.
+        instructions.set_stroke_width(1.0);
+        instructions.set_stroke_color(&Colors::black());
+        instructions.clear_dash();
         self.render_horizontal_lines(instructions);
         self.render_vertical_lines(instructions);
 

@@ -40,8 +40,7 @@ impl GridDescription for ActiveDescription {
     fn horiz_line_style(&self, _index: usize) -> Option<Attributes> {
         Some(
             Attributes::default()
-                .with_stroke_width(1.0)
-                .with_stroke_color(&Colors::gray(0.5))
+                .with_stroke_width(0.0)
                 .with_dash(3, 2),
         )
     }

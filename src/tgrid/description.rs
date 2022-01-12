@@ -56,16 +56,23 @@ pub trait GridDescription {
         "".into()
     }
 
+    // Returns optional Attributes which will be used to render the lines.
+    // Returning None will not draw a line.
+    // Returning Attributes::default() will render:
+    // - 1.0 stroke width
+    // - black color
+    // - solid line
+    // Any values set to Some() in the Attributes will override the defaults.
+    //
     // index will be 0..=num_rows(num_cols). If index == num_rows(num_cols),
     // it is the final line _after_ the last row(col).
     //
-    // Returns optional attributes for rendering.
-    // Returning None will not draw a line.
+    // Defaults to returning Attributes::default().
     fn horiz_line_style(&self, _index: usize) -> Option<Attributes> {
-        None
+        Some(Default::default())
     }
     fn vert_line_style(&self, _index: usize) -> Option<Attributes> {
-        None
+        Some(Default::default())
     }
 
     fn column_background(&self, _index: usize) -> Option<Color> {

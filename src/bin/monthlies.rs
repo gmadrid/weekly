@@ -3,7 +3,7 @@ use printpdf::*;
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, Attributes, Colors, Datetools, GridDescription, Instructions,
+    save_one_page_document, Colors, Datetools, GridDescription, Instructions,
     NumericUnit, TGrid, Unit, WRect,
 };
 
@@ -96,18 +96,6 @@ impl GridDescription for MonthlyDescription {
     fn col_label(&self, index: usize) -> Cow<'static, str> {
         // TODO: can we get rid of this clone()?
         self.month_names[index].clone().into()
-    }
-
-    fn horiz_line_style(&self, _row: usize) -> Option<Attributes> {
-        Some(
-            Attributes::default()
-                .with_stroke_width(1.0)
-                .with_stroke_color(&Colors::black()),
-        )
-    }
-
-    fn vert_line_style(&self, _index: usize) -> Option<Attributes> {
-        Some(Attributes::default())
     }
 
     fn column_background(&self, index: usize) -> Option<Color> {

@@ -200,21 +200,21 @@ impl GridDescription for DailyDescription {
     }
 
     fn horiz_line_style(&self, row: usize) -> Option<Attributes> {
-        let attrs = Attributes::default().with_stroke_color(&Colors::black());
+        let attrs = Attributes::default();
         if row < self.dates_in_month.len() && self.dates_in_month[row].weekday() == Weekday::Sun {
-            Some(attrs.with_stroke_width(1.0))
+            Some(attrs)
         } else {
             Some(attrs.with_stroke_width(0.0))
         }
     }
 
     fn vert_line_style(&self, col: usize) -> Option<Attributes> {
-        let stroke_width = if col > 0 && col < Self::NUM_COLS && col % 5 == 0 {
-            1.0
+        let attrs = Attributes::default();
+        if col > 0 && col < Self::NUM_COLS && col % 5 == 0 {
+            Some(attrs)
         } else {
-            0.0
-        };
-        Some(Attributes::default().with_stroke_width(stroke_width))
+            Some(attrs.with_stroke_width(0.0))
+        }
     }
 
     fn column_background(&self, index: usize) -> Option<Color> {

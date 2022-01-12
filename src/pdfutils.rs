@@ -43,7 +43,7 @@ impl Instructions {
             text_height,
             x,
             y,
-            font: font,
+            font,
         }))
     }
 

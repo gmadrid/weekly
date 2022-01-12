@@ -103,7 +103,7 @@ where
             (grid_bounds.width() - row_label_width) / description.num_cols().unwrap()
         });
 
-        let font = description.font().clone();
+        let font = description.font();
 
         RenderParams {
             description,

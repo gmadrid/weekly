@@ -3,8 +3,8 @@ use printpdf::*;
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, Colors, Datetools, GridDescription, Instructions, NumericUnit, TGrid,
-    Unit, WRect,
+    save_one_page_document, Colors, Datetools, FontProxy, GridDescription, Instructions,
+    NumericUnit, TGrid, Unit, WRect,
 };
 
 fn names_for_months(start_date: &NaiveDate, n: usize) -> Vec<String> {
@@ -99,7 +99,9 @@ impl GridDescription for MonthlyDescription {
         }
     }
 
-    // TODO: use Helvetica
+    fn font(&self) -> weekly::FontProxy {
+        FontProxy::Helvetica(true, false)
+    }
 }
 
 fn render_monthlies(

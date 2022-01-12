@@ -2,7 +2,9 @@ use thiserror::Error;
 
 pub use datetools::{today, Datetools};
 pub use pdfutils::sizes;
-pub use pdfutils::{save_one_page_document, Attributes, Colors, Instructions, LineModifiers};
+pub use pdfutils::{
+    save_one_page_document, Attributes, Colors, FontProxy, Instructions, LineModifiers,
+};
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
 pub use shapes::AsPdfLine;

@@ -38,11 +38,7 @@ impl GridDescription for ActiveDescription {
     }
 
     fn horiz_line_style(&self, _index: usize) -> Option<Attributes> {
-        Some(
-            Attributes::default()
-                .with_stroke_width(0.0)
-                .with_dash(3, 2),
-        )
+        Some(Attributes::default().with_stroke_width(0.0).with_dash(3, 2))
     }
 
     fn vert_line_style(&self, _index: usize) -> Option<Attributes> {

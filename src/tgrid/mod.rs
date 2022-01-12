@@ -113,7 +113,7 @@ where
     fn render_column_backgrounds(&self, instructions: &mut Instructions) {
         let base_col_rect = WRect::with_dimensions(
             self.params.col_width,
-            self.params.row_height * self.params.num_rows,
+            self.params.col_label_height + self.params.row_height * self.params.num_rows,
         );
 
         for col in 0..self.params.num_cols {

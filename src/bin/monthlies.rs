@@ -85,7 +85,7 @@ impl GridDescription for MonthlyDescription {
         Some(1.0.inches())
     }
 
-    fn row_label(&self, index: usize) -> Cow<'static, str> {
+    fn row_label(&self, index: usize) -> Cow<str> {
         if index < Self::ROW_LABELS.len() {
             Self::ROW_LABELS[index].into()
         } else {
@@ -93,9 +93,8 @@ impl GridDescription for MonthlyDescription {
         }
     }
 
-    fn col_label(&self, index: usize) -> Cow<'static, str> {
-        // TODO: can we get rid of this clone()?
-        self.month_names[index].clone().into()
+    fn col_label(&self, index: usize) -> Cow<str> {
+        self.month_names[index].as_str().into()
     }
 
     fn column_background(&self, index: usize) -> Option<Color> {

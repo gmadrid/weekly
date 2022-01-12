@@ -184,14 +184,14 @@ impl GridDescription for DailyDescription {
         Some(2.0.inches())
     }
 
-    fn row_label(&self, index: usize) -> Cow<'static, str> {
+    fn row_label(&self, index: usize) -> Cow<str> {
         self.dates_in_month[index]
             .format("%b %e")
             .to_string()
             .into()
     }
 
-    fn col_label(&self, index: usize) -> Cow<'static, str> {
+    fn col_label(&self, index: usize) -> Cow<str> {
         if index < data::TASKS.len() {
             data::TASKS[index].name.into()
         } else {

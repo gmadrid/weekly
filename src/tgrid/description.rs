@@ -49,10 +49,10 @@ pub trait GridDescription {
 
     // Text for the row(col) label.
     // index will always be < num_rows(num_cols)
-    fn row_label(&self, _index: usize) -> Cow<'static, str> {
+    fn row_label(&self, _index: usize) -> Cow<str> {
         "".into()
     }
-    fn col_label(&self, _index: usize) -> Cow<'static, str> {
+    fn col_label(&self, _index: usize) -> Cow<str> {
         "".into()
     }
 

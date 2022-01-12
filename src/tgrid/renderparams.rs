@@ -30,11 +30,11 @@ impl<D> RenderParams<D>
 where
     D: GridDescription,
 {
-    pub fn row_label(&self, index: usize) -> Cow<'static, str> {
+    pub fn row_label(&self, index: usize) -> Cow<str> {
         self.description.row_label(index)
     }
 
-    pub fn col_label(&self, index: usize) -> Cow<'static, str> {
+    pub fn col_label(&self, index: usize) -> Cow<str> {
         self.description.col_label(index)
     }
 

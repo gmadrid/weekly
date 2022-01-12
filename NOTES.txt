@@ -1,8 +1,8 @@
 Commands
 
-active - UNFINISHED
-  Basically, a To Do list. Two columns of lines with checkboxes.
-  It's not finished at all.
+active - A big sheet of checkboxes for a To Do list.
+  Two columns of college-ruled lines that fill the page.
+  Completely uncustomizable.
 
 cornell - Cornell notes with college ruled lines.
   Intended to be a Remarkable template.
@@ -25,14 +25,8 @@ tester - A file for playing with stuff.
 
 Next tasks:
 
-- Too much of the PDF wrangling is exposed.
-  - wrap into a module (or library) to facilitate
-    - rendering
-    - conversion to images of desired sizes
-- Flesh out the Grid abstractions to allow using more places.
-  - Use a trait instead of callbacks to populate
-    - dimensions
-    - styles
-    - content
+- Font handling is tied to PdfDocument which is not ideal.
+  - Wrap inside some sort of font proxy.
+- Output an image of a desired size.
 - Figure out the Remarkable story to make creating templates
   as easy as possible.

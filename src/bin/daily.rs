@@ -208,12 +208,13 @@ impl GridDescription for DailyDescription {
         }
     }
 
-    fn vert_line_style(&self, col: usize) -> Option<(f64, Color, ())> {
-        if col > 0 && col < Self::NUM_COLS && col % 5 == 0 {
-            Some((1.0, Colors::black(), ()))
+    fn vert_line_style(&self, col: usize) -> Option<Attributes> {
+        let stroke_width = if col > 0 && col < Self::NUM_COLS && col % 5 == 0 {
+            1.0
         } else {
-            Some((0.0, Colors::black(), ()))
-        }
+            0.0
+        };
+        Some(Attributes::default().with_stroke_width(stroke_width))
     }
 
     fn column_background(&self, index: usize) -> Option<Color> {

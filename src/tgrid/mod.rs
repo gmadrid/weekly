@@ -47,12 +47,11 @@ where
         // TODO: find a way to indicate that it's the last line so we can
         // avoid styling it.
         for col in 0..=self.params.num_cols {
-            // TODO: don't call this unless it's changed.
-            if let Some((line_width, _, _)) = self.params.vert_line_style(col) {
-                instructions.set_stroke_width(line_width);
-
-                let x = left + self.params.col_width * col;
-                instructions.push_shape(WLine::line(x, top, x, bottom).as_pdf_line())
+            if let Some(attrs) = self.params.vert_line_style(col) {
+                attrs.render(instructions, |instructions| {
+                    let x = left + self.params.col_width * col;
+                    instructions.push_shape(WLine::line(x, top, x, bottom).as_pdf_line())
+                });
             }
         }
     }

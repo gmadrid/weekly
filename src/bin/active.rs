@@ -46,7 +46,7 @@ impl GridDescription for ActiveDescription {
         )
     }
 
-    fn vert_line_style(&self, _index: usize) -> Option<(f64, Color, ())> {
+    fn vert_line_style(&self, _index: usize) -> Option<Attributes> {
         None
     }
 

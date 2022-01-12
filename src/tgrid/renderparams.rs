@@ -42,7 +42,7 @@ where
         self.description.horiz_line_style(index)
     }
 
-    pub fn vert_line_style(&self, index: usize) -> Option<(f64, Color, ())> {
+    pub fn vert_line_style(&self, index: usize) -> Option<Attributes> {
         self.description.vert_line_style(index)
     }
 

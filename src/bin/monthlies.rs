@@ -106,6 +106,10 @@ impl GridDescription for MonthlyDescription {
         )
     }
 
+    fn vert_line_style(&self, _index: usize) -> Option<Attributes> {
+        Some(Attributes::default())
+    }
+
     fn column_background(&self, index: usize) -> Option<Color> {
         if index % 2 == 0 {
             Some(Colors::gray(0.9))

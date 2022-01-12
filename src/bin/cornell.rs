@@ -48,13 +48,24 @@ impl GridDescription for CornellDescription {
     }
 }
 
+fn compute_bottom_line_y(device_rect: &WRect) -> Unit {
+    let cornell_height = device_rect.height().pct(NOTE_VERT_PCT);
+    let rule_height = weekly::sizes::cornell_rule_height();
+    let lines = cornell_height / rule_height;
+    device_rect.height() - if  rule_height * lines != cornell_height {
+        rule_height * (lines + 1)
+    } else {
+        rule_height
+    }
+}
+
 fn render_cornell(doc: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
     let mut instructions = Instructions::default();
     instructions.set_fill_color(Colors::red());
     instructions.set_stroke_width(0.75);
-    instructions.set_stroke_color(Colors::gray(0.5));
+    instructions.set_stroke_color(Colors::gray(0.6));
 
-    let bottom_line_y = device_rect.height().pct(100.0 - NOTE_VERT_PCT);
+    let bottom_line_y = compute_bottom_line_y(&device_rect);
 
     let notes_bottom_line = WLine::line(
         device_rect.left(),

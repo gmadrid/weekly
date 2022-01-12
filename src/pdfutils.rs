@@ -274,10 +274,27 @@ impl LineModifiers for Line {
 }
 
 pub mod sizes {
-    use crate::{NumericUnit, WRect};
+    use crate::{NumericUnit, Unit, WRect};
 
     pub fn letter() -> WRect {
-        WRect::with_dimensions(8.5.inches(), 11.0.inches()).move_to(0.0.inches(), 11.0.inches())
+        quadrant1(8.5.inches(), 11.0.inches())
+        //WRect::with_dimensions(8.5.inches(), 11.0.inches()).move_to(0.0.inches(), 11.0.inches())
+    }
+
+    pub fn legal() -> WRect {
+        quadrant1(8.5.inches(), 14.0.inches())
+    }
+
+    pub fn tableau() -> WRect {
+        quadrant1(11.0.inches(), 17.0.inches())
+    }
+
+    pub fn a4() -> WRect {
+        quadrant1(210.0.mm(), 297.0.mm())
+    }
+
+    fn quadrant1(width: Unit, height: Unit) -> WRect {
+        WRect::with_dimensions(width, height).move_to(Unit::zero(), height)
     }
 }
 

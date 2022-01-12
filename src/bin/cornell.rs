@@ -31,15 +31,21 @@ impl GridDescription for CornellDescription {
         Some(weekly::sizes::cornell_rule_height())
     }
 
-    fn horiz_line_style(&self, _index: usize) -> Option<Attributes> {
-        Some(
-            Attributes::default()
-                .with_stroke_width(0.0)
-                .with_stroke_color(&Colors::gray(0.8)),
-        )
+    fn horiz_line_style(&self, index: usize, num_rows: usize) -> Option<Attributes> {
+        if index == num_rows {
+            // Don't render the last line because it coincides with the horizontal rule at the
+            // top of the notes area.
+            None
+        } else {
+            Some(
+                Attributes::default()
+                    .with_stroke_width(0.0)
+                    .with_stroke_color(&Colors::gray(0.8)),
+            )
+        }
     }
 
-    fn vert_line_style(&self, _index: usize) -> Option<Attributes> {
+    fn vert_line_style(&self, _index: usize, _num_cols: usize) -> Option<Attributes> {
         None
     }
 
@@ -52,11 +58,12 @@ fn compute_bottom_line_y(device_rect: &WRect) -> Unit {
     let cornell_height = device_rect.height().pct(NOTE_VERT_PCT);
     let rule_height = weekly::sizes::cornell_rule_height();
     let lines = cornell_height / rule_height;
-    device_rect.height() - if  rule_height * lines != cornell_height {
-        rule_height * (lines + 1)
-    } else {
-        rule_height
-    }
+    device_rect.height()
+        - if rule_height * lines != cornell_height {
+            rule_height * (lines + 1)
+        } else {
+            rule_height
+        }
 }
 
 fn render_cornell(doc: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
@@ -65,7 +72,7 @@ fn render_cornell(doc: &PdfDocumentReference, device_rect: &WRect) -> weekly::Re
     instructions.set_stroke_width(0.75);
     instructions.set_stroke_color(Colors::gray(0.6));
 
-    let bottom_line_y = compute_bottom_line_y(&device_rect);
+    let bottom_line_y = compute_bottom_line_y(device_rect);
 
     let notes_bottom_line = WLine::line(
         device_rect.left(),

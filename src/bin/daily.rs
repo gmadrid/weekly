@@ -199,7 +199,7 @@ impl GridDescription for DailyDescription {
         }
     }
 
-    fn horiz_line_style(&self, row: usize) -> Option<Attributes> {
+    fn horiz_line_style(&self, row: usize, _num_rows: usize) -> Option<Attributes> {
         let attrs = Attributes::default();
         if row < self.dates_in_month.len() && self.dates_in_month[row].weekday() == Weekday::Sun {
             Some(attrs)
@@ -208,7 +208,7 @@ impl GridDescription for DailyDescription {
         }
     }
 
-    fn vert_line_style(&self, col: usize) -> Option<Attributes> {
+    fn vert_line_style(&self, col: usize, _num_cols: usize) -> Option<Attributes> {
         let attrs = Attributes::default();
         if col > 0 && col < Self::NUM_COLS && col % 5 == 0 {
             Some(attrs)

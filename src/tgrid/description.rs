@@ -68,10 +68,10 @@ pub trait GridDescription {
     // it is the final line _after_ the last row(col).
     //
     // Defaults to returning Attributes::default().
-    fn horiz_line_style(&self, _index: usize) -> Option<Attributes> {
+    fn horiz_line_style(&self, _index: usize, _num_rows: usize) -> Option<Attributes> {
         Some(Default::default())
     }
-    fn vert_line_style(&self, _index: usize) -> Option<Attributes> {
+    fn vert_line_style(&self, _index: usize, _num_cols: usize) -> Option<Attributes> {
         Some(Default::default())
     }
 

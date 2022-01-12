@@ -27,8 +27,9 @@ where
         let right =
             left + self.params.row_label_width + self.params.col_width * self.params.num_cols;
         let top = self.params.grid_bounds.top() - self.params.col_label_height;
-        for row in 0..=self.params.num_rows {
-            if let Some(attrs) = self.params.horiz_line_style(row) {
+        let num_rows = self.params.num_rows;
+        for row in 0..=num_rows {
+            if let Some(attrs) = self.params.horiz_line_style(row, num_rows) {
                 attrs.render(instructions, |instructions| {
                     let y = top - self.params.row_height * row;
                     instructions.push_shape(WLine::line(left, y, right, y).as_pdf_line());
@@ -42,8 +43,9 @@ where
         let bottom =
             top - self.params.col_label_height - self.params.row_height * self.params.num_rows;
         let left = self.params.grid_bounds.left() + self.params.row_label_width;
-        for col in 0..=self.params.num_cols {
-            if let Some(attrs) = self.params.vert_line_style(col) {
+        let num_cols = self.params.num_cols;
+        for col in 0..=num_cols {
+            if let Some(attrs) = self.params.vert_line_style(col, num_cols) {
                 attrs.render(instructions, |instructions| {
                     let x = left + self.params.col_width * col;
                     instructions.push_shape(WLine::line(x, top, x, bottom).as_pdf_line())

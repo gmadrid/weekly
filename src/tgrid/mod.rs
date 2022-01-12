@@ -78,7 +78,7 @@ where
                 text_height,
                 x,
                 y,
-                &self.params.font,
+                self.params.font,
             );
         }
     }
@@ -106,7 +106,7 @@ where
                 text_height,
                 Unit::zero(),
                 Unit::zero(),
-                &self.params.font,
+                self.params.font,
             );
             instructions.pop_state();
         }

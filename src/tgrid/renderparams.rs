@@ -1,6 +1,6 @@
-use crate::pdfutils::Attributes;
+use crate::pdfutils::{Attributes, FontProxy};
 use crate::{GridDescription, Instructions, Unit, WRect};
-use printpdf::{Color, IndirectFontRef};
+use printpdf::Color;
 use std::borrow::Cow;
 
 #[derive(Debug)]
@@ -23,7 +23,7 @@ where
     pub has_col_labels: bool,
     pub col_label_height: Unit,
 
-    pub font: IndirectFontRef,
+    pub font: FontProxy,
 }
 
 impl<D> RenderParams<D>

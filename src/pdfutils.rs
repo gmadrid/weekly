@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use crate::units::Unit;
 use crate::{Result, WRect};
 use printpdf::*;
+use std::collections::HashMap;
 use std::fs::File;
 use std::hash::Hash;
 use std::io::BufWriter;
@@ -37,14 +37,7 @@ impl Instructions {
         self.instructions.push(Instruction::Shape(shape));
     }
 
-    pub fn push_text(
-        &mut self,
-        s: &str,
-        text_height: f64,
-        x: Unit,
-        y: Unit,
-        font: FontProxy,
-    ) {
+    pub fn push_text(&mut self, s: &str, text_height: f64, x: Unit, y: Unit, font: FontProxy) {
         self.instructions.push(Instruction::Text(TextValues {
             s: s.to_string(),
             text_height,
@@ -105,14 +98,12 @@ impl FontMap {
     fn resolve_fonts(&mut self, doc: &PdfDocumentReference, instructions: &Instructions) {
         // Look for all of the fonts referenced in the Instructions,
         // add them to the PdfDocument, adding the fonts to map.
-        instructions.instructions.iter()
-            .filter_map(|i| {
-                match i {
-                    Instruction::Text(tv) => {
-                        Some(tv)
-                    }
-                    _ => None
-                }
+        instructions
+            .instructions
+            .iter()
+            .filter_map(|i| match i {
+                Instruction::Text(tv) => Some(tv),
+                _ => None,
             })
             .for_each(|tv| {
                 self.0.entry(tv.font).or_insert_with(|| {

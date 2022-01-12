@@ -1,6 +1,6 @@
 use argh::FromArgs;
 use chrono::{Datelike, NaiveDate, Weekday};
-use printpdf::{BuiltinFont, Color, IndirectFontRef, PdfDocumentReference};
+use printpdf::{Color, PdfDocumentReference};
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
@@ -145,20 +145,18 @@ mod data {
 struct DailyDescription {
     bounds: WRect,
     dates_in_month: Vec<NaiveDate>,
-    font: IndirectFontRef,
 }
 
 impl DailyDescription {
     const NUM_COLS: usize = 25;
 
-    pub fn for_month<DL>(date: &DL, bounds: WRect, font: IndirectFontRef) -> DailyDescription
+    pub fn for_month<DL>(date: &DL, bounds: WRect) -> DailyDescription
     where
         DL: Datelike,
     {
         DailyDescription {
             bounds,
             dates_in_month: date.dates_in_month(),
-            font,
         }
     }
 }
@@ -248,10 +246,6 @@ impl GridDescription for DailyDescription {
             render_checkbox(cell_rect, instructions);
         }
     }
-
-    fn font(&self) -> &IndirectFontRef {
-        &self.font
-    }
 }
 
 fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
@@ -272,13 +266,12 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
 
 fn render_dailies(
     date: &NaiveDate,
-    doc: &PdfDocumentReference,
+    _: &PdfDocumentReference,
     page_rect: &WRect,
 ) -> weekly::Result<Instructions> {
     let grid_rect =
         page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
-    let font = doc.add_builtin_font(BuiltinFont::TimesBold)?;
-    let description = DailyDescription::for_month(date, grid_rect, font);
+    let description = DailyDescription::for_month(date, grid_rect);
     let grid = TGrid::with_description(description);
     Ok(grid.generate_instructions())
 }

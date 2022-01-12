@@ -6,19 +6,13 @@ use weekly::{
 
 struct ActiveDescription {
     bounds: WRect,
-    font: IndirectFontRef,
     task_height: Unit,
 }
 
 impl ActiveDescription {
-    pub fn with_bounds(
-        bounds: WRect,
-        font: IndirectFontRef,
-        task_height: Unit,
-    ) -> ActiveDescription {
+    pub fn with_bounds(bounds: WRect, task_height: Unit) -> ActiveDescription {
         ActiveDescription {
             bounds,
-            font,
             task_height,
         }
     }
@@ -62,13 +56,9 @@ impl GridDescription for ActiveDescription {
         shape.has_stroke = true;
         instructions.push_shape(shape);
     }
-
-    fn font(&self) -> &IndirectFontRef {
-        &self.font
-    }
 }
 
-fn render_active(doc: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
+fn render_active(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
     let half_page = page_bounds
         .resize(page_bounds.width() / 2, page_bounds.height())
         // A rounding error prevents rendering the last line,
@@ -81,13 +71,12 @@ fn render_active(doc: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Res
     let mut instructions = Instructions::default();
 
     let task_height = 0.25.inches();
-    let font = doc.add_builtin_font(BuiltinFont::HelveticaBold)?;
 
-    let description = ActiveDescription::with_bounds(left_bounds, font.clone(), task_height);
+    let description = ActiveDescription::with_bounds(left_bounds, task_height);
     let grid = TGrid::with_description(description);
     grid.append_to_instructions(&mut instructions);
 
-    let description = ActiveDescription::with_bounds(right_bounds, font, task_height);
+    let description = ActiveDescription::with_bounds(right_bounds, task_height);
     let grid = TGrid::with_description(description);
     grid.append_to_instructions(&mut instructions);
 

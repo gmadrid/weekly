@@ -28,7 +28,6 @@ fn default_doc_title(date: &NaiveDate) -> String {
 struct MonthlyDescription {
     bounds: WRect,
     month_names: Vec<String>,
-    font: IndirectFontRef,
 }
 
 impl MonthlyDescription {
@@ -48,18 +47,13 @@ impl MonthlyDescription {
         "Run FI simulation",
     ];
 
-    pub fn for_start_month<DL>(
-        date: &DL,
-        grid_rect: &WRect,
-        font: IndirectFontRef,
-    ) -> MonthlyDescription
+    pub fn for_start_month<DL>(date: &DL, grid_rect: &WRect) -> MonthlyDescription
     where
         DL: Datelike,
     {
         MonthlyDescription {
             bounds: grid_rect.clone(),
             month_names: names_for_months(&date.first_of_month(), Self::NUM_ROWS),
-            font,
         }
     }
 }
@@ -105,21 +99,18 @@ impl GridDescription for MonthlyDescription {
         }
     }
 
-    fn font(&self) -> &IndirectFontRef {
-        &self.font
-    }
+    // TODO: use Helvetica
 }
 
 fn render_monthlies(
     date: &NaiveDate,
-    doc: &PdfDocumentReference,
+    _: &PdfDocumentReference,
     page_rect: &WRect,
 ) -> weekly::Result<Instructions> {
     let table_bounds =
         page_rect.inset_all_q1(0.25.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
 
-    let font = doc.add_builtin_font(BuiltinFont::HelveticaBold)?;
-    let description = MonthlyDescription::for_start_month(date, &table_bounds, font);
+    let description = MonthlyDescription::for_start_month(date, &table_bounds);
     let grid = TGrid::with_description(description);
     Ok(grid.generate_instructions())
 }

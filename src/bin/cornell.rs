@@ -1,4 +1,4 @@
-use printpdf::{BuiltinFont, IndirectFontRef, PdfDocumentReference};
+use printpdf::PdfDocumentReference;
 use weekly::{
     save_one_page_document, AsPdfLine, Attributes, Colors, GridDescription, Instructions, TGrid,
     Unit, WLine, WRect,
@@ -9,12 +9,11 @@ const NOTE_VERT_PCT: f64 = 82.0;
 
 struct CornellDescription {
     bounds: WRect,
-    font: IndirectFontRef,
 }
 
 impl CornellDescription {
-    pub fn with_bounds(bounds: WRect, font: IndirectFontRef) -> CornellDescription {
-        CornellDescription { bounds, font }
+    pub fn with_bounds(bounds: WRect) -> CornellDescription {
+        CornellDescription { bounds }
     }
 }
 
@@ -48,10 +47,6 @@ impl GridDescription for CornellDescription {
     fn vert_line_style(&self, _index: usize, _num_cols: usize) -> Option<Attributes> {
         None
     }
-
-    fn font(&self) -> &IndirectFontRef {
-        &self.font
-    }
 }
 
 fn compute_bottom_line_y(device_rect: &WRect) -> Unit {
@@ -66,7 +61,7 @@ fn compute_bottom_line_y(device_rect: &WRect) -> Unit {
         }
 }
 
-fn render_cornell(doc: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
+fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
     let mut instructions = Instructions::default();
     instructions.set_fill_color(Colors::red());
     instructions.set_stroke_width(0.75);
@@ -92,9 +87,8 @@ fn render_cornell(doc: &PdfDocumentReference, device_rect: &WRect) -> weekly::Re
         device_rect.top() - bottom_line_y,
     )
     .move_to(left_line_x, device_rect.top());
-    let font = doc.add_builtin_font(BuiltinFont::TimesBold)?;
 
-    TGrid::with_description(CornellDescription::with_bounds(grid_rect, font))
+    TGrid::with_description(CornellDescription::with_bounds(grid_rect))
         .append_to_instructions(&mut instructions);
 
     Ok(instructions)

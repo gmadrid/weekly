@@ -1,7 +1,7 @@
-use printpdf::{Color, IndirectFontRef};
+use printpdf::Color;
 use std::borrow::Cow;
 
-use crate::pdfutils::Attributes;
+use crate::pdfutils::{Attributes, FontProxy};
 use crate::{Instructions, NumericUnit, Unit, WRect};
 
 pub trait GridDescription {
@@ -92,5 +92,7 @@ pub trait GridDescription {
     // TODO: this is a leaky abstraction, since it relies on PDF print stuff.
     // TODO: allow returning a font size
     // TODO: allow returning a different font in different parts of the grid.
-    fn font(&self) -> &IndirectFontRef;
+    fn font(&self) -> FontProxy {
+        FontProxy::Times(true, false)
+    }
 }

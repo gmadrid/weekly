@@ -237,7 +237,7 @@ impl GridDescription for DailyDescription {
             if let Some(day_set) = &data::TASKS[col].days {
                 let date = &self.dates_in_month[row];
                 if !day_set.contains(&date.weekday()) {
-                    instructions.set_fill_color(&Colors::gray(0.7));
+                    instructions.set_fill_color(Colors::gray(0.7));
                     instructions.push_shape(cell_rect.as_pdf_line());
                     should_draw_checkbox = false;
                 }
@@ -264,7 +264,7 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
         .move_to(cell_rect.left() + x_offset, cell_rect.top() - y_offset);
 
     instructions.clear_fill_color();
-    instructions.set_stroke_color(&Colors::gray(0.25));
+    instructions.set_stroke_color(Colors::gray(0.25));
     instructions.set_stroke_width(0.0);
 
     instructions.push_shape(checkbox_rect.as_pdf_line().fill(false).stroke(true));

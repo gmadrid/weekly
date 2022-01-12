@@ -17,9 +17,9 @@ fn remarkable_bounds() -> WRect {
 
 fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
     let mut instructions = Instructions::default();
-    instructions.set_fill_color(&Colors::red());
+    instructions.set_fill_color(Colors::red());
     instructions.set_stroke_width(0.75);
-    instructions.set_stroke_color(&Colors::gray(0.5));
+    instructions.set_stroke_color(Colors::gray(0.5));
 
     let bottom_line_y = device_rect.height().pct(100.0 - NOTE_VERT_PCT);
 
@@ -37,7 +37,7 @@ fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Resu
     instructions.push_shape(notes_left_line.as_pdf_line());
 
     instructions.set_stroke_width(0.0);
-    instructions.set_stroke_color(&Colors::gray(0.8));
+    instructions.set_stroke_color(Colors::gray(0.8));
 
     std::iter::successors(Some(bottom_line_y), |prev| {
         Some(*prev + RULE_HEIGHT_IN.inches())

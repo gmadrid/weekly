@@ -29,7 +29,7 @@ fn render_tester(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resul
     let mut instructions = Instructions::default();
 
     instructions.set_stroke_width(1.0);
-    instructions.set_stroke_color(&Colors::black());
+    instructions.set_stroke_color(Colors::black());
     instructions.push_shape(top_left.as_pdf_line().fill(false).stroke(true));
 
     let mut shape = bottom_right.as_pdf_line();
@@ -39,8 +39,8 @@ fn render_tester(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resul
 
     instructions.push_shape(top_right.as_pdf_line().fill(false).stroke(true));
 
-    instructions.set_fill_color(&Colors::green());
-    instructions.set_stroke_color(&Colors::red());
+    instructions.set_fill_color(Colors::green());
+    instructions.set_stroke_color(Colors::red());
     let center_rect = page_bounds
         .resize(page_bounds.width() / 2, page_bounds.height() / 2)
         .move_to(
@@ -52,7 +52,7 @@ fn render_tester(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resul
             .as_rounded_rect_shape(0.125.inches())
             .stroke(true),
     );
-    instructions.set_stroke_color(&Colors::black());
+    instructions.set_stroke_color(Colors::black());
 
     let abox = top_left.inset_q1(0.125.inches(), 0.125.inches());
     let mut bam = abox.as_pdf_line();

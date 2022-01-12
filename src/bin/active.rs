@@ -73,7 +73,7 @@ fn render_active(doc: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Res
         .resize(page_bounds.width() / 2, page_bounds.height())
         // A rounding error prevents rendering the last line,
         // so we add a smidge of extra vertical space.
-        .inset_all_q1(Unit::zero(), Unit::zero(), Unit::zero(), -0.1.inches());
+        .inset_all_q1(Unit::zero(), Unit::zero(), Unit::zero(), (-0.1).inches());
     let left_bounds =
         half_page.inset_all_q1(0.25.inches(), 0.25.inches(), 0.125.inches(), 0.25.inches());
     let right_bounds = left_bounds.move_to(half_page.right() + 0.125.inches(), left_bounds.top());

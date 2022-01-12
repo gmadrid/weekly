@@ -120,7 +120,7 @@ where
             if let Some(color) = self.params.column_background(col) {
                 let x = self.col_x(col);
                 let rect = base_col_rect.move_to(x, self.params.grid_bounds.top());
-                instructions.set_fill_color(&color);
+                instructions.set_fill_color(color);
                 instructions.push_shape(rect.as_pdf_line());
             }
         }
@@ -146,13 +146,13 @@ where
         // Ideally, we will set this at the very start and push/pop state as we go.
         // TODO: push/pop state and set this at the very start.
         instructions.set_stroke_width(1.0);
-        instructions.set_stroke_color(&Colors::black());
+        instructions.set_stroke_color(Colors::black());
         instructions.clear_dash();
         self.render_horizontal_lines(instructions);
         self.render_vertical_lines(instructions);
 
         // TODO: allow changing text colors.
-        instructions.set_fill_color(&Colors::black());
+        instructions.set_fill_color(Colors::black());
         self.render_row_labels(instructions);
         self.render_col_labels(instructions);
     }

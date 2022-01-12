@@ -52,16 +52,16 @@ impl Instructions {
         }))
     }
 
-    pub fn set_stroke_color(&mut self, color: &Color) {
-        self.last_attr_mut().stroke_color = Some(color.clone());
+    pub fn set_stroke_color(&mut self, color: Color) {
+        self.last_attr_mut().stroke_color = Some(color);
     }
 
     pub fn set_stroke_width(&mut self, width: f64) {
         self.last_attr_mut().stroke_width = Some(width);
     }
 
-    pub fn set_fill_color(&mut self, color: &Color) {
-        self.last_attr_mut().fill_color = Some(color.clone());
+    pub fn set_fill_color(&mut self, color: Color) {
+        self.last_attr_mut().fill_color = Some(color);
     }
 
     pub fn clear_fill_color(&mut self) {
@@ -171,10 +171,10 @@ impl Attributes {
             instructions.set_stroke_width(width);
         }
         if let Some(stroke_color) = &self.stroke_color {
-            instructions.set_stroke_color(stroke_color);
+            instructions.set_stroke_color(stroke_color.clone());
         }
         if let Some(fill_color) = &self.fill_color {
-            instructions.set_fill_color(fill_color);
+            instructions.set_fill_color(fill_color.clone());
         }
         if let Some(dash) = self.dash {
             if let (Some(length), gap) = dash {

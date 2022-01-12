@@ -45,7 +45,7 @@ fn main() -> weekly::Result<()> {
 }
 
 fn fill_project_into_rect(rect: WRect, instructions: &mut Instructions) {
-    instructions.set_stroke_color(&Colors::gray(0.50));
+    instructions.set_stroke_color(Colors::gray(0.50));
     instructions.set_stroke_width(1.0);
 
     // Outline
@@ -66,7 +66,7 @@ fn fill_project_into_rect(rect: WRect, instructions: &mut Instructions) {
         .as_pdf_line(),
     );
 
-    instructions.set_stroke_color(&Colors::gray(0.75));
+    instructions.set_stroke_color(Colors::gray(0.75));
     let inner_rect = rect.inset_all_q1(0.125.inches(), 0.25.inches(), 0.125.inches(), 0.0.inches());
     fill_box_with_lines(&inner_rect, 0.25.inches(), 0.195.inches(), instructions);
 }

@@ -2,7 +2,7 @@
 pub struct Unit(f64);
 
 impl Unit {
-    pub fn zero() -> Unit {
+    pub const fn zero() -> Unit {
         Unit(0.0)
     }
 

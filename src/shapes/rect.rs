@@ -13,7 +13,7 @@ pub struct WRect {
 }
 
 impl WRect {
-    pub fn with_dimensions(width: Unit, height: Unit) -> WRect {
+    pub const fn with_dimensions(width: Unit, height: Unit) -> WRect {
         WRect {
             top: Unit::zero(),
             left: Unit::zero(),
@@ -31,7 +31,7 @@ impl WRect {
         }
     }
 
-    pub fn move_to(&self, left: Unit, top: Unit) -> WRect {
+    pub const fn move_to(&self, left: Unit, top: Unit) -> WRect {
         WRect { top, left, ..*self }
     }
 

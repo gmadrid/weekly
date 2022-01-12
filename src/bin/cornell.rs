@@ -1,21 +1,54 @@
-use printpdf::PdfDocumentReference;
-use weekly::{save_one_page_document, AsPdfLine, Colors, Instructions, NumericUnit, WLine, WRect};
+use printpdf::{BuiltinFont, IndirectFontRef, PdfDocumentReference};
+use weekly::{
+    save_one_page_document, AsPdfLine, Attributes, Colors, GridDescription, Instructions, TGrid,
+    Unit, WLine, WRect,
+};
 
-// Remarkable claims to want 1404×1872 pixel images. (4/3 aspect ratio)
-// These dimensions below are producing a 928x1237 pixel image.
-const REMARKABLE_WIDTH_MM: f64 = 157.2;
-const REMARKABLE_HEIGHT_MM: f64 = 209.6;
-
-const RULE_HEIGHT_IN: f64 = 9.0 / 32.0;
 const NOTE_HORIZ_PCT: f64 = 70.0;
 const NOTE_VERT_PCT: f64 = 82.0;
 
-fn remarkable_bounds() -> WRect {
-    WRect::with_dimensions(REMARKABLE_WIDTH_MM.mm(), REMARKABLE_HEIGHT_MM.mm())
-        .move_to(0.0.mm(), REMARKABLE_HEIGHT_MM.mm())
+struct CornellDescription {
+    bounds: WRect,
+    font: IndirectFontRef,
 }
 
-fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
+impl CornellDescription {
+    pub fn with_bounds(bounds: WRect, font: IndirectFontRef) -> CornellDescription {
+        CornellDescription { bounds, font }
+    }
+}
+
+impl GridDescription for CornellDescription {
+    fn bounds(&self) -> WRect {
+        self.bounds.clone()
+    }
+
+    fn num_cols(&self) -> Option<usize> {
+        Some(1)
+    }
+
+    fn row_height(&self) -> Option<Unit> {
+        Some(weekly::sizes::cornell_rule_height())
+    }
+
+    fn horiz_line_style(&self, _index: usize) -> Option<Attributes> {
+        Some(
+            Attributes::default()
+                .with_stroke_width(0.0)
+                .with_stroke_color(&Colors::gray(0.8)),
+        )
+    }
+
+    fn vert_line_style(&self, _index: usize) -> Option<Attributes> {
+        None
+    }
+
+    fn font(&self) -> &IndirectFontRef {
+        &self.font
+    }
+}
+
+fn render_cornell(doc: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
     let mut instructions = Instructions::default();
     instructions.set_fill_color(Colors::red());
     instructions.set_stroke_width(0.75);
@@ -36,15 +69,15 @@ fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Resu
     let notes_left_line = WLine::line(left_line_x, bottom_line_y, left_line_x, device_rect.top());
     instructions.push_shape(notes_left_line.as_pdf_line());
 
-    instructions.set_stroke_width(0.0);
-    instructions.set_stroke_color(Colors::gray(0.8));
+    let grid_rect = WRect::with_dimensions(
+        device_rect.right() - left_line_x,
+        device_rect.top() - bottom_line_y,
+    )
+    .move_to(left_line_x, device_rect.top());
+    let font = doc.add_builtin_font(BuiltinFont::TimesBold)?;
 
-    std::iter::successors(Some(bottom_line_y), |prev| {
-        Some(*prev + RULE_HEIGHT_IN.inches())
-    })
-    .take_while(|y| *y < device_rect.top() - RULE_HEIGHT_IN.inches())
-    .map(|y| WLine::line(left_line_x, y, device_rect.right(), y))
-    .for_each(|l| instructions.push_shape(l.as_pdf_line()));
+    TGrid::with_description(CornellDescription::with_bounds(grid_rect, font))
+        .append_to_instructions(&mut instructions);
 
     Ok(instructions)
 }
@@ -52,7 +85,7 @@ fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Resu
 pub fn main() -> weekly::Result<()> {
     let doc_title = "Cornell note page";
     let output_filename = "cornell.pdf";
-    let device_rect = remarkable_bounds();
+    let device_rect = weekly::sizes::remarkable2();
 
     save_one_page_document(doc_title, output_filename, &device_rect, render_cornell)
 }

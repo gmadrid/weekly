@@ -191,7 +191,7 @@ impl Attributes {
         }
     }
 
-    pub fn execute_in_layer(&self, layer: &PdfLayerReference) {
+    fn execute_in_layer(&self, layer: &PdfLayerReference) {
         if let Some(stroke_width) = &self.stroke_width {
             layer.set_outline_thickness(*stroke_width);
         }

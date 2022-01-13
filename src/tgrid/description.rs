@@ -89,7 +89,6 @@ pub trait GridDescription {
     }
 
     // Font to use for labels.
-    // TODO: this is a leaky abstraction, since it relies on PDF print stuff.
     // TODO: allow returning a font size
     // TODO: allow returning a different font in different parts of the grid.
     fn font(&self) -> FontProxy {

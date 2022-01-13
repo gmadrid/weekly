@@ -1,8 +1,5 @@
 use printpdf::PdfDocumentReference;
-use weekly::{
-    save_one_page_document, AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, Unit,
-    WLine, WRect,
-};
+use weekly::{save_one_page_document, ColorProxy, Instructions, NumericUnit, Unit, WLine, WRect};
 
 /// Draw horizontal lines starting at 'offset' from the top of the box and at every 'gap'
 /// after it. Fill the box with these lines.
@@ -13,7 +10,7 @@ fn fill_box_with_lines(boxx: &WRect, offset: Unit, gap: Unit, instructions: &mut
 
     while curr_y > boxx.bottom_q1() {
         let line = WLine::line(boxx.left(), curr_y, boxx.right(), curr_y);
-        instructions.push_shape(line.as_pdf_line());
+        instructions.push_line(line);
         curr_y = curr_y - gap;
     }
 }
@@ -29,36 +26,34 @@ fn render_tester(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resul
     let mut instructions = Instructions::default();
 
     instructions.set_stroke_width(1.0);
-    instructions.set_stroke_color(Colors::black());
-    instructions.push_shape(top_left.as_pdf_line().fill(false).stroke(true));
+    instructions.set_stroke_color(ColorProxy::black());
+    instructions.push_rect(top_left.fill(false).stroke(true));
 
-    let mut shape = bottom_right.as_pdf_line();
-    shape.has_fill = false;
-    shape.has_stroke = true;
-    instructions.push_shape(shape);
+    let shape = bottom_right.fill(false).stroke(true);
+    instructions.push_rect(shape);
 
-    instructions.push_shape(top_right.as_pdf_line().fill(false).stroke(true));
+    instructions.push_rect(top_right.fill(false).stroke(true));
 
-    instructions.set_fill_color(Colors::green());
-    instructions.set_stroke_color(Colors::red());
-    let center_rect = page_bounds
+    instructions.set_fill_color(ColorProxy::green());
+    instructions.set_stroke_color(ColorProxy::red());
+    let _center_rect = page_bounds
         .resize(page_bounds.width() / 2, page_bounds.height() / 2)
         .move_to(
             page_bounds.left() + page_bounds.width() / 4,
             page_bounds.top() - page_bounds.height() / 4,
         );
-    instructions.push_shape(
-        center_rect
-            .as_rounded_rect_shape(0.125.inches())
-            .stroke(true),
-    );
-    instructions.set_stroke_color(Colors::black());
+    // instructions.push_rect(
+    //     center_rect
+    //         .as_rounded_rect_shape(0.125.inches())
+    //         .stroke(true),
+    // );
+    instructions.set_stroke_color(ColorProxy::black());
 
-    let abox = top_left.inset_q1(0.125.inches(), 0.125.inches());
-    let mut bam = abox.as_pdf_line();
-    bam.has_fill = false;
-    bam.has_stroke = true;
-    instructions.push_shape(bam);
+    let abox = top_left
+        .inset_q1(0.125.inches(), 0.125.inches())
+        .fill(false)
+        .stroke(true);
+    instructions.push_rect(abox.clone());
     fill_box_with_lines(&abox, 0.5.inches(), 0.3.inches(), &mut instructions);
 
     fill_box_with_lines(

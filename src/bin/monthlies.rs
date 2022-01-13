@@ -3,7 +3,7 @@ use printpdf::*;
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, Colors, Datetools, FontProxy, GridDescription, Instructions,
+    save_one_page_document, ColorProxy, Datetools, FontProxy, GridDescription, Instructions,
     NumericUnit, TGrid, Unit, WRect,
 };
 
@@ -91,9 +91,9 @@ impl GridDescription for MonthlyDescription {
         self.month_names[index].as_str().into()
     }
 
-    fn column_background(&self, index: usize) -> Option<Color> {
+    fn column_background(&self, index: usize) -> Option<ColorProxy> {
         if index % 2 == 0 {
-            Some(Colors::gray(0.9))
+            Some(ColorProxy::gray(0.9))
         } else {
             None
         }

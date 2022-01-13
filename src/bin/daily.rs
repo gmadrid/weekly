@@ -3,10 +3,7 @@ use chrono::{Datelike, NaiveDate, Weekday};
 use printpdf::PdfDocumentReference;
 use std::borrow::Cow;
 use std::path::PathBuf;
-use weekly::{
-    save_one_page_document, sizes, Datetools, NumericUnit, Result, TGrid,
-    Unit, WRect,
-};
+use weekly::{save_one_page_document, sizes, Datetools, NumericUnit, Result, TGrid, Unit, WRect};
 use weekly::{Attributes, ColorProxy};
 use weekly::{GridDescription, Instructions};
 
@@ -257,7 +254,8 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
 
     let checkbox_rect = WRect::with_dimensions(box_width, box_width)
         .move_to(cell_rect.left() + x_offset, cell_rect.top() - y_offset)
-        .fill(false).stroke(true);
+        .fill(false)
+        .stroke(true);
 
     instructions.clear_fill_color();
     instructions.set_stroke_color(ColorProxy::gray(0.25));

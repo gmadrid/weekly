@@ -84,7 +84,7 @@ fn draw_instructions_to_layer(
     instructions: &Instructions,
 ) -> Result<()> {
     // TODO: should we ensure that the document and layer are consistent?
-    let font_map = FontMap::default().resolve_fonts(document, &instructions)?;
+    let font_map = FontMap::default().resolve_fonts(document, instructions)?;
 
     for instruction in &instructions.instructions {
         draw_instruction_to_layer(layer, instruction, &font_map);
@@ -119,7 +119,11 @@ fn color_from_proxy(proxy: &ColorProxy) -> Color {
     Color::Rgb(Rgb::new(proxy.r, proxy.g, proxy.b, None))
 }
 
-fn draw_instruction_to_layer(layer: &PdfLayerReference, instruction: &Instruction, font_map: &FontMap) {
+fn draw_instruction_to_layer(
+    layer: &PdfLayerReference,
+    instruction: &Instruction,
+    font_map: &FontMap,
+) {
     match instruction {
         Instruction::Line(wline) => layer.add_shape(wline.as_line()),
         Instruction::Rect(wrect) => layer.add_shape(wrect.as_line()),
@@ -133,12 +137,10 @@ fn draw_instruction_to_layer(layer: &PdfLayerReference, instruction: &Instructio
         ),
         Instruction::PushState => layer.save_graphics_state(),
         Instruction::PopState => layer.restore_graphics_state(),
-        Instruction::Rotate(r) => layer.set_ctm(
-            CurTransMat::Rotate(*r)
-        ),
-        Instruction::Translate(xdelta, ydelta) => layer.set_ctm(
-            CurTransMat::Translate(xdelta.into(), ydelta.into())
-        ),
+        Instruction::Rotate(r) => layer.set_ctm(CurTransMat::Rotate(*r)),
+        Instruction::Translate(xdelta, ydelta) => {
+            layer.set_ctm(CurTransMat::Translate(xdelta.into(), ydelta.into()))
+        }
     }
 }
 
@@ -185,6 +187,7 @@ pub fn save_one_page_document<F>(
     callback: F,
 ) -> Result<()>
 where
+    // TODO: can I get rid of PdfDocumentReference on callback?
     F: FnOnce(&PdfDocumentReference, &WRect) -> Result<Instructions>,
 {
     let (doc, page, layer) = PdfDocument::new(

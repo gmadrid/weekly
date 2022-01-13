@@ -2,11 +2,10 @@ use thiserror::Error;
 
 pub use datetools::{today, Datetools};
 pub use instructions::{Attributes, Instructions};
+pub use pdfutils::save_one_page_document;
 pub use proxies::{ColorProxy, FontProxy};
-pub use pdfutils::{save_one_page_document};
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
-pub use shapes::AsPdfLine;
 pub use tgrid::description::GridDescription;
 pub use tgrid::TGrid;
 pub use units::{NumericUnit, Unit};
@@ -16,9 +15,9 @@ mod instructions;
 mod pdfutils;
 mod proxies;
 mod shapes;
+pub mod sizes;
 mod tgrid;
 mod units;
-pub mod sizes;
 
 #[derive(Debug, Error)]
 pub enum WeeklyError {

@@ -1,7 +1,7 @@
-use crate::units::Unit;
-use crate::{Result, WRect};
+use crate::instructions::{Instruction, Instructions};
 use crate::proxies::FontProxy;
-use crate::instructions::{Instructions, Instruction};
+use crate::units::Unit;
+use crate::{Attributes, ColorProxy, Result, WLine, WRect};
 use printpdf::*;
 use std::collections::HashMap;
 use std::fs::File;
@@ -78,6 +78,106 @@ impl From<FontProxy> for BuiltinFont {
     }
 }
 
+fn draw_instructions_to_layer(
+    document: &PdfDocumentReference,
+    layer: &PdfLayerReference,
+    instructions: &Instructions,
+) -> Result<()> {
+    // TODO: should we ensure that the document and layer are consistent?
+    let font_map = FontMap::default().resolve_fonts(document, &instructions)?;
+
+    for instruction in &instructions.instructions {
+        draw_instruction_to_layer(layer, instruction, &font_map);
+    }
+    Ok(())
+}
+
+fn execute_attrs(layer: &PdfLayerReference, attrs: &Attributes) {
+    if let Some(stroke_width) = &attrs.stroke_width {
+        layer.set_outline_thickness(*stroke_width);
+    }
+    if let Some(stroke_color) = &attrs.stroke_color {
+        layer.set_outline_color(color_from_proxy(stroke_color));
+    }
+    if let Some(fill_color) = &attrs.fill_color {
+        layer.set_fill_color(color_from_proxy(fill_color));
+    }
+    if let Some((dash_len, gap)) = &attrs.dash {
+        layer.set_line_dash_pattern(LineDashPattern::new(
+            0,
+            *dash_len,
+            Some(*gap),
+            None,
+            None,
+            None,
+            None,
+        ));
+    }
+}
+
+fn color_from_proxy(proxy: &ColorProxy) -> Color {
+    Color::Rgb(Rgb::new(proxy.r, proxy.g, proxy.b, None))
+}
+
+fn draw_instruction_to_layer(layer: &PdfLayerReference, instruction: &Instruction, font_map: &FontMap) {
+    match instruction {
+        Instruction::Line(wline) => layer.add_shape(wline.as_line()),
+        Instruction::Rect(wrect) => layer.add_shape(wrect.as_line()),
+        Instruction::Attrs(attrs) => execute_attrs(layer, attrs),
+        Instruction::Text(txt) => layer.use_text(
+            txt.s.clone(),
+            txt.text_height,
+            txt.x.into(),
+            txt.y.into(),
+            font_map.lookup(txt.font),
+        ),
+        Instruction::PushState => layer.save_graphics_state(),
+        Instruction::PopState => layer.restore_graphics_state(),
+        Instruction::Rotate(r) => layer.set_ctm(
+            CurTransMat::Rotate(*r)
+        ),
+        Instruction::Translate(xdelta, ydelta) => layer.set_ctm(
+            CurTransMat::Translate(xdelta.into(), ydelta.into())
+        ),
+    }
+}
+
+trait AsLine {
+    fn as_line(&self) -> Line;
+}
+
+impl AsLine for WLine {
+    fn as_line(&self) -> Line {
+        Line {
+            points: vec![
+                point_pair(self.x1, self.y1, false),
+                point_pair(self.x2, self.y2, false),
+            ],
+            has_stroke: true,
+            has_fill: false,
+            ..Line::default()
+        }
+    }
+}
+
+impl AsLine for WRect {
+    fn as_line(&self) -> Line {
+        Line {
+            // In Q1, rects grow downward toward the bottom.
+            points: vec![
+                point_pair(self.left, self.top, false),
+                point_pair(self.left + self.width, self.top, false),
+                point_pair(self.left + self.width, self.top - self.height, false),
+                point_pair(self.left, self.top - self.height, false),
+            ],
+            has_fill: self.has_fill,
+            has_stroke: self.has_stroke,
+            is_closed: true,
+            ..Line::default()
+        }
+    }
+}
+
 pub fn save_one_page_document<F>(
     title: &str,
     filename: impl AsRef<Path>,
@@ -94,7 +194,12 @@ where
         "Layer 1",
     );
 
-    callback(&doc, page_bounds)?.draw_to_layer(&doc, &doc.get_page(page).get_layer(layer))?;
+    draw_instructions_to_layer(
+        &doc,
+        &doc.get_page(page).get_layer(layer),
+        &callback(&doc, page_bounds)?,
+    )?;
+    //XXXcallback(&doc, page_bounds)?.draw_to_layer(&doc, &doc.get_page(page).get_layer(layer))?;
 
     doc.save(&mut BufWriter::new(File::create(filename)?))?;
     Ok(())

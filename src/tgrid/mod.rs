@@ -1,7 +1,7 @@
+use crate::proxies::ColorProxy;
 use crate::tgrid::renderparams::RenderParams;
 use crate::{Instructions, NumericUnit, Unit, WLine, WRect};
 use description::GridDescription;
-use crate::proxies::ColorProxy;
 
 pub mod description;
 mod renderparams;

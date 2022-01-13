@@ -29,7 +29,7 @@ pub struct ColorProxy {
 
 impl ColorProxy {
     pub fn rgb(r: f64, g: f64, b: f64) -> ColorProxy {
-        ColorProxy{r, g, b}
+        ColorProxy { r, g, b }
     }
 
     pub fn gray(level: f64) -> ColorProxy {

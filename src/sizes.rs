@@ -1,4 +1,3 @@
-pub mod sizes {
     use crate::{NumericUnit, Unit, WRect};
 
     pub fn cornell_rule_height() -> Unit {
@@ -37,4 +36,3 @@ pub mod sizes {
     const fn quadrant1(width: Unit, height: Unit) -> WRect {
         WRect::with_dimensions(width, height).move_to(Unit::zero(), height)
     }
-}

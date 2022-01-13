@@ -1,7 +1,7 @@
 use crate::proxies::{ColorProxy, FontProxy};
 use crate::units::Unit;
-use crate::WRect;
 use crate::WLine;
+use crate::WRect;
 
 #[derive(Default, Debug)]
 pub struct Instructions {
@@ -136,10 +136,10 @@ impl Instruction {
 
 #[derive(Debug, Default)]
 pub struct Attributes {
-    stroke_width: Option<f64>,
-    stroke_color: Option<ColorProxy>,
-    fill_color: Option<ColorProxy>,
-    dash: Option<(Option<i64>, i64)>,
+    pub stroke_width: Option<f64>,
+    pub stroke_color: Option<ColorProxy>,
+    pub fill_color: Option<ColorProxy>,
+    pub dash: Option<(Option<i64>, i64)>,
 }
 
 impl Attributes {
@@ -218,9 +218,9 @@ impl Attributes {
 
 #[derive(Debug)]
 pub struct TextValues {
-    s: String,
-    text_height: f64,
-    x: Unit,
-    y: Unit,
+    pub s: String,
+    pub text_height: f64,
+    pub x: Unit,
+    pub y: Unit,
     pub font: FontProxy,
 }

@@ -80,14 +80,18 @@ impl Instructions {
         return self.instructions.last_mut().unwrap().attrs_mut().unwrap();
     }
 
-    pub fn draw_to_layer(&self, document: &PdfDocumentReference, layer: &PdfLayerReference) {
+    pub fn draw_to_layer(
+        &self,
+        document: &PdfDocumentReference,
+        layer: &PdfLayerReference,
+    ) -> Result<()> {
         // TODO: should we ensure that the document and layer are consistent?
-        let mut font_map = FontMap::default();
-        font_map.resolve_fonts(document, self);
+        let font_map = FontMap::default().resolve_fonts(document, self)?;
 
         for instruction in &self.instructions {
             instruction.draw_to_layer(layer, &font_map);
         }
+        Ok(())
     }
 }
 
@@ -95,22 +99,31 @@ impl Instructions {
 struct FontMap(HashMap<FontProxy, IndirectFontRef>);
 
 impl FontMap {
-    fn resolve_fonts(&mut self, doc: &PdfDocumentReference, instructions: &Instructions) {
+    fn resolve_fonts(
+        mut self,
+        doc: &PdfDocumentReference,
+        instructions: &Instructions,
+    ) -> Result<FontMap> {
         // Look for all of the fonts referenced in the Instructions,
         // add them to the PdfDocument, adding the fonts to map.
         instructions
             .instructions
             .iter()
             .filter_map(|i| match i {
-                Instruction::Text(tv) => Some(tv),
+                Instruction::Text(tv) => Some(tv.font),
                 _ => None,
             })
-            .for_each(|tv| {
-                self.0.entry(tv.font).or_insert_with(|| {
-                    // unwrap: unhappy with this one.
-                    doc.add_builtin_font(tv.font.into()).unwrap()
-                });
-            });
+            .try_for_each::<_, Result<()>>(|font| {
+                let entry = self.0.entry(font);
+
+                // Basically doing or_insert_with(), but I need to propagate an error.
+                if let std::collections::hash_map::Entry::Vacant(ve) = entry {
+                    let indirect_font = doc.add_builtin_font(font.into())?;
+                    ve.insert(indirect_font);
+                }
+                Ok(())
+            })?;
+        Ok(self)
     }
 
     fn lookup(&self, font_proxy: FontProxy) -> &IndirectFontRef {
@@ -408,7 +421,7 @@ where
         "Layer 1",
     );
 
-    callback(&doc, page_bounds)?.draw_to_layer(&doc, &doc.get_page(page).get_layer(layer));
+    callback(&doc, page_bounds)?.draw_to_layer(&doc, &doc.get_page(page).get_layer(layer))?;
 
     doc.save(&mut BufWriter::new(File::create(filename)?))?;
     Ok(())

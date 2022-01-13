@@ -1,7 +1,8 @@
 use printpdf::PdfDocumentReference;
+use weekly::instructions::Attributes;
 use weekly::{
-    save_one_page_document, AsPdfLine, Attributes, Colors, GridDescription, Instructions, TGrid,
-    Unit, WLine, WRect,
+    save_one_page_document, AsPdfLine, Colors, GridDescription, Instructions, TGrid, Unit, WLine,
+    WRect,
 };
 
 const NOTE_HORIZ_PCT: f64 = 70.0;

@@ -3,9 +3,10 @@ use chrono::{Datelike, NaiveDate, Weekday};
 use printpdf::{Color, PdfDocumentReference};
 use std::borrow::Cow;
 use std::path::PathBuf;
+use weekly::instructions::Attributes;
 use weekly::{
-    save_one_page_document, sizes, AsPdfLine, Attributes, Colors, Datetools, LineModifiers,
-    NumericUnit, Result, TGrid, Unit, WRect,
+    save_one_page_document, sizes, AsPdfLine, Colors, Datetools, LineModifiers, NumericUnit,
+    Result, TGrid, Unit, WRect,
 };
 use weekly::{GridDescription, Instructions};
 

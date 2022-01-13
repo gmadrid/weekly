@@ -1,10 +1,9 @@
 use thiserror::Error;
 
 pub use datetools::{today, Datetools};
+pub use instructions::Attributes;
 pub use pdfutils::sizes;
-pub use pdfutils::{
-    save_one_page_document, Attributes, Colors, FontProxy, Instructions, LineModifiers,
-};
+pub use pdfutils::{save_one_page_document, Colors, FontProxy, Instructions, LineModifiers};
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
 pub use shapes::AsPdfLine;
@@ -13,7 +12,9 @@ pub use tgrid::TGrid;
 pub use units::{NumericUnit, Unit};
 
 mod datetools;
+mod instructions;
 mod pdfutils;
+mod proxies;
 mod shapes;
 mod tgrid;
 mod units;

@@ -1,44 +1,3 @@
-use printpdf::image::math::Rect;
-use crate::{LineModifiers, Unit, WLine, WRect};
-
-#[derive(Debug, Clone)]
-pub struct LineProxy {
-    line: WLine,
-}
-
-#[derive(Debug, Clone)]
-pub struct RectProxy {
-    rect: WRect,
-    has_fill: bool,
-    has_stroke: bool,
-}
-
-impl Default for RectProxy {
-    fn default() -> Self {
-        RectProxy {
-            rect: WRect::with_dimensions(Unit::zero(), Unit::zero()),
-            has_fill: true,
-            has_stroke: false,
-        }
-    }
-}
-
-impl LineModifiers for RectProxy {
-    fn stroke(self, value: bool) -> Self {
-        RectProxy {
-            has_stroke: value,
-            ..self
-        }
-    }
-
-    fn fill(self, value: bool) -> Self {
-        RectProxy {
-            has_fill: value,
-            ..self
-        }
-    }
-}
-
 #[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 pub enum FontProxy {
     // first bool is Bold, second bool is Italics
@@ -70,7 +29,7 @@ pub struct ColorProxy {
 
 impl ColorProxy {
     pub fn rgb(r: f64, g: f64, b: f64) -> ColorProxy {
-        ColorProxy(r, g, b)
+        ColorProxy{r, g, b}
     }
 
     pub fn gray(level: f64) -> ColorProxy {

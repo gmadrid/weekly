@@ -1,9 +1,9 @@
 use thiserror::Error;
 
 pub use datetools::{today, Datetools};
-pub use instructions::Attributes;
-pub use pdfutils::sizes;
-pub use pdfutils::{save_one_page_document, Colors, FontProxy, Instructions, LineModifiers};
+pub use instructions::{Attributes, Instructions};
+pub use proxies::{ColorProxy, FontProxy};
+pub use pdfutils::{save_one_page_document};
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
 pub use shapes::AsPdfLine;
@@ -18,6 +18,7 @@ mod proxies;
 mod shapes;
 mod tgrid;
 mod units;
+pub mod sizes;
 
 #[derive(Debug, Error)]
 pub enum WeeklyError {

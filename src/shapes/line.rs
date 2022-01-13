@@ -3,7 +3,7 @@ use crate::shapes::AsPdfLine;
 use crate::units::Unit;
 use printpdf::Line;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WLine {
     x1: Unit,
     y1: Unit,

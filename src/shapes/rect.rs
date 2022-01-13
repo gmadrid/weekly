@@ -10,6 +10,9 @@ pub struct WRect {
     left: Unit,
     height: Unit,
     width: Unit,
+
+    has_stroke: bool,
+    has_fill: bool,
 }
 
 impl WRect {
@@ -19,6 +22,9 @@ impl WRect {
             left: Unit::zero(),
             width,
             height,
+
+            has_stroke: false,
+            has_fill: true,
         }
     }
 
@@ -28,6 +34,9 @@ impl WRect {
             left,
             width: Unit::zero(),
             height: Unit::zero(),
+
+            has_stroke: false,
+            has_fill: true,
         }
     }
 
@@ -39,6 +48,20 @@ impl WRect {
         WRect {
             width,
             height,
+            ..*self
+        }
+    }
+
+    fn stroke(&self, value: bool) -> Self {
+        WRect {
+            has_stroke: value,
+            ..*self
+        }
+    }
+
+    fn fill(& self, value: bool) -> Self {
+        WRect {
+            has_fill: value,
             ..*self
         }
     }
@@ -85,6 +108,7 @@ impl WRect {
             top: self.top - top_inset,
             width: self.width - left_inset - right_inset,
             height: self.height - top_inset - bottom_inset,
+            ..*self
         }
     }
 

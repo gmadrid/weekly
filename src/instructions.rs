@@ -1,10 +1,12 @@
 use crate::proxies::{ColorProxy, FontProxy};
 use crate::units::Unit;
-use crate::Result;
+use crate::WRect;
+use crate::WLine;
 
 #[derive(Default, Debug)]
 pub struct Instructions {
-    instructions: Vec<Instruction>,
+    // TODO: can you just export iter()?
+    pub instructions: Vec<Instruction>,
 }
 
 impl Instructions {
@@ -24,8 +26,12 @@ impl Instructions {
         self.instructions.push(Instruction::Translate(x, y));
     }
 
-    pub fn push_shape(&mut self, shape: Line) {
-        self.instructions.push(Instruction::Shape(shape));
+    pub fn push_line(&mut self, proxy: WLine) {
+        self.instructions.push(Instruction::Line(proxy));
+    }
+
+    pub fn push_rect(&mut self, proxy: WRect) {
+        self.instructions.push(Instruction::Rect(proxy));
     }
 
     pub fn push_text(&mut self, s: &str, text_height: f64, x: Unit, y: Unit, font: FontProxy) {
@@ -88,7 +94,8 @@ impl Instructions {
 
 #[derive(Debug)]
 pub enum Instruction {
-    Shape(Line),
+    Line(WLine),
+    Rect(WRect),
     Attrs(Attributes),
     Text(TextValues),
 
@@ -215,5 +222,5 @@ pub struct TextValues {
     text_height: f64,
     x: Unit,
     y: Unit,
-    font: FontProxy,
+    pub font: FontProxy,
 }

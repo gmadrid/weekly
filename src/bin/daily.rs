@@ -1,11 +1,11 @@
 use argh::FromArgs;
 use chrono::{Datelike, NaiveDate, Weekday};
-use printpdf::{Color, PdfDocumentReference};
+use printpdf::{PdfDocumentReference};
 use std::borrow::Cow;
 use std::path::PathBuf;
-use weekly::instructions::Attributes;
+use weekly::{Attributes, ColorProxy};
 use weekly::{
-    save_one_page_document, sizes, AsPdfLine, Colors, Datetools, LineModifiers, NumericUnit,
+    save_one_page_document, sizes, AsPdfLine, Datetools, LineModifiers, NumericUnit,
     Result, TGrid, Unit, WRect,
 };
 use weekly::{GridDescription, Instructions};
@@ -216,9 +216,9 @@ impl GridDescription for DailyDescription {
         }
     }
 
-    fn column_background(&self, index: usize) -> Option<Color> {
+    fn column_background(&self, index: usize) -> Option<ColorProxy> {
         if index % 2 == 0 {
-            Some(Colors::gray(0.9))
+            Some(ColorProxy::gray(0.9))
         } else {
             None
         }
@@ -236,7 +236,7 @@ impl GridDescription for DailyDescription {
             if let Some(day_set) = &data::TASKS[col].days {
                 let date = &self.dates_in_month[row];
                 if !day_set.contains(&date.weekday()) {
-                    instructions.set_fill_color(Colors::gray(0.7));
+                    instructions.set_fill_color(ColorProxy::gray(0.7));
                     instructions.push_shape(cell_rect.as_pdf_line());
                     should_draw_checkbox = false;
                 }
@@ -259,7 +259,7 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
         .move_to(cell_rect.left() + x_offset, cell_rect.top() - y_offset);
 
     instructions.clear_fill_color();
-    instructions.set_stroke_color(Colors::gray(0.25));
+    instructions.set_stroke_color(ColorProxy::gray(0.25));
     instructions.set_stroke_width(0.0);
 
     instructions.push_shape(checkbox_rect.as_pdf_line().fill(false).stroke(true));

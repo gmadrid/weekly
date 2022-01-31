@@ -15,6 +15,33 @@ struct Args {
     dates: Vec<NaiveDate>,
 }
 
+macro_rules! blank {
+    () => {
+        DailyTask {
+            name: "",
+            days: None,
+        }
+    };
+}
+
+macro_rules! everyday {
+    ($name:expr) => {
+        DailyTask {
+            name: $name,
+            days: None,
+        }
+    };
+}
+
+macro_rules! weekdays {
+    ($name:expr) => {
+        DailyTask {
+            name: $name,
+            days: Some(weekdays_only()),
+        }
+    };
+}
+
 mod data {
     use chrono::Weekday;
     use chrono::Weekday::{Fri, Mon, Thu, Tue, Wed};
@@ -35,106 +62,31 @@ mod data {
     lazy_static! {
         pub static ref TASKS: Vec<DailyTask<'static>> = {
             vec![
-                DailyTask {
-                    name: "Plank",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Door stretch",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Walk",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Journal",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Virtuemap",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Add item to bucket list",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Check calendar",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Check ToDo list",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Brush teeth",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Floss",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Knit",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Magic",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Chess",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Bug sweep",
-                    days: Some(weekdays_only()),
-                },
-                DailyTask {
-                    name: "Code reviews",
-                    days: Some(weekdays_only()),
-                },
-                DailyTask {
-                    name: "Inbox Zero",
-                    days: Some(weekdays_only()),
-                },
+                everyday!("Plank"),
+                everyday!("Breathing exercise"),
+                everyday!("Door stretch"),
+                everyday!("Bug/knee stretch"),
+                everyday!("Walk"),
+                blank!(),
+                everyday!("Journal"),
+                everyday!("Virtuemap"),
+                everyday!("Add item to bucket list"),
+                blank!(),
+                everyday!("Check calendar"),
+                everyday!("Check ToDo list"),
+                blank!(),
+                everyday!("Brush teeth"),
+                everyday!("Floss"),
+                blank!(),
+                blank!(),
+                everyday!("Knit"),
+                everyday!("Magic"),
+                everyday!("Chess"),
+                blank!(),
+                blank!(),
+                weekdays!("Bug sweep"),
+                weekdays!("Code reviews"),
+                weekdays!("Inbox Zero"),
             ]
         };
     }

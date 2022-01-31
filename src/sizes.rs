@@ -1,4 +1,3 @@
-
 use crate::{NumericUnit, Unit, WRect};
 
 pub fn cornell_rule_height() -> Unit {

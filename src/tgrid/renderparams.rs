@@ -1,6 +1,6 @@
-use crate::pdfutils::{Attributes, FontProxy};
+use crate::instructions::Attributes;
+use crate::proxies::{ColorProxy, FontProxy};
 use crate::{GridDescription, Instructions, Unit, WRect};
-use printpdf::Color;
 use std::borrow::Cow;
 
 #[derive(Debug)]
@@ -46,7 +46,7 @@ where
         self.description.vert_line_style(index, num_cols)
     }
 
-    pub fn column_background(&self, index: usize) -> Option<Color> {
+    pub fn column_background(&self, index: usize) -> Option<ColorProxy> {
         self.description.column_background(index)
     }
 

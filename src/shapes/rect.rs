@@ -1,15 +1,17 @@
 use crate::pdfutils::point_pair;
-use crate::shapes::AsPdfLine;
 use crate::units::Unit;
 use printpdf::*;
 
 /// A representation of rectangles and operations on them.
 #[derive(Debug, Clone)]
 pub struct WRect {
-    top: Unit,
-    left: Unit,
-    height: Unit,
-    width: Unit,
+    pub top: Unit,
+    pub left: Unit,
+    pub height: Unit,
+    pub width: Unit,
+
+    pub has_stroke: bool,
+    pub has_fill: bool,
 }
 
 impl WRect {
@@ -19,6 +21,9 @@ impl WRect {
             left: Unit::zero(),
             width,
             height,
+
+            has_stroke: false,
+            has_fill: true,
         }
     }
 
@@ -28,6 +33,9 @@ impl WRect {
             left,
             width: Unit::zero(),
             height: Unit::zero(),
+
+            has_stroke: false,
+            has_fill: true,
         }
     }
 
@@ -39,6 +47,20 @@ impl WRect {
         WRect {
             width,
             height,
+            ..*self
+        }
+    }
+
+    pub fn stroke(&self, value: bool) -> Self {
+        WRect {
+            has_stroke: value,
+            ..*self
+        }
+    }
+
+    pub fn fill(&self, value: bool) -> Self {
+        WRect {
+            has_fill: value,
             ..*self
         }
     }
@@ -85,6 +107,7 @@ impl WRect {
             top: self.top - top_inset,
             width: self.width - left_inset - right_inset,
             height: self.height - top_inset - bottom_inset,
+            ..*self
         }
     }
 
@@ -108,23 +131,6 @@ impl WRect {
                 point_pair(self.left(), self.top() - radius * pv, true),
                 point_pair(self.left() + radius * pv, self.top(), false),
                 point_pair(self.left() + radius, self.top(), false),
-            ],
-            has_fill: true,
-            is_closed: true,
-            ..Line::default()
-        }
-    }
-}
-
-impl AsPdfLine for WRect {
-    fn as_pdf_line(&self) -> Line {
-        Line {
-            // In Q1, rects grow downward toward the bottom.
-            points: vec![
-                point_pair(self.left, self.top, false),
-                point_pair(self.left + self.width, self.top, false),
-                point_pair(self.left + self.width, self.top - self.height, false),
-                point_pair(self.left, self.top - self.height, false),
             ],
             has_fill: true,
             is_closed: true,

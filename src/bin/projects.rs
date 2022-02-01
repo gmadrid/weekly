@@ -1,8 +1,5 @@
 use printpdf::PdfDocumentReference;
-use weekly::{
-    save_one_page_document, AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, Unit,
-    WLine, WRect,
-};
+use weekly::{save_one_page_document, ColorProxy, Instructions, NumericUnit, Unit, WLine, WRect};
 
 fn render_projects(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
     let content_bounds =
@@ -45,28 +42,27 @@ fn main() -> weekly::Result<()> {
 }
 
 fn fill_project_into_rect(rect: WRect, instructions: &mut Instructions) {
-    instructions.set_stroke_color(Colors::gray(0.50));
+    instructions.set_stroke_color(ColorProxy::gray(0.50));
     instructions.set_stroke_width(1.0);
 
     // Outline
-    instructions.push_shape(
-        rect.as_rounded_rect_shape(0.125.inches())
-            .fill(false)
-            .stroke(true),
+    // TODO: make this a rounded rect.
+    instructions.push_rect(
+        // rect.as_rounded_rect_shape(0.125.inches())
+        //     .fill(false)
+        //     .stroke(true),
+        rect.fill(false).stroke(true),
     );
 
     // Project title line
-    instructions.push_shape(
-        WLine::line(
-            rect.left(),
-            rect.top() - 0.25.inches(),
-            rect.right(),
-            rect.top() - 0.25.inches(),
-        )
-        .as_pdf_line(),
-    );
+    instructions.push_line(WLine::line(
+        rect.left(),
+        rect.top() - 0.25.inches(),
+        rect.right(),
+        rect.top() - 0.25.inches(),
+    ));
 
-    instructions.set_stroke_color(Colors::gray(0.75));
+    instructions.set_stroke_color(ColorProxy::gray(0.75));
     let inner_rect = rect.inset_all_q1(0.125.inches(), 0.25.inches(), 0.125.inches(), 0.0.inches());
     fill_box_with_lines(&inner_rect, 0.25.inches(), 0.195.inches(), instructions);
 }
@@ -80,7 +76,7 @@ fn fill_box_with_lines(boxx: &WRect, offset: Unit, gap: Unit, instructions: &mut
 
     while curr_y > boxx.bottom_q1() {
         let line = WLine::line(boxx.left(), curr_y, boxx.right(), curr_y);
-        instructions.push_shape(line.as_pdf_line());
+        instructions.push_line(line);
         curr_y = curr_y - gap;
     }
 }

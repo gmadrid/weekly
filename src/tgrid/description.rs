@@ -1,8 +1,8 @@
-use printpdf::Color;
 use std::borrow::Cow;
 
-use crate::pdfutils::{Attributes, FontProxy};
-use crate::{Instructions, NumericUnit, Unit, WRect};
+use crate::instructions::Attributes;
+use crate::proxies::FontProxy;
+use crate::{ColorProxy, Instructions, NumericUnit, Unit, WRect};
 
 pub trait GridDescription {
     // Returns the page bounds of the table.
@@ -75,7 +75,7 @@ pub trait GridDescription {
         Some(Default::default())
     }
 
-    fn column_background(&self, _index: usize) -> Option<Color> {
+    fn column_background(&self, _index: usize) -> Option<ColorProxy> {
         None
     }
 

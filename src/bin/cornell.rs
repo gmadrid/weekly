@@ -1,8 +1,6 @@
 use printpdf::PdfDocumentReference;
-use weekly::{
-    save_one_page_document, AsPdfLine, Attributes, Colors, GridDescription, Instructions, TGrid,
-    Unit, WLine, WRect,
-};
+use weekly::{save_one_page_document, GridDescription, Instructions, TGrid, Unit, WLine, WRect};
+use weekly::{Attributes, ColorProxy};
 
 const NOTE_HORIZ_PCT: f64 = 70.0;
 const NOTE_VERT_PCT: f64 = 82.0;
@@ -39,7 +37,7 @@ impl GridDescription for CornellDescription {
             Some(
                 Attributes::default()
                     .with_stroke_width(0.0)
-                    .with_stroke_color(&Colors::gray(0.8)),
+                    .with_stroke_color(&ColorProxy::gray(0.8)),
             )
         }
     }
@@ -63,9 +61,9 @@ fn compute_bottom_line_y(device_rect: &WRect) -> Unit {
 
 fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Result<Instructions> {
     let mut instructions = Instructions::default();
-    instructions.set_fill_color(Colors::red());
+    instructions.set_fill_color(ColorProxy::red());
     instructions.set_stroke_width(0.75);
-    instructions.set_stroke_color(Colors::gray(0.6));
+    instructions.set_stroke_color(ColorProxy::gray(0.6));
 
     let bottom_line_y = compute_bottom_line_y(device_rect);
 
@@ -75,12 +73,12 @@ fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Resu
         device_rect.right(),
         bottom_line_y,
     );
-    instructions.push_shape(notes_bottom_line.as_pdf_line());
+    instructions.push_line(notes_bottom_line);
 
     let left_line_x = device_rect.width().pct(100.0 - NOTE_HORIZ_PCT);
 
     let notes_left_line = WLine::line(left_line_x, bottom_line_y, left_line_x, device_rect.top());
-    instructions.push_shape(notes_left_line.as_pdf_line());
+    instructions.push_line(notes_left_line);
 
     let grid_rect = WRect::with_dimensions(
         device_rect.right() - left_line_x,

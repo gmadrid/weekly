@@ -1,12 +1,10 @@
 use argh::FromArgs;
 use chrono::{Datelike, NaiveDate, Weekday};
-use printpdf::{Color, PdfDocumentReference};
+use printpdf::PdfDocumentReference;
 use std::borrow::Cow;
 use std::path::PathBuf;
-use weekly::{
-    save_one_page_document, sizes, AsPdfLine, Attributes, Colors, Datetools, LineModifiers,
-    NumericUnit, Result, TGrid, Unit, WRect,
-};
+use weekly::{save_one_page_document, sizes, Datetools, NumericUnit, Result, TGrid, Unit, WRect};
+use weekly::{Attributes, ColorProxy};
 use weekly::{GridDescription, Instructions};
 
 #[derive(Debug, FromArgs)]
@@ -15,6 +13,33 @@ struct Args {
     /// month for which to generate the checklist
     #[argh(positional)]
     dates: Vec<NaiveDate>,
+}
+
+macro_rules! blank {
+    () => {
+        DailyTask {
+            name: "",
+            days: None,
+        }
+    };
+}
+
+macro_rules! everyday {
+    ($name:expr) => {
+        DailyTask {
+            name: $name,
+            days: None,
+        }
+    };
+}
+
+macro_rules! weekdays {
+    ($name:expr) => {
+        DailyTask {
+            name: $name,
+            days: Some(weekdays_only()),
+        }
+    };
 }
 
 mod data {
@@ -37,106 +62,31 @@ mod data {
     lazy_static! {
         pub static ref TASKS: Vec<DailyTask<'static>> = {
             vec![
-                DailyTask {
-                    name: "Plank",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Door stretch",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Walk",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Journal",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Virtuemap",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Add item to bucket list",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Check calendar",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Check ToDo list",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Brush teeth",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Floss",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Knit",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Magic",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Chess",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Bug sweep",
-                    days: Some(weekdays_only()),
-                },
-                DailyTask {
-                    name: "Code reviews",
-                    days: Some(weekdays_only()),
-                },
-                DailyTask {
-                    name: "Inbox Zero",
-                    days: Some(weekdays_only()),
-                },
+                everyday!("Plank"),
+                everyday!("Breathing exercise"),
+                everyday!("Door stretch"),
+                everyday!("Bug/knee stretch"),
+                everyday!("Walk"),
+                blank!(),
+                everyday!("Journal"),
+                everyday!("Virtuemap"),
+                everyday!("Add item to bucket list"),
+                blank!(),
+                everyday!("Check calendar"),
+                everyday!("Check ToDo list"),
+                blank!(),
+                everyday!("Brush teeth"),
+                everyday!("Floss"),
+                blank!(),
+                blank!(),
+                everyday!("Knit"),
+                everyday!("Magic"),
+                everyday!("Chess"),
+                blank!(),
+                blank!(),
+                weekdays!("Bug sweep"),
+                weekdays!("Code reviews"),
+                weekdays!("Inbox Zero"),
             ]
         };
     }
@@ -215,9 +165,9 @@ impl GridDescription for DailyDescription {
         }
     }
 
-    fn column_background(&self, index: usize) -> Option<Color> {
+    fn column_background(&self, index: usize) -> Option<ColorProxy> {
         if index % 2 == 0 {
-            Some(Colors::gray(0.9))
+            Some(ColorProxy::gray(0.9))
         } else {
             None
         }
@@ -235,8 +185,8 @@ impl GridDescription for DailyDescription {
             if let Some(day_set) = &data::TASKS[col].days {
                 let date = &self.dates_in_month[row];
                 if !day_set.contains(&date.weekday()) {
-                    instructions.set_fill_color(Colors::gray(0.7));
-                    instructions.push_shape(cell_rect.as_pdf_line());
+                    instructions.set_fill_color(ColorProxy::gray(0.7));
+                    instructions.push_rect(cell_rect.clone());
                     should_draw_checkbox = false;
                 }
             }
@@ -255,13 +205,15 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
     let y_offset = (cell_rect.height() - box_width) / 2;
 
     let checkbox_rect = WRect::with_dimensions(box_width, box_width)
-        .move_to(cell_rect.left() + x_offset, cell_rect.top() - y_offset);
+        .move_to(cell_rect.left() + x_offset, cell_rect.top() - y_offset)
+        .fill(false)
+        .stroke(true);
 
     instructions.clear_fill_color();
-    instructions.set_stroke_color(Colors::gray(0.25));
+    instructions.set_stroke_color(ColorProxy::gray(0.25));
     instructions.set_stroke_width(0.0);
 
-    instructions.push_shape(checkbox_rect.as_pdf_line().fill(false).stroke(true));
+    instructions.push_rect(checkbox_rect);
 }
 
 fn render_dailies(

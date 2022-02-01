@@ -30,3 +30,4 @@ Next tasks:
 - Output an image of a desired size.
 - Figure out the Remarkable story to make creating templates
   as easy as possible.
+- Use raqote backend?

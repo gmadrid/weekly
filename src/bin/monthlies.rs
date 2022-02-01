@@ -117,7 +117,7 @@ fn render_monthlies(
     Ok(grid.generate_instructions())
 }
 
-fn main_func() -> weekly::Result<()> {
+fn main() -> weekly::Result<()> {
     let date = weekly::today();
     let title = default_doc_title(&date);
     let filename = default_output_filename(&date);
@@ -126,10 +126,4 @@ fn main_func() -> weekly::Result<()> {
     save_one_page_document(&title, &filename, &page_bounds, |d, r| {
         render_monthlies(&date, d, r)
     })
-}
-
-fn main() {
-    if let Err(err) = main_func() {
-        eprintln!("{:?}", err);
-    }
 }

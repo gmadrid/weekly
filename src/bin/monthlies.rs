@@ -2,10 +2,19 @@ use chrono::{Datelike, NaiveDate};
 use printpdf::*;
 use std::borrow::Cow;
 use std::path::PathBuf;
+use argh::FromArgs;
 use weekly::{
     save_one_page_document, Colors, Datetools, FontProxy, GridDescription, Instructions,
     NumericUnit, TGrid, Unit, WRect,
 };
+
+#[derive(FromArgs)]
+#[argh(description = "Creates a checklist of monthly tasks.")]
+struct MonthlyArgs {
+    // todo: allow use of yyyy-mm for start
+    #[argh(option, long = "start", description = "the start month (yyyy-mm-dd")]
+    start_date: Option<NaiveDate>,
+}
 
 fn names_for_months(start_date: &NaiveDate, n: usize) -> Vec<String> {
     let mut month = start_date.first_of_month();
@@ -118,7 +127,9 @@ fn render_monthlies(
 }
 
 fn main() -> weekly::Result<()> {
-    let date = weekly::today();
+    let args: MonthlyArgs = argh::from_env();
+
+    let date = args.start_date.unwrap_or(weekly::today());
     let title = default_doc_title(&date);
     let filename = default_output_filename(&date);
 

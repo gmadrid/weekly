@@ -10,6 +10,7 @@ pub trait Datetools {
     fn num_days_in_month(&self) -> i64;
     fn first_of_month(&self) -> NaiveDate;
     fn next_month(&self) -> NaiveDate;
+    fn date_range(&self, num_days: i64) -> Vec<NaiveDate>;
 }
 
 impl<D> Datetools for D
@@ -23,6 +24,12 @@ where
     fn dates_in_month(&self) -> Vec<NaiveDate> {
         let first = self.first_of_month();
         let num_days = self.num_days_in_month();
+        first.date_range(num_days)
+        //(0..num_days).map(|n| first + Duration::days(n)).collect()
+    }
+
+    fn date_range(&self, num_days: i64) -> Vec<NaiveDate> {
+        let first = self.as_naive_date();
         (0..num_days).map(|n| first + Duration::days(n)).collect()
     }
 

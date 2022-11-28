@@ -43,12 +43,14 @@ impl MonthlyDescription {
     const NUM_ROWS: usize = 35;
     const NUM_COLS: usize = 20;
 
-    const ROW_LABELS: [&'static str; 10] = [
+    const ROW_LABELS: [&'static str; 12] = [
         "Pay AmEx",
         "Pay Chase",
         "Pay Fidelity",
         "Pay Capital One",
+        "Pay Apple",
         "Pay mortgage",
+        "Pay Immersion",
         "Balance checkbook",
         "",
         "Check smoke alarms",

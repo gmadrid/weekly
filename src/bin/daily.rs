@@ -46,43 +46,11 @@ mod data {
                     days: None,
                 },
                 DailyTask {
-                    name: "Walk",
+                    name: "Stretch",
                     days: None,
                 },
                 DailyTask {
                     name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Journal",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Virtuemap",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Add item to bucket list",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Check calendar",
-                    days: None,
-                },
-                DailyTask {
-                    name: "Check ToDo list",
                     days: None,
                 },
                 DailyTask {
@@ -95,6 +63,22 @@ mod data {
                 },
                 DailyTask {
                     name: "Floss",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Mouthwash",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Feet and nails",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Drugs",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
                     days: None,
                 },
                 DailyTask {
@@ -114,7 +98,15 @@ mod data {
                     days: None,
                 },
                 DailyTask {
-                    name: "Chess",
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "",
                     days: None,
                 },
                 DailyTask {
@@ -137,6 +129,14 @@ mod data {
                     name: "Inbox Zero",
                     days: Some(weekdays_only()),
                 },
+                DailyTask {
+                    name: "Check calendar",
+                    days: None,
+                },
+                DailyTask {
+                    name: "GTD",
+                    days: None,
+                },
             ]
         };
     }
@@ -156,7 +156,7 @@ impl DailyDescription {
     {
         DailyDescription {
             bounds,
-            dates_in_month: date.dates_in_month(),
+            dates_in_month: date.date_range(36),
         }
     }
 }

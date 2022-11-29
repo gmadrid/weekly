@@ -156,7 +156,7 @@ impl DailyDescription {
     {
         DailyDescription {
             bounds,
-            dates_in_month: date.date_range(36),
+            dates_in_month: date.dates_in_month(),
         }
     }
 }

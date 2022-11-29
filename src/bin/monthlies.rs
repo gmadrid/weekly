@@ -12,7 +12,7 @@ use weekly::{
 #[argh(description = "Creates a checklist of monthly tasks.")]
 struct MonthlyArgs {
     // todo: allow use of yyyy-mm for start
-    #[argh(option, long = "start", description = "the start month (yyyy-mm-dd")]
+    #[argh(option, long = "start", description = "the start month (yyyy-mm-dd)")]
     start_date: Option<NaiveDate>,
 }
 

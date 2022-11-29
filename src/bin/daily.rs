@@ -78,11 +78,11 @@ mod data {
                     days: None,
                 },
                 DailyTask {
-                    name: "",
+                    name: "Face (am)",
                     days: None,
                 },
                 DailyTask {
-                    name: "",
+                    name: "Face (pm)",
                     days: None,
                 },
                 DailyTask {

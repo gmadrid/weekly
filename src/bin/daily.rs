@@ -15,6 +15,16 @@ struct Args {
     /// month for which to generate the checklist
     #[argh(positional)]
     dates: Vec<NaiveDate>,
+
+    // TODO: try to unify args across apps.
+    // TODO: these arguments are kind of ugly. Fix them.
+    /// optional start date
+    #[argh(option, short='s')]
+    start_date: Option<NaiveDate>,
+
+    /// optional end date
+    #[argh(option, short='e')]
+    end_date: Option<NaiveDate>,
 }
 
 mod data {
@@ -266,12 +276,20 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
 
 fn render_dailies(
     date: &NaiveDate,
+    end_date: &Option<NaiveDate>,
     _: &PdfDocumentReference,
     page_rect: &WRect,
 ) -> weekly::Result<Instructions> {
     let grid_rect =
         page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
-    let description = DailyDescription::for_month(date, grid_rect);
+    let description = if let Some(end) = end_date {
+        DailyDescription {
+            bounds: grid_rect,
+            dates_in_month: date.date_range((*end - *date).num_days()),
+        }
+    } else {
+        DailyDescription::for_month(date, grid_rect)
+    };
     let grid = TGrid::with_description(description);
     Ok(grid.generate_instructions())
 }
@@ -284,25 +302,30 @@ fn default_doc_title(date: &NaiveDate) -> String {
     format!("Daily Checklist - {}", date.format("%B %Y"))
 }
 
-fn main_func(date: &NaiveDate) -> Result<()> {
+fn main_func(date: &NaiveDate, end: &Option<NaiveDate>) -> Result<()> {
     let output_filename = default_output_filename(date);
     let doc_title = default_doc_title(date);
 
     save_one_page_document(&doc_title, &output_filename, &sizes::letter(), |d, p| {
-        render_dailies(date, d, p)
+        render_dailies(date, end, d, p)
     })
 }
 
 fn main() {
     let args: Args = argh::from_env();
 
-    if args.dates.is_empty() {
-        if let Err(err) = main_func(&weekly::today()) {
+    if args.start_date.is_some() && args.end_date.is_some() {
+        if let Err(err) = main_func(&args.start_date.unwrap(), &args.end_date) {
+            eprintln!("Error: {:?}", err);
+        }
+    }
+    else if args.dates.is_empty() {
+        if let Err(err) = main_func(&weekly::today(), &None) {
             eprintln!("Error: {:?}", err);
         }
     } else {
         for date in &args.dates {
-            if let Err(err) = main_func(date) {
+            if let Err(err) = main_func(date, &None) {
                 eprintln!("Error: {} : {:?}", date.format("%Y-%m"), err);
             }
         }

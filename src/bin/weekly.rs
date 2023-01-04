@@ -283,6 +283,10 @@ pub fn main() -> Result<()> {
 
     let page_rect = sizes::halfletter();
 
+    let page_rect = sizes::letter();
+    let top_half = page_rect.resize(page_rect.width(), page_rect.height() / 2.0);
+    
+
     save_one_page_document(
         "Productivity Tracker",
         &args.output_filename,

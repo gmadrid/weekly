@@ -20,7 +20,11 @@ fn names_for_months(start_date: &NaiveDate, n: usize) -> Vec<String> {
     let mut month = start_date.first_of_month();
     let mut output = vec![];
     for _ in 0..n {
-        output.push(month.format("%b %Y").to_string());
+        if month.year() > start_date.year() {
+            output.push("".to_string())
+        } else {
+            output.push(month.format("%b %Y").to_string());
+        }
         month = month.next_month(); //  next_month(&curr_month);
     }
     output

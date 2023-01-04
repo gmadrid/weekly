@@ -40,9 +40,9 @@ mod data {
         pub days: Option<HashSet<Weekday>>,
     }
 
-    fn weekdays_only() -> HashSet<Weekday> {
-        vec![Mon, Tue, Wed, Thu, Fri].into_iter().collect()
-    }
+    fn some_days<const N: usize>(days: [Weekday; N]) -> Option<HashSet<Weekday>> { Some(days.iter().copied().collect()) }
+    fn one_day(day: Weekday) -> Option<HashSet<Weekday>> { some_days([day]) }
+    fn weekdays_only() -> Option<HashSet<Weekday>> {   some_days([Mon, Tue, Wed, Thu, Fri]) }
 
     lazy_static! {
         pub static ref TASKS: Vec<DailyTask<'static>> = {
@@ -60,8 +60,12 @@ mod data {
                     days: None,
                 },
                 DailyTask {
-                    name: "",
-                    days: None,
+                    name: "Workout",
+                    days: some_days([Weekday::Mon, Weekday::Wed, Weekday::Fri]),
+                },
+                DailyTask {
+                    name: "Weekly review",
+                    days: one_day(Weekday::Sun),
                 },
                 DailyTask {
                     name: "",
@@ -96,7 +100,15 @@ mod data {
                     days: None,
                 },
                 DailyTask {
+                    name: "Clean food",
+                    days: None,
+                },
+                DailyTask {
                     name: "",
+                    days: None,
+                },
+                DailyTask {
+                    name: "Journal",
                     days: None,
                 },
                 DailyTask {
@@ -108,36 +120,24 @@ mod data {
                     days: None,
                 },
                 DailyTask {
-                    name: "",
+                    name: "Lone Wolf & Cub",
                     days: None,
                 },
                 DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
-                    days: None,
-                },
-                DailyTask {
-                    name: "",
+                    name: "Read",
                     days: None,
                 },
                 DailyTask {
                     name: "Bug sweep",
-                    days: Some(weekdays_only()),
+                    days: weekdays_only(),
                 },
                 DailyTask {
                     name: "Code reviews",
-                    days: Some(weekdays_only()),
+                    days: weekdays_only(),
                 },
                 DailyTask {
                     name: "Inbox Zero",
-                    days: Some(weekdays_only()),
+                    days: weekdays_only(),
                 },
                 DailyTask {
                     name: "Check calendar",
@@ -281,7 +281,7 @@ fn render_dailies(
     page_rect: &WRect,
 ) -> weekly::Result<Instructions> {
     let grid_rect =
-        page_rect.inset_all_q1(0.5.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
+        page_rect.inset_all_q1(0.25.inches(), 0.25.inches(), 0.6.inches(), 0.25.inches());
     let description = if let Some(end) = end_date {
         DailyDescription {
             bounds: grid_rect,

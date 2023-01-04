@@ -281,13 +281,10 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
 pub fn main() -> Result<()> {
     let args: Args = argh::from_env();
 
-    // half letter = 215.9 x 139.7mm
-    // Inset rect should be: w: 203.2 h: 127 l: 6.35 t: 133.35
-
     let page_rect = sizes::halfletter();
 
     save_one_page_document(
-        &args.output_filename,
+        "Productivity Tracker",
         &args.output_filename,
         &page_rect,
         |doc, page_rect| render_weekly(doc, page_rect),

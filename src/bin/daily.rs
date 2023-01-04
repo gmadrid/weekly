@@ -312,7 +312,7 @@ fn main_func(date: &NaiveDate, end: &Option<NaiveDate>) -> Result<()> {
     let output_filename = default_output_filename(date);
     let doc_title = default_doc_title(date);
 
-    save_one_page_document(&doc_title, &output_filename, &sizes::letter(), |d, p| {
+    save_one_page_document(&doc_title, output_filename, &sizes::letter(), |d, p| {
         render_dailies(date, end, d, p)
     })
 }

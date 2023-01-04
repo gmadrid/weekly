@@ -135,12 +135,12 @@ fn render_monthlies(
 fn main() -> weekly::Result<()> {
     let args: MonthlyArgs = argh::from_env();
 
-    let date = args.start_date.unwrap_or(weekly::today());
+    let date = args.start_date.unwrap_or_else(weekly::today);
     let title = default_doc_title(&date);
     let filename = default_output_filename(&date);
 
     let page_bounds = weekly::sizes::letter();
-    save_one_page_document(&title, &filename, &page_bounds, |d, r| {
+    save_one_page_document(&title, filename, &page_bounds, |d, r| {
         render_monthlies(&date, d, r)
     })
 }

@@ -104,7 +104,7 @@ impl<F: Fn(&WRect, usize, &mut Instructions)> GridDescription for SimpleDescript
 // Number of lines in the top table + 1 to account for gutter.
 const TOTAL_TOP_LINES: f64 = 9.0;
 
-fn render_lines<T: Into<String>, F: Fn(&WRect, usize, &mut Instructions)>(
+fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
     rect: &WRect,
     text: T,
     num_rows: usize,
@@ -118,7 +118,7 @@ fn render_lines<T: Into<String>, F: Fn(&WRect, usize, &mut Instructions)>(
     instructions.push_shape(table_rect.as_pdf_line().fill(false).stroke(true));
 
     let description =
-        SimpleDescription::new(&table_rect, num_rows, text.into(), render_func).set_offset(offset);
+        SimpleDescription::new(&table_rect, num_rows, text.as_ref(), render_func).set_offset(offset);
     let tgrid = TGrid::with_description(description);
 
     tgrid.append_to_instructions(&mut instructions);
@@ -152,10 +152,10 @@ fn render_days(rect: &WRect) -> Instructions {
     let mut instructions = Instructions::default();
 
     let day_rect = rect.resize(day_width, rect.height());
-    for i in 0..DAY_ABBREVS.len() {
+    for (i, abbrev) in DAY_ABBREVS.iter().enumerate() {
         instructions.append(render_lines(
             &day_rect.move_by(day_width * i as f64, 0.0.mm()),
-            DAY_ABBREVS[i],
+            abbrev,
             14,
             12.0.mm(),
             |rect, idx, instructions| {
@@ -243,10 +243,10 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
                 // Top row labels
                 instructions.push_state();
                 instructions.set_fill_color(Colors::white());
-                for i in 0..7 {
+                for (i, letter) in DAY_LETTERS.iter().enumerate() {
                     let l = small_grid_left + rect.height() * i;
                     instructions.push_text(
-                        DAY_LETTERS[i],
+                        letter,
                         ((rect.height() - 1.0.mm()) * 1.9).into(),
                         l + 1.4.mm(),
                         rect.bottom_q1() + 1.5.mm(),
@@ -281,16 +281,15 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
 pub fn main() -> Result<()> {
     let args: Args = argh::from_env();
 
-    let page_rect = sizes::halfletter();
-
     let page_rect = sizes::letter();
-    let top_half = page_rect.resize(page_rect.width(), page_rect.height() / 2.0);
-
 
     save_one_page_document(
         "Productivity Tracker",
-        &args.output_filename,
+        args.output_filename,
         &page_rect,
-        |doc, page_rect| render_weekly(doc, &top_half),
+        |doc, page_rect| {
+            let top_half = page_rect.resize(page_rect.width(), page_rect.height() / 2.0);
+            render_weekly(doc, &top_half)
+        },
     )
 }

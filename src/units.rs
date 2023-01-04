@@ -35,6 +35,18 @@ impl From<&Unit> for printpdf::Mm {
     }
 }
 
+impl From<Unit> for printpdf::Pt {
+    fn from(value: Unit) -> Self {
+        printpdf::Pt::from(printpdf::Mm::from(value))
+    }
+}
+
+impl From<&Unit> for printpdf::Pt {
+    fn from(value: &Unit) -> Self {
+        printpdf::Pt::from(printpdf::Mm::from(value))
+    }
+}
+
 impl From<Unit> for f64 {
     fn from(unit: Unit) -> Self {
         unit.0
@@ -74,6 +86,14 @@ impl std::ops::Sub for Unit {
 
     fn sub(self, rhs: Self) -> Self::Output {
         Unit(self.0 - rhs.0)
+    }
+}
+
+impl std::ops::Sub<f64> for Unit {
+    type Output = Self;
+
+    fn sub(self, rhs: f64) -> Self::Output {
+        Unit(self.0 - rhs)
     }
 }
 

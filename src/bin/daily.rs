@@ -19,11 +19,11 @@ struct Args {
     // TODO: try to unify args across apps.
     // TODO: these arguments are kind of ugly. Fix them.
     /// optional start date
-    #[argh(option, short='s')]
+    #[argh(option, short = 's')]
     start_date: Option<NaiveDate>,
 
     /// optional end date
-    #[argh(option, short='e')]
+    #[argh(option, short = 'e')]
     end_date: Option<NaiveDate>,
 }
 
@@ -40,9 +40,15 @@ mod data {
         pub days: Option<HashSet<Weekday>>,
     }
 
-    fn some_days<const N: usize>(days: [Weekday; N]) -> Option<HashSet<Weekday>> { Some(days.iter().copied().collect()) }
-    fn one_day(day: Weekday) -> Option<HashSet<Weekday>> { some_days([day]) }
-    fn weekdays_only() -> Option<HashSet<Weekday>> {   some_days([Mon, Tue, Wed, Thu, Fri]) }
+    fn some_days<const N: usize>(days: [Weekday; N]) -> Option<HashSet<Weekday>> {
+        Some(days.iter().copied().collect())
+    }
+    fn one_day(day: Weekday) -> Option<HashSet<Weekday>> {
+        some_days([day])
+    }
+    fn weekdays_only() -> Option<HashSet<Weekday>> {
+        some_days([Mon, Tue, Wed, Thu, Fri])
+    }
 
     lazy_static! {
         pub static ref TASKS: Vec<DailyTask<'static>> = {
@@ -318,8 +324,7 @@ fn main() {
         if let Err(err) = main_func(&args.start_date.unwrap(), &args.end_date) {
             eprintln!("Error: {:?}", err);
         }
-    }
-    else if args.dates.is_empty() {
+    } else if args.dates.is_empty() {
         if let Err(err) = main_func(&weekly::today(), &None) {
             eprintln!("Error: {:?}", err);
         }

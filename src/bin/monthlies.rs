@@ -1,8 +1,8 @@
+use argh::FromArgs;
 use chrono::{Datelike, NaiveDate};
 use printpdf::*;
 use std::borrow::Cow;
 use std::path::PathBuf;
-use argh::FromArgs;
 use weekly::{
     save_one_page_document, Colors, Datetools, FontProxy, GridDescription, Instructions,
     NumericUnit, TGrid, Unit, WRect,

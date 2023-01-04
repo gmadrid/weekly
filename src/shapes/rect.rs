@@ -35,6 +35,14 @@ impl WRect {
         WRect { top, left, ..*self }
     }
 
+    pub fn move_by(&self, left: Unit, top: Unit) -> WRect {
+        WRect {
+            top: self.top + top,
+            left: self.left + left,
+            ..*self
+        }
+    }
+
     pub fn resize(&self, width: Unit, height: Unit) -> WRect {
         WRect {
             width,

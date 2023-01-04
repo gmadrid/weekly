@@ -17,6 +17,10 @@ pub struct Instructions {
 }
 
 impl Instructions {
+    pub fn append(&mut self, mut other: Instructions) {
+        self.instructions.append(&mut other.instructions)
+    }
+
     pub fn push_state(&mut self) {
         self.instructions.push(Instruction::PushState);
     }
@@ -377,6 +381,10 @@ pub mod sizes {
 
     pub fn letter() -> WRect {
         quadrant1(8.5.inches(), 11.0.inches())
+    }
+
+    pub fn halfletter() -> WRect {
+        quadrant1(8.5.inches(), 5.5.inches())
     }
 
     pub fn legal() -> WRect {

@@ -27,6 +27,9 @@ name = "projects"
 name = "magic"
 
 [[bin]]
+name = "weekly"
+
+[[bin]]
 name = "tester"
 
 [[bin]]

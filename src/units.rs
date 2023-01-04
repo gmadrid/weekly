@@ -117,6 +117,14 @@ impl std::ops::Div<usize> for Unit {
     }
 }
 
+impl std::ops::Div<f64> for Unit {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Unit(self.0 / rhs)
+    }
+}
+
 impl std::ops::Neg for Unit {
     type Output = Unit;
 

@@ -8,10 +8,10 @@ use weekly::{
 const GOLDEN_RATIO: f64 = 1.618033988749894;
 
 #[derive(Debug, FromArgs)]
-/// Generates a daily checklist for every date supplied.
+/// Generates a weekly productivity tracker.
 struct Args {
     /// name of the output file
-    #[argh(positional)]
+    #[argh(positional, default = "String::from(\"weekly.pdf\")")]
     output_filename: String,
 }
 

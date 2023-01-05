@@ -7,6 +7,23 @@ use weekly::{
 
 const GOLDEN_RATIO: f64 = 1.618033988749894;
 
+const DAY_ABBREVS: [&str; 5] = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+
+const DAY_LETTERS: [&str; 7] = ["M", "T", "W", "T", "F", "S", "S"];
+
+const HABITS: [&str; 7] = [
+    "Check calendar",
+    "Inbox Zero",
+    "Code reviews",
+    "Bug sweep",
+    "GTD",
+    "",
+    "Release tasks",
+];
+
+// Number of lines in the top table + 1 to account for gutter.
+const TOTAL_TOP_LINES: f64 = 9.0;
+
 #[derive(Debug, FromArgs)]
 /// Generates a weekly productivity tracker.
 struct Args {
@@ -101,9 +118,6 @@ impl<F: Fn(&WRect, usize, &mut Instructions)> GridDescription for SimpleDescript
     }
 }
 
-// Number of lines in the top table + 1 to account for gutter.
-const TOTAL_TOP_LINES: f64 = 9.0;
-
 fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
     rect: &WRect,
     text: T,
@@ -143,9 +157,6 @@ fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
     };
     instructions.push_shape(line);
 }
-
-const DAY_ABBREVS: [&str; 5] = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-const DAY_LETTERS: [&str; 7] = ["M", "T", "W", "T", "F", "S", "S"];
 
 fn render_days(rect: &WRect) -> Result<Instructions> {
     let day_width = rect.width() / DAY_ABBREVS.len() as f64;
@@ -230,6 +241,7 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
         top_text_offset,
         |rect, row, instructions| {
             let small_grid_left = rect.right() - rect.height() * 7.0;
+            let text_height = ((rect.height() - 1.0.mm()) * 1.9).to_mm();
             if row > 0 {
                 instructions.push_state();
                 instructions.set_dash(1, 1);
@@ -247,13 +259,26 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
                     let l = small_grid_left + rect.height() * i as f64;
                     instructions.push_text(
                         letter,
-                        ((rect.height() - 1.0.mm()) * 1.9).to_mm(),
+                        text_height,
                         l + 1.4.mm(),
                         rect.bottom_q1() + 1.5.mm(),
                         FontProxy::Helvetica(true, false),
                     );
                 }
 
+                instructions.pop_state();
+            }
+
+            if row > 0 && row < HABITS.len() + 1 {
+                instructions.push_state();
+                instructions.set_fill_color(Colors::black());
+                instructions.push_text(
+                    HABITS[row - 1],
+                    text_height,
+                    rect.left() + 1.5.mm(),
+                    rect.bottom_q1() + 1.5.mm(),
+                    FontProxy::Helvetica(false, false),
+                );
                 instructions.pop_state();
             }
         },
@@ -278,6 +303,48 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
     Ok(instructions)
 }
 
+fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instructions> {
+    let mut instructions = Instructions::default();
+
+    instructions.push_state();
+
+    instructions.clear_fill_color();
+    instructions.set_stroke_color(Colors::gray(0.7));
+    instructions.set_stroke_width(0.5);
+    instructions.push_shape(
+        dotted_rect
+            .as_rounded_rect_shape(2.0.mm())
+            .fill(false)
+            .stroke(true),
+    );
+
+    instructions.set_fill_color(Colors::gray(0.7));
+    let grid_spacing = 0.25.inches();
+
+    let radius = 0.25.mm();
+    let mut x = dotted_rect.left() + grid_spacing;
+    while x <= dotted_rect.right() - grid_spacing {
+        let mut y = dotted_rect.top() - grid_spacing;
+
+        while y >= dotted_rect.bottom_q1() - grid_spacing {
+            let points = printpdf::utils::calculate_points_for_circle(radius, x, y);
+            let line = Line {
+                points,
+                is_closed: true,
+                has_fill: true,
+                has_stroke: false,
+                is_clipping_path: false,
+            };
+            instructions.push_shape(line);
+
+            y = y - grid_spacing;
+        }
+        x = x + grid_spacing;
+    }
+    instructions.pop_state();
+    Ok(instructions)
+}
+
 pub fn main() -> Result<()> {
     let args: Args = argh::from_env();
 
@@ -289,7 +356,14 @@ pub fn main() -> Result<()> {
         &page_rect,
         |doc, page_rect| {
             let top_half = page_rect.resize(page_rect.width(), page_rect.height() / 2.0);
-            render_weekly(doc, &top_half)
+            let mut instructions = render_weekly(doc, &top_half)?;
+
+            let bottom_half = top_half
+                .move_by(Unit::zero(), -top_half.height())
+                .inset_all_q1(0.25.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
+            instructions.append(render_dotted(doc, &bottom_half)?);
+
+            Ok(instructions)
         },
     )
 }

@@ -4,8 +4,8 @@ use printpdf::{Color, PdfDocumentReference};
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, sizes, ToPdfLine, Attributes, Colors, Datetools, LineModifiers,
-    NumericUnit, Result, TGrid, Unit, WRect,
+    save_one_page_document, sizes, Attributes, Colors, Datetools, LineModifiers, NumericUnit,
+    Result, TGrid, ToPdfLine, Unit, WRect,
 };
 use weekly::{GridDescription, Instructions};
 

@@ -1,5 +1,5 @@
 use crate::units::Unit;
-use crate::{ToPdfLine, Result, WRect};
+use crate::{Result, ToPdfLine, WRect};
 use printpdf::*;
 use std::collections::HashMap;
 use std::fs::File;

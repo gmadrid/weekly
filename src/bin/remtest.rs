@@ -1,6 +1,6 @@
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, ToPdfLine, Colors, Instructions, LineModifiers, NumericUnit, WRect,
+    save_one_page_document, Colors, Instructions, LineModifiers, NumericUnit, ToPdfLine, WRect,
 };
 
 const REMARKABLE_WIDTH: f64 = 157.2;

@@ -1,6 +1,6 @@
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, ToPdfLine, Colors, Instructions, LineModifiers, NumericUnit, Unit,
+    save_one_page_document, Colors, Instructions, LineModifiers, NumericUnit, ToPdfLine, Unit,
     WLine, WRect,
 };
 

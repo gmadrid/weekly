@@ -1,8 +1,8 @@
 use argh::FromArgs;
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, sizes, ToPdfLine, Attributes, Circle, Colors, FontProxy,
-    GridDescription, Instructions, LineModifiers, NumericUnit, Result, TGrid, Unit, WLine, WRect,
+    save_one_page_document, sizes, Attributes, Circle, Colors, FontProxy, GridDescription,
+    Instructions, LineModifiers, NumericUnit, Result, TGrid, ToPdfLine, Unit, WLine, WRect,
 };
 
 const GOLDEN_RATIO: f64 = 1.618033988749894;
@@ -150,9 +150,9 @@ fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
     instructions.push_shape(circle);
 }
 
-fn render_days(rect: &WRect) -> Result<Instructions> {
+fn render_days(rect: &WRect, instructions: &mut Instructions) -> Result<()> {
     let day_width = rect.width() / DAY_ABBREVS.len() as f64;
-    let mut instructions = Instructions::default();
+    //    let mut instructions = Instructions::default();
 
     let day_rect = rect.resize(day_width, rect.height());
     for (i, abbrev) in DAY_ABBREVS.iter().enumerate() {
@@ -184,7 +184,7 @@ fn render_days(rect: &WRect) -> Result<Instructions> {
         )?);
     }
 
-    Ok(instructions)
+    Ok(())
 }
 
 fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instructions> {
@@ -208,21 +208,47 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
     let top_text_offset = 5.0.mm();
 
     let priorities_rect = print_rect.resize(grid_x * 2.0, top_height);
-    instructions.append(render_lines(
-        &priorities_rect,
-        "Weekly Priorities",
-        8,
-        top_text_offset,
-        |rect, row, instructions| {
-            if row > 0 {
-                render_left_circle(rect, instructions)
-            }
-        },
-    )?);
+    render_priorities(&priorities_rect, top_text_offset, &mut instructions)?;
 
     let tracker_rect = priorities_rect.move_by(grid_x * 2.0, Unit::zero());
+    render_tracker(&tracker_rect, top_text_offset, &mut instructions)?;
+
+    let weekend_rect = tracker_rect
+        .move_by(grid_x * 2.0, Unit::zero())
+        .resize(grid_x, priorities_rect.height());
+    render_weekend(&weekend_rect, top_text_offset, &mut instructions)?;
+
+    let calendar_rect = print_rect
+        .resize(print_rect.width(), bottom_height)
+        .move_by(Unit::zero(), -top_height);
+    render_days(&calendar_rect, &mut instructions)?;
+
+    Ok(instructions)
+}
+
+fn render_weekend(
+    weekend_rect: &WRect,
+    top_text_offset: Unit,
+    instructions: &mut Instructions,
+) -> Result<()> {
     instructions.append(render_lines(
-        &tracker_rect,
+        weekend_rect,
+        "Weekend Plans",
+        8,
+        top_text_offset,
+        |_, _, _| {},
+    )?);
+
+    Ok(())
+}
+
+fn render_tracker(
+    tracker_rect: &WRect,
+    top_text_offset: Unit,
+    instructions: &mut Instructions,
+) -> Result<()> {
+    instructions.append(render_lines(
+        tracker_rect,
         "Habit Tracker",
         8,
         top_text_offset,
@@ -271,24 +297,26 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
             }
         },
     )?);
+    Ok(())
+}
 
-    let weekend_rect = tracker_rect
-        .move_by(grid_x * 2.0, Unit::zero())
-        .resize(grid_x, priorities_rect.height());
+fn render_priorities(
+    priorities_rect: &WRect,
+    top_text_offset: Unit,
+    instructions: &mut Instructions,
+) -> Result<()> {
     instructions.append(render_lines(
-        &weekend_rect,
-        "Weekend Plans",
+        priorities_rect,
+        "Weekly Priorities",
         8,
         top_text_offset,
-        |_, _, _| {},
+        |rect, row, instructions| {
+            if row > 0 {
+                render_left_circle(rect, instructions)
+            }
+        },
     )?);
-
-    let calendar_rect = print_rect
-        .resize(print_rect.width(), bottom_height)
-        .move_by(Unit::zero(), -top_height);
-    instructions.append(render_days(&calendar_rect)?);
-
-    Ok(instructions)
+    Ok(())
 }
 
 fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instructions> {
@@ -316,7 +344,7 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instru
         let mut y = dotted_rect.top() - grid_spacing;
 
         while y >= dotted_rect.bottom_q1() + grid_spacing {
-                instructions.push_shape(
+            instructions.push_shape(
                 base_circle
                     .move_to(x, y)
                     .to_pdf_line()

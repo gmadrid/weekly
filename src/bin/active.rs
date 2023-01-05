@@ -1,7 +1,7 @@
 use printpdf::*;
 use weekly::{
-    save_one_page_document, ToPdfLine, Attributes, GridDescription, Instructions, NumericUnit,
-    TGrid, Unit, WRect,
+    save_one_page_document, Attributes, GridDescription, Instructions, NumericUnit, TGrid,
+    ToPdfLine, Unit, WRect,
 };
 
 struct ActiveDescription {

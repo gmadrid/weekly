@@ -1,4 +1,4 @@
-use crate::{ToPdfLine, NumericUnit, Unit};
+use crate::{NumericUnit, ToPdfLine, Unit};
 use printpdf::Line;
 
 #[derive(Debug)]

@@ -1,5 +1,5 @@
 use crate::tgrid::renderparams::RenderParams;
-use crate::{ToPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect};
+use crate::{Colors, Instructions, NumericUnit, ToPdfLine, Unit, WLine, WRect};
 use description::GridDescription;
 
 pub mod description;

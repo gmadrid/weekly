@@ -244,6 +244,7 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
             let text_height = ((rect.height() - 1.0.mm()) * 1.9).to_mm();
             if row > 0 {
                 instructions.push_state();
+                instructions.set_stroke_color(Colors::gray(0.75));
                 instructions.set_dash(1, 1);
                 for i in 0..7 {
                     let l = small_grid_left + rect.height() * i;

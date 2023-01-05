@@ -100,7 +100,7 @@ impl<F: Fn(&WRect, usize, &mut Instructions)> GridDescription for SimpleDescript
 
         if row == 0 {
             instructions.set_fill_color(Colors::black());
-            instructions.push_shape(cell_rect.as_pdf_line());
+            instructions.push_shape(cell_rect);
 
             instructions.set_fill_color(Colors::white());
             instructions.push_text(
@@ -146,7 +146,7 @@ fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
     let y = rect.bottom_q1() + radius;
 
     let circle = Circle::at_zero(radius - 1.15.mm()).move_to(x, y);
-    instructions.push_shape(circle.as_pdf_line());
+    instructions.push_shape(circle);
 }
 
 fn render_days(rect: &WRect) -> Result<Instructions> {
@@ -235,7 +235,7 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
                 for i in 0..7 {
                     let l = small_grid_left + rect.height() * i;
                     let wline = WLine::line(l, rect.bottom_q1(), l, rect.top());
-                    instructions.push_shape(wline.as_pdf_line())
+                    instructions.push_shape(wline)
                 }
                 instructions.pop_state();
             } else {

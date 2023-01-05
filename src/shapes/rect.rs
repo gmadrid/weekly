@@ -140,3 +140,10 @@ impl AsPdfLine for WRect {
         }
     }
 }
+
+impl AsPdfLine for &WRect {
+    fn as_pdf_line(&self) -> Line {
+        // TODO: Can I eliminate this clone?
+        (*self).clone().as_pdf_line()
+    }
+}

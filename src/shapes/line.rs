@@ -1,5 +1,5 @@
 use crate::pdfutils::point_pair;
-use crate::shapes::AsPdfLine;
+use crate::shapes::ToPdfLine;
 use crate::units::Unit;
 use printpdf::Line;
 
@@ -17,8 +17,8 @@ impl WLine {
     }
 }
 
-impl AsPdfLine for WLine {
-    fn as_pdf_line(self) -> Line {
+impl ToPdfLine for WLine {
+    fn to_pdf_line(self) -> Line {
         Line {
             points: vec![
                 point_pair(self.x1, self.y1, false),

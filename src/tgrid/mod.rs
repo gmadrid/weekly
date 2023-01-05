@@ -1,5 +1,5 @@
 use crate::tgrid::renderparams::RenderParams;
-use crate::{AsPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect};
+use crate::{ToPdfLine, Colors, Instructions, NumericUnit, Unit, WLine, WRect};
 use description::GridDescription;
 
 pub mod description;
@@ -33,7 +33,7 @@ where
             if let Some(attrs) = self.params.horiz_line_style(row, num_rows) {
                 attrs.render(instructions, |instructions| {
                     let y = top - self.params.row_height * row as f64;
-                    instructions.push_shape(WLine::line(left, y, right, y).as_pdf_line());
+                    instructions.push_shape(WLine::line(left, y, right, y).to_pdf_line());
                 });
             }
         }
@@ -50,7 +50,7 @@ where
             if let Some(attrs) = self.params.vert_line_style(col, num_cols) {
                 attrs.render(instructions, |instructions| {
                     let x = left + self.params.col_width * col as f64;
-                    instructions.push_shape(WLine::line(x, top, x, bottom).as_pdf_line())
+                    instructions.push_shape(WLine::line(x, top, x, bottom).to_pdf_line())
                 });
             }
         }
@@ -129,7 +129,7 @@ where
                 let x = self.col_x(col);
                 let rect = base_col_rect.move_to(x, self.params.grid_bounds.top());
                 instructions.set_fill_color(color);
-                instructions.push_shape(rect.as_pdf_line());
+                instructions.push_shape(rect.to_pdf_line());
             }
         }
     }

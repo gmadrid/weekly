@@ -1,4 +1,4 @@
-use crate::{AsPdfLine, NumericUnit, Unit};
+use crate::{ToPdfLine, NumericUnit, Unit};
 use printpdf::Line;
 
 #[derive(Debug)]
@@ -34,8 +34,8 @@ impl Circle {
     }
 }
 
-impl AsPdfLine for Circle {
-    fn as_pdf_line(self) -> Line {
+impl ToPdfLine for Circle {
+    fn to_pdf_line(self) -> Line {
         let points = printpdf::calculate_points_for_circle(self.radius, self.x, self.y);
         Line {
             points,

@@ -1,6 +1,6 @@
 use printpdf::*;
 use weekly::{
-    save_one_page_document, AsPdfLine, Attributes, GridDescription, Instructions, NumericUnit,
+    save_one_page_document, ToPdfLine, Attributes, GridDescription, Instructions, NumericUnit,
     TGrid, Unit, WRect,
 };
 
@@ -51,7 +51,7 @@ impl GridDescription for ActiveDescription {
                 cell_rect.left() + self.task_height / 4,
                 cell_rect.top() - self.task_height / 4,
             );
-        let mut shape = check_rect.as_pdf_line();
+        let mut shape = check_rect.to_pdf_line();
         shape.has_fill = false;
         shape.has_stroke = true;
         instructions.push_shape(shape);

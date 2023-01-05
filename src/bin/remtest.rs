@@ -1,6 +1,6 @@
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, AsPdfLine, Colors, Instructions, LineModifiers, NumericUnit, WRect,
+    save_one_page_document, ToPdfLine, Colors, Instructions, LineModifiers, NumericUnit, WRect,
 };
 
 const REMARKABLE_WIDTH: f64 = 157.2;
@@ -13,7 +13,7 @@ fn render_remtest(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Resu
     instructions.set_stroke_color(Colors::black());
 
     let black_rect = dbg!(page_bounds.inset_q1(2.0.mm(), 2.0.mm()));
-    let rect_shape = black_rect.as_pdf_line().fill(false).stroke(true);
+    let rect_shape = black_rect.to_pdf_line().fill(false).stroke(true);
     instructions.push_shape(rect_shape);
 
     Ok(instructions)

@@ -1,5 +1,5 @@
 use crate::units::Unit;
-use crate::{AsPdfLine, Result, WRect};
+use crate::{ToPdfLine, Result, WRect};
 use printpdf::*;
 use std::collections::HashMap;
 use std::fs::File;
@@ -37,9 +37,9 @@ impl Instructions {
         self.instructions.push(Instruction::Translate(x, y));
     }
 
-    pub fn push_shape(&mut self, shape: impl AsPdfLine) {
+    pub fn push_shape(&mut self, shape: impl ToPdfLine) {
         self.instructions
-            .push(Instruction::Shape(shape.as_pdf_line()))
+            .push(Instruction::Shape(shape.to_pdf_line()))
     }
 
     pub fn push_text(&mut self, s: &str, text_height: f64, x: Unit, y: Unit, font: FontProxy) {

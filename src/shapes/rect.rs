@@ -1,5 +1,5 @@
 use crate::pdfutils::point_pair;
-use crate::shapes::AsPdfLine;
+use crate::shapes::ToPdfLine;
 use crate::units::Unit;
 use printpdf::*;
 
@@ -124,14 +124,14 @@ impl WRect {
     }
 }
 
-impl AsPdfLine for WRect {
-    fn as_pdf_line(self) -> Line {
-        (&self).as_pdf_line()
+impl ToPdfLine for WRect {
+    fn to_pdf_line(self) -> Line {
+        (&self).to_pdf_line()
     }
 }
 
-impl AsPdfLine for &WRect {
-    fn as_pdf_line(self) -> Line {
+impl ToPdfLine for &WRect {
+    fn to_pdf_line(self) -> Line {
         Line {
             // In Q1, rects grow downward toward the bottom.
             points: vec![

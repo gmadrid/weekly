@@ -1,7 +1,7 @@
 use argh::FromArgs;
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, sizes, AsPdfLine, Attributes, Circle, Colors, FontProxy,
+    save_one_page_document, sizes, ToPdfLine, Attributes, Circle, Colors, FontProxy,
     GridDescription, Instructions, LineModifiers, NumericUnit, Result, TGrid, Unit, WLine, WRect,
 };
 
@@ -134,7 +134,7 @@ fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
         .set_offset(offset);
     let tgrid = TGrid::with_description(description);
 
-    instructions.push_shape(table_rect.as_pdf_line().fill(false).stroke(true));
+    instructions.push_shape(table_rect.to_pdf_line().fill(false).stroke(true));
 
     tgrid.append_to_instructions(&mut instructions);
 
@@ -175,7 +175,7 @@ fn render_days(rect: &WRect) -> Result<Instructions> {
                                 rect.left() + radius + 2.0.mm(),
                                 rect.bottom_q1() + radius / 2.0 + 0.8.mm(),
                             )
-                            .as_pdf_line()
+                            .to_pdf_line()
                             .fill(true),
                     );
                     instructions.pop_state();
@@ -319,7 +319,7 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instru
                 instructions.push_shape(
                 base_circle
                     .move_to(x, y)
-                    .as_pdf_line()
+                    .to_pdf_line()
                     .fill(true)
                     .stroke(false),
             );

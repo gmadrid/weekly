@@ -8,7 +8,7 @@ pub use pdfutils::{
 pub use shapes::circle::Circle;
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
-pub use shapes::AsPdfLine;
+pub use shapes::ToPdfLine;
 pub use tgrid::description::GridDescription;
 pub use tgrid::TGrid;
 pub use units::{NumericUnit, Unit};

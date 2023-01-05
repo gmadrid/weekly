@@ -88,7 +88,7 @@ impl<F: Fn(&WRect, usize, &mut Instructions)> GridDescription for SimpleDescript
             instructions.set_fill_color(Colors::white());
             instructions.push_text(
                 &self.text,
-                ((cell_rect.height() - 1.0.mm()) * 1.9).into(),
+                ((cell_rect.height() - 1.0.mm()) * 1.9).to_mm(),
                 cell_rect.left() + self.offset,
                 cell_rect.bottom_q1() + 1.5.mm(),
                 FontProxy::Helvetica(true, false),
@@ -117,8 +117,8 @@ fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
     let table_rect = rect.resize(rect.width(), rect.height() - line_space);
     instructions.push_shape(table_rect.as_pdf_line().fill(false).stroke(true));
 
-    let description =
-        SimpleDescription::new(&table_rect, num_rows, text.as_ref(), render_func).set_offset(offset);
+    let description = SimpleDescription::new(&table_rect, num_rows, text.as_ref(), render_func)
+        .set_offset(offset);
     let tgrid = TGrid::with_description(description);
 
     tgrid.append_to_instructions(&mut instructions);
@@ -130,7 +130,7 @@ fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
     let radius = rect.height() / 2.0;
 
     let points = printpdf::utils::calculate_points_for_circle(
-        radius - 1.15,
+        radius - 1.15.mm(),
         rect.left() + radius,
         rect.bottom_q1() + radius,
     );
@@ -153,37 +153,40 @@ fn render_days(rect: &WRect) -> Instructions {
 
     let day_rect = rect.resize(day_width, rect.height());
     for (i, abbrev) in DAY_ABBREVS.iter().enumerate() {
-        instructions.append(render_lines(
-            &day_rect.move_by(day_width * i as f64, 0.0.mm()),
-            abbrev,
-            14,
-            12.0.mm(),
-            |rect, idx, instructions| {
-                if idx == 0 {
-                    let radius = rect.height() / 2.0 + 1.5.mm();
-                    instructions.push_state();
-                    instructions.set_fill_color(Colors::white());
-                    instructions.set_stroke_color(Colors::gray(0.6));
-                    instructions.set_stroke_width(1.0);
+        instructions.append(
+            render_lines(
+                &day_rect.move_by(day_width * i as f64, 0.0.mm()),
+                abbrev,
+                14,
+                12.0.mm(),
+                |rect, idx, instructions| {
+                    if idx == 0 {
+                        let radius = rect.height() / 2.0 + 1.5.mm();
+                        instructions.push_state();
+                        instructions.set_fill_color(Colors::white());
+                        instructions.set_stroke_color(Colors::gray(0.6));
+                        instructions.set_stroke_width(1.0);
 
-                    let points = printpdf::utils::calculate_points_for_circle(
-                        radius,
-                        rect.left() + radius + 2.0.mm(),
-                        rect.bottom_q1() + radius / 2.0 + 0.8.mm(),
-                    );
-                    let circle = Line {
-                        points,
-                        is_closed: true,
-                        has_fill: true,
-                        has_stroke: true,
-                        is_clipping_path: false,
-                    };
-                    instructions.push_shape(circle);
+                        let points = printpdf::utils::calculate_points_for_circle(
+                            radius,
+                            rect.left() + radius + 2.0.mm(),
+                            rect.bottom_q1() + radius / 2.0 + 0.8.mm(),
+                        );
+                        let circle = Line {
+                            points,
+                            is_closed: true,
+                            has_fill: true,
+                            has_stroke: true,
+                            is_clipping_path: false,
+                        };
+                        instructions.push_shape(circle);
 
-                    instructions.pop_state();
-                }
-            },
-        ).unwrap());
+                        instructions.pop_state();
+                    }
+                },
+            )
+            .unwrap(),
+        );
     }
 
     instructions
@@ -222,7 +225,7 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
         },
     )?);
 
-    let tracker_rect = priorities_rect.move_by(grid_x * 2.0, 0.0.into());
+    let tracker_rect = priorities_rect.move_by(grid_x * 2.0, Unit::zero());
     instructions.append(render_lines(
         &tracker_rect,
         "Habit Tracker",
@@ -244,10 +247,10 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
                 instructions.push_state();
                 instructions.set_fill_color(Colors::white());
                 for (i, letter) in DAY_LETTERS.iter().enumerate() {
-                    let l = small_grid_left + rect.height() * i;
+                    let l = small_grid_left + rect.height() * i as f64;
                     instructions.push_text(
                         letter,
-                        ((rect.height() - 1.0.mm()) * 1.9).into(),
+                        ((rect.height() - 1.0.mm()) * 1.9).to_mm(),
                         l + 1.4.mm(),
                         rect.bottom_q1() + 1.5.mm(),
                         FontProxy::Helvetica(true, false),
@@ -260,7 +263,7 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
     )?);
 
     let weekend_rect = tracker_rect
-        .move_by(grid_x * 2.0, 0.0.into())
+        .move_by(grid_x * 2.0, Unit::zero())
         .resize(grid_x, priorities_rect.height());
     instructions.append(render_lines(
         &weekend_rect,
@@ -272,7 +275,7 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
 
     let calendar_rect = print_rect
         .resize(print_rect.width(), bottom_height)
-        .move_by(0.0.into(), -top_height);
+        .move_by(Unit::zero(), -top_height);
     instructions.append(render_days(&calendar_rect));
 
     Ok(instructions)

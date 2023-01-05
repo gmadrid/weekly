@@ -84,23 +84,25 @@ where
         let num_rows = description.num_rows().unwrap_or_else(|| {
             // unwrap: we check that both num_rows and row_height cannot be none.
             // If num_rows isn't set, we compute it from the label size, bounds, and cell size.
-            (grid_bounds.height() - col_label_height) / description.row_height().unwrap()
+            ((grid_bounds.height() - col_label_height) / description.row_height().unwrap()).trunc()
+                as usize
         });
         let num_cols = description.num_cols().unwrap_or_else(|| {
             // unwrap: we check that both num_cols and col_width cannot be none.
             // If num_cols isn't set, we compute it from the label size, bounds, and cell size.
-            (grid_bounds.width() - row_label_width) / description.col_width().unwrap()
+            ((grid_bounds.width() - row_label_width) / description.col_width().unwrap()).trunc()
+                as usize
         });
 
         let row_height = description.row_height().unwrap_or_else(|| {
             // unwrap: we check that both num_rows and row_height cannot be none.
             // If row_height isn't set, we compute is from the label size, bounds, and num rows.
-            (grid_bounds.height() - col_label_height) / description.num_rows().unwrap()
+            (grid_bounds.height() - col_label_height) / description.num_rows().unwrap() as f64
         });
         let col_width = description.col_width().unwrap_or_else(|| {
             // unwrap: we check that both num_cols and col_width cannot be none.
             // If col_width isn't set, we compute is from the label size, bounds, and num cols.
-            (grid_bounds.width() - row_label_width) / description.num_cols().unwrap()
+            (grid_bounds.width() - row_label_width) / description.num_cols().unwrap() as f64
         });
 
         let font = description.font();

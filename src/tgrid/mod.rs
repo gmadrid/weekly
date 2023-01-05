@@ -24,14 +24,15 @@ where
 
     fn render_horizontal_lines(&self, instructions: &mut Instructions) {
         let left = self.params.grid_bounds.left();
-        let right =
-            left + self.params.row_label_width + self.params.col_width * self.params.num_cols;
+        let right = left
+            + self.params.row_label_width
+            + self.params.col_width * self.params.num_cols as f64;
         let top = self.params.grid_bounds.top() - self.params.col_label_height;
         let num_rows = self.params.num_rows;
         for row in 0..=num_rows {
             if let Some(attrs) = self.params.horiz_line_style(row, num_rows) {
                 attrs.render(instructions, |instructions| {
-                    let y = top - self.params.row_height * row;
+                    let y = top - self.params.row_height * row as f64;
                     instructions.push_shape(WLine::line(left, y, right, y).as_pdf_line());
                 });
             }
@@ -40,14 +41,15 @@ where
 
     fn render_vertical_lines(&self, instructions: &mut Instructions) {
         let top = self.params.grid_bounds.top();
-        let bottom =
-            top - self.params.col_label_height - self.params.row_height * self.params.num_rows;
+        let bottom = top
+            - self.params.col_label_height
+            - self.params.row_height * self.params.num_rows as f64;
         let left = self.params.grid_bounds.left() + self.params.row_label_width;
         let num_cols = self.params.num_cols;
         for col in 0..=num_cols {
             if let Some(attrs) = self.params.vert_line_style(col, num_cols) {
                 attrs.render(instructions, |instructions| {
-                    let x = left + self.params.col_width * col;
+                    let x = left + self.params.col_width * col as f64;
                     instructions.push_shape(WLine::line(x, top, x, bottom).as_pdf_line())
                 });
             }
@@ -55,11 +57,15 @@ where
     }
 
     fn row_y(&self, row: usize) -> Unit {
-        self.params.grid_bounds.top() - self.params.col_label_height - self.params.row_height * row
+        self.params.grid_bounds.top()
+            - self.params.col_label_height
+            - self.params.row_height * row as f64
     }
 
     fn col_x(&self, col: usize) -> Unit {
-        self.params.grid_bounds.left() + self.params.row_label_width + self.params.col_width * col
+        self.params.grid_bounds.left()
+            + self.params.row_label_width
+            + self.params.col_width * col as f64
     }
 
     fn render_row_labels(&self, instructions: &mut Instructions) {
@@ -70,12 +76,12 @@ where
         let row_height = self.params.row_height;
 
         let x = self.params.grid_bounds.left() + 2.0.mm();
-        let text_height = f64::from(row_height) * 1.9;
+        let text_height = row_height * 1.9;
         for row in 0..self.params.num_rows {
             let y = self.row_y(row + 1) + 1.5.mm();
             instructions.push_text(
                 self.params.row_label(row).as_ref(),
-                text_height,
+                text_height.to_mm(),
                 x,
                 y,
                 self.params.font,
@@ -91,7 +97,7 @@ where
         let row_height = self.params.row_height;
 
         // (159, -21) after rotation.
-        let text_height = f64::from(row_height) * 1.9;
+        let text_height = row_height * 1.9;
         let y = self.params.grid_bounds.top() - self.params.col_label_height + 1.0.mm();
         for col in 0..self.params.num_cols {
             let x = self.col_x(col + 1) - 1.0.mm();
@@ -103,7 +109,7 @@ where
             // Text position is (0.0), so that we can rotate the text before translating it.
             instructions.push_text(
                 self.params.col_label(col).as_ref(),
-                text_height,
+                text_height.to_mm(),
                 Unit::zero(),
                 Unit::zero(),
                 self.params.font,
@@ -115,7 +121,7 @@ where
     fn render_column_backgrounds(&self, instructions: &mut Instructions) {
         let base_col_rect = WRect::with_dimensions(
             self.params.col_width,
-            self.params.col_label_height + self.params.row_height * self.params.num_rows,
+            self.params.col_label_height + self.params.row_height * self.params.num_rows as f64,
         );
 
         for col in 0..self.params.num_cols {

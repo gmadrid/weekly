@@ -97,7 +97,7 @@ impl WRect {
     }
 
     pub fn as_rounded_rect_shape(&self, radius: Unit) -> Line {
-        let pv = Unit::from(1.0 - 0.55228);
+        let pv = 1.0_f64 - 0.55228;
         Line {
             points: vec![
                 point_pair(self.right() - radius, self.top, true),

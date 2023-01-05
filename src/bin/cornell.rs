@@ -55,7 +55,7 @@ fn compute_bottom_line_y(device_rect: &WRect) -> Unit {
     let lines = cornell_height / rule_height;
     device_rect.height()
         - if rule_height * lines != cornell_height {
-            rule_height * (lines + 1)
+            rule_height * (lines + 1.0)
         } else {
             rule_height
         }

@@ -1,4 +1,5 @@
 #[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
+// A `Unit` is a number of millimeters (mm) internally.
 pub struct Unit(f64);
 
 impl Unit {
@@ -18,8 +19,15 @@ impl Unit {
         Unit(self.0.max(other.0))
     }
 
+    // Returns a new Unit that is `percentage` times Self.
+    // percentage is expressed such that `x.pct(100.0) == x`.
     pub fn pct(self, percentage: f64) -> Unit {
         Unit(self.0 * (percentage / 100.0))
+    }
+
+    // The only way to strip the units off of a Unit is to return is as millimeters.
+    pub fn to_mm(self) -> f64 {
+        self.0
     }
 }
 
@@ -47,29 +55,21 @@ impl From<&Unit> for printpdf::Pt {
     }
 }
 
-impl From<Unit> for f64 {
-    fn from(unit: Unit) -> Self {
-        unit.0
-    }
-}
-
-impl From<f64> for Unit {
-    fn from(f: f64) -> Self {
-        Unit(f)
-    }
-}
-
 pub trait NumericUnit {
     fn inches(self) -> Unit;
     fn mm(self) -> Unit;
 }
 
-impl NumericUnit for f64 {
+impl<T> NumericUnit for T
+where
+    T: Into<f64>,
+{
     fn inches(self) -> Unit {
-        Unit(self * 25.4)
+        Unit(self.into() * 25.4)
     }
+
     fn mm(self) -> Unit {
-        Unit(self)
+        Unit(self.into())
     }
 }
 
@@ -89,59 +89,35 @@ impl std::ops::Sub for Unit {
     }
 }
 
-impl std::ops::Sub<f64> for Unit {
-    type Output = Self;
-
-    fn sub(self, rhs: f64) -> Self::Output {
-        Unit(self.0 - rhs)
-    }
-}
-
-impl std::ops::Mul<usize> for Unit {
+impl<T> std::ops::Mul<T> for Unit
+where
+    T: Into<f64>,
+{
     type Output = Unit;
 
-    fn mul(self, rhs: usize) -> Self::Output {
-        Unit(self.0 * rhs as f64)
-    }
-}
-
-impl std::ops::Mul<f64> for Unit {
-    type Output = Unit;
-
-    fn mul(self, rhs: f64) -> Self::Output {
-        Unit(self.0 * rhs)
-    }
-}
-
-impl std::ops::Mul<Unit> for Unit {
-    type Output = Unit;
-
-    fn mul(self, rhs: Unit) -> Self::Output {
-        Unit(self.0 * rhs.0)
+    fn mul(self, rhs: T) -> Self::Output {
+        Unit(self.0 * rhs.into())
     }
 }
 
 impl std::ops::Div for Unit {
-    type Output = usize;
+    // Dividing a Unit by a Unit removes the unit and returns a ratio.
+    type Output = f64;
 
     fn div(self, rhs: Self) -> Self::Output {
-        (self.0 / rhs.0).trunc() as Self::Output
+        self.0 / rhs.0
     }
 }
 
-impl std::ops::Div<usize> for Unit {
+impl<T> std::ops::Div<T> for Unit
+where
+    T: Into<f64>,
+{
+    // Dividing a Unit by a number returns a new Unit
     type Output = Unit;
 
-    fn div(self, rhs: usize) -> Self::Output {
-        Unit(self.0 / rhs as f64)
-    }
-}
-
-impl std::ops::Div<f64> for Unit {
-    type Output = Self;
-
-    fn div(self, rhs: f64) -> Self::Output {
-        Unit(self.0 / rhs)
+    fn div(self, rhs: T) -> Self::Output {
+        Unit(self.0 / rhs.into())
     }
 }
 

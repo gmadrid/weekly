@@ -9,10 +9,6 @@ pub struct Circle {
 }
 
 impl Circle {
-    // pub fn circle(radius: Unit, x: Unit, y: Unit) -> Circle {
-    //     Circle { radius, x, y }
-    // }
-
     pub fn at_zero(radius: Unit) -> Circle {
         Circle {
             radius,
@@ -31,6 +27,10 @@ impl Circle {
 
     pub fn move_to(&self, x: Unit, y: Unit) -> Circle {
         Circle { x, y, ..*self }
+    }
+
+    pub fn resize(&self, radius: Unit) -> Circle {
+        Circle { radius, ..*self }
     }
 }
 

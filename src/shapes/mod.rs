@@ -1,5 +1,6 @@
 use printpdf::Line;
 
+pub(crate) mod circle;
 pub(crate) mod line;
 pub(crate) mod rect;
 

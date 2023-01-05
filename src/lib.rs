@@ -5,6 +5,7 @@ pub use pdfutils::sizes;
 pub use pdfutils::{
     save_one_page_document, Attributes, Colors, FontProxy, Instructions, LineModifiers,
 };
+pub use shapes::circle::Circle;
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
 pub use shapes::AsPdfLine;

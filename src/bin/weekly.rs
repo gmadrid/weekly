@@ -1,8 +1,8 @@
 use argh::FromArgs;
-use printpdf::{Line, PdfDocumentReference};
+use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, sizes, AsPdfLine, Attributes, Colors, FontProxy, GridDescription,
-    Instructions, LineModifiers, NumericUnit, Result, TGrid, Unit, WLine, WRect,
+    save_one_page_document, sizes, AsPdfLine, Attributes, Circle, Colors, FontProxy,
+    GridDescription, Instructions, LineModifiers, NumericUnit, Result, TGrid, Unit, WLine, WRect,
 };
 
 const GOLDEN_RATIO: f64 = 1.618033988749894;
@@ -142,20 +142,11 @@ fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
 
 fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
     let radius = rect.height() / 2.0;
+    let x = rect.left() + radius;
+    let y = rect.bottom_q1() + radius;
 
-    let points = printpdf::utils::calculate_points_for_circle(
-        radius - 1.15.mm(),
-        rect.left() + radius,
-        rect.bottom_q1() + radius,
-    );
-    let line = Line {
-        points,
-        is_closed: true,
-        has_fill: false,
-        has_stroke: true,
-        is_clipping_path: false,
-    };
-    instructions.push_shape(line);
+    let circle = Circle::at_zero(radius - 1.15.mm()).move_to(x, y);
+    instructions.push_shape(circle.as_pdf_line());
 }
 
 fn render_days(rect: &WRect) -> Result<Instructions> {
@@ -177,20 +168,15 @@ fn render_days(rect: &WRect) -> Result<Instructions> {
                     instructions.set_stroke_color(Colors::gray(0.6));
                     instructions.set_stroke_width(1.0);
 
-                    let points = printpdf::utils::calculate_points_for_circle(
-                        radius,
-                        rect.left() + radius + 2.0.mm(),
-                        rect.bottom_q1() + radius / 2.0 + 0.8.mm(),
+                    instructions.push_shape(
+                        Circle::at_zero(radius)
+                            .move_to(
+                                rect.left() + radius + 2.0.mm(),
+                                rect.bottom_q1() + radius / 2.0 + 0.8.mm(),
+                            )
+                            .as_pdf_line()
+                            .fill(true),
                     );
-                    let circle = Line {
-                        points,
-                        is_closed: true,
-                        has_fill: true,
-                        has_stroke: true,
-                        is_clipping_path: false,
-                    };
-                    instructions.push_shape(circle);
-
                     instructions.pop_state();
                 }
             },
@@ -322,21 +308,20 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instru
     instructions.set_fill_color(Colors::gray(0.7));
     let grid_spacing = 0.25.inches();
 
-    let radius = 0.25.mm();
+    //let radius = 0.25.mm();
+    let base_circle = Circle::at_zero(0.25.mm());
     let mut x = dotted_rect.left() + grid_spacing;
     while x <= dotted_rect.right() - grid_spacing {
         let mut y = dotted_rect.top() - grid_spacing;
 
-        while y >= dotted_rect.bottom_q1() - grid_spacing {
-            let points = printpdf::utils::calculate_points_for_circle(radius, x, y);
-            let line = Line {
-                points,
-                is_closed: true,
-                has_fill: true,
-                has_stroke: false,
-                is_clipping_path: false,
-            };
-            instructions.push_shape(line);
+        while y >= dotted_rect.bottom_q1() + grid_spacing {
+            instructions.push_shape(
+                base_circle
+                    .move_to(x, y)
+                    .as_pdf_line()
+                    .fill(true)
+                    .stroke(false),
+            );
 
             y = y - grid_spacing;
         }

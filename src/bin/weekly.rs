@@ -1,9 +1,8 @@
 use argh::FromArgs;
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, sizes, Attributes, Circle, Colors, FontProxy, GridDescription,
-    Instructions, LineModifiers, NumericUnit, Result, TGrid, TextContext, ToPdfLine, Unit, WLine,
-    WRect,
+    save_one_page_document, sizes, Attributes, Circle, Colors, GridDescription, Instructions,
+    LineModifiers, NumericUnit, Result, TGrid, TextContext, ToPdfLine, Unit, WLine, WRect,
 };
 
 const GOLDEN_RATIO: f64 = 1.618033988749894;
@@ -41,13 +40,20 @@ where
     rect: WRect,
     num_rows: usize,
     text: String,
+    text_context: TextContext,
 
     render_func: F,
     offset: Unit,
 }
 
 impl<F: Fn(&WRect, usize, &mut Instructions)> SimpleDescription<F> {
-    fn new<T>(rect: &WRect, num_rows: usize, text: T, render_func: F) -> Self
+    fn new<T>(
+        rect: &WRect,
+        num_rows: usize,
+        text: T,
+        text_context: &TextContext,
+        render_func: F,
+    ) -> Self
     where
         T: Into<String>,
     {
@@ -55,6 +61,7 @@ impl<F: Fn(&WRect, usize, &mut Instructions)> SimpleDescription<F> {
             rect: rect.clone(),
             num_rows,
             text: text.into(),
+            text_context: text_context.clone(),
             render_func,
             offset: 1.0.mm(),
         }
@@ -104,13 +111,15 @@ impl<F: Fn(&WRect, usize, &mut Instructions)> GridDescription for SimpleDescript
             instructions.push_shape(cell_rect);
 
             instructions.set_fill_color(Colors::white());
-            instructions.push_text(
-                &self.text,
-                ((cell_rect.height() - 1.0.mm()) * 1.9).to_mm(),
-                cell_rect.left() + self.offset,
-                cell_rect.bottom_q1() + 1.5.mm(),
-                FontProxy::Helvetica(true, false),
-            )
+            self.text_context
+                .bold(true)
+                .with_text_height((cell_rect.height() - 1.0.mm()) * 1.9)
+                .render(
+                    &self.text,
+                    cell_rect.left() + self.offset,
+                    cell_rect.bottom_q1() + 1.5.mm(),
+                    instructions,
+                );
         }
 
         (self.render_func)(cell_rect, row, instructions);
@@ -122,6 +131,7 @@ impl<F: Fn(&WRect, usize, &mut Instructions)> GridDescription for SimpleDescript
 fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
     rect: &WRect,
     text: T,
+    text_context: &TextContext,
     num_rows: usize,
     offset: Unit,
     render_func: F,
@@ -131,8 +141,14 @@ fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
 
     let table_rect = rect.resize(rect.width(), rect.height() - line_space);
 
-    let description = SimpleDescription::new(&table_rect, num_rows, text.as_ref(), render_func)
-        .set_offset(offset);
+    let description = SimpleDescription::new(
+        &table_rect,
+        num_rows,
+        text.as_ref(),
+        text_context,
+        render_func,
+    )
+    .set_offset(offset);
     let tgrid = TGrid::with_description(description);
 
     instructions.push_shape(table_rect.to_pdf_line().fill(false).stroke(true));
@@ -151,15 +167,19 @@ fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
     instructions.push_shape(circle);
 }
 
-fn render_days(rect: &WRect, instructions: &mut Instructions) -> Result<()> {
+fn render_days(
+    rect: &WRect,
+    text_context: &TextContext,
+    instructions: &mut Instructions,
+) -> Result<()> {
     let day_width = rect.width() / DAY_ABBREVS.len() as f64;
-    //    let mut instructions = Instructions::default();
 
     let day_rect = rect.resize(day_width, rect.height());
     for (i, abbrev) in DAY_ABBREVS.iter().enumerate() {
         instructions.append(render_lines(
             &day_rect.move_by(day_width * i as f64, 0.0.mm()),
             abbrev,
+            text_context,
             14,
             12.0.mm(),
             |rect, idx, instructions| {
@@ -188,7 +208,11 @@ fn render_days(rect: &WRect, instructions: &mut Instructions) -> Result<()> {
     Ok(())
 }
 
-fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instructions> {
+fn render_weekly(
+    _: &PdfDocumentReference,
+    page_rect: &WRect,
+    text_context: &TextContext,
+) -> Result<Instructions> {
     let mut instructions = Instructions::default();
 
     instructions.set_stroke_color(Colors::gray(0.66));
@@ -209,20 +233,35 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
     let top_text_offset = 5.0.mm();
 
     let priorities_rect = print_rect.resize(grid_x * 2.0, top_height);
-    render_priorities(&priorities_rect, top_text_offset, &mut instructions)?;
+    render_priorities(
+        &priorities_rect,
+        top_text_offset,
+        text_context,
+        &mut instructions,
+    )?;
 
     let tracker_rect = priorities_rect.move_by(grid_x * 2.0, Unit::zero());
-    render_tracker(&tracker_rect, top_text_offset, &mut instructions)?;
+    render_tracker(
+        &tracker_rect,
+        top_text_offset,
+        text_context,
+        &mut instructions,
+    )?;
 
     let weekend_rect = tracker_rect
         .move_by(grid_x * 2.0, Unit::zero())
         .resize(grid_x, priorities_rect.height());
-    render_weekend(&weekend_rect, top_text_offset, &mut instructions)?;
+    render_weekend(
+        &weekend_rect,
+        top_text_offset,
+        text_context,
+        &mut instructions,
+    )?;
 
     let calendar_rect = print_rect
         .resize(print_rect.width(), bottom_height)
         .move_by(Unit::zero(), -top_height);
-    render_days(&calendar_rect, &mut instructions)?;
+    render_days(&calendar_rect, text_context, &mut instructions)?;
 
     Ok(instructions)
 }
@@ -230,11 +269,13 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
 fn render_weekend(
     weekend_rect: &WRect,
     top_text_offset: Unit,
+    text_context: &TextContext,
     instructions: &mut Instructions,
 ) -> Result<()> {
     instructions.append(render_lines(
         weekend_rect,
         "Weekend Plans",
+        text_context,
         8,
         top_text_offset,
         |_, _, _| {},
@@ -246,16 +287,17 @@ fn render_weekend(
 fn render_tracker(
     tracker_rect: &WRect,
     top_text_offset: Unit,
+    text_context: &TextContext,
     instructions: &mut Instructions,
 ) -> Result<()> {
     instructions.append(render_lines(
         tracker_rect,
         "Habit Tracker",
+        text_context,
         8,
         top_text_offset,
         |rect, row, instructions| {
-            let text_context =
-                TextContext::helvetica().with_text_height((rect.height() - 1.0.mm()) * 1.9);
+            let text_context = text_context.with_text_height((rect.height() - 1.0.mm()) * 1.9);
 
             let small_grid_left = rect.right() - rect.height() * 7.0;
             if row > 0 {
@@ -305,11 +347,13 @@ fn render_tracker(
 fn render_priorities(
     priorities_rect: &WRect,
     top_text_offset: Unit,
+    text_context: &TextContext,
     instructions: &mut Instructions,
 ) -> Result<()> {
     instructions.append(render_lines(
         priorities_rect,
         "Weekly Priorities",
+        text_context,
         8,
         top_text_offset,
         |rect, row, instructions| {
@@ -361,6 +405,19 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instru
     Ok(instructions)
 }
 
+fn render_weekly_page(doc: &PdfDocumentReference, page_rect: &WRect) -> Result<Instructions> {
+    let top_half = page_rect.resize(page_rect.width(), page_rect.height() / 2.0);
+    let text_context = TextContext::helvetica();
+    let mut instructions = render_weekly(doc, &top_half, &text_context)?;
+
+    let bottom_half = top_half
+        .move_by(Unit::zero(), -top_half.height())
+        .inset_all_q1(0.25.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
+    instructions.append(render_dotted(doc, &bottom_half)?);
+
+    Ok(instructions)
+}
+
 pub fn main() -> Result<()> {
     let args: Args = argh::from_env();
 
@@ -370,16 +427,6 @@ pub fn main() -> Result<()> {
         "Productivity Tracker",
         args.output_filename,
         &page_rect,
-        |doc, page_rect| {
-            let top_half = page_rect.resize(page_rect.width(), page_rect.height() / 2.0);
-            let mut instructions = render_weekly(doc, &top_half)?;
-
-            let bottom_half = top_half
-                .move_by(Unit::zero(), -top_half.height())
-                .inset_all_q1(0.25.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
-            instructions.append(render_dotted(doc, &bottom_half)?);
-
-            Ok(instructions)
-        },
+        render_weekly_page,
     )
 }

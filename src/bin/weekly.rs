@@ -135,8 +135,8 @@ fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
     num_rows: usize,
     offset: Unit,
     render_func: F,
-) -> Result<Instructions> {
-    let mut instructions = Instructions::default();
+    instructions: &mut Instructions,
+) {
     let line_space = rect.height() / TOTAL_TOP_LINES;
 
     let table_rect = rect.resize(rect.width(), rect.height() - line_space);
@@ -153,9 +153,7 @@ fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
 
     instructions.push_shape(table_rect.to_pdf_line().fill(false).stroke(true));
 
-    tgrid.append_to_instructions(&mut instructions);
-
-    Ok(instructions)
+    tgrid.append_to_instructions(instructions);
 }
 
 fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
@@ -167,16 +165,12 @@ fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
     instructions.push_shape(circle);
 }
 
-fn render_days(
-    rect: &WRect,
-    text_context: &TextContext,
-    instructions: &mut Instructions,
-) -> Result<()> {
+fn render_days(rect: &WRect, text_context: &TextContext, instructions: &mut Instructions) {
     let day_width = rect.width() / DAY_ABBREVS.len() as f64;
 
     let day_rect = rect.resize(day_width, rect.height());
     for (i, abbrev) in DAY_ABBREVS.iter().enumerate() {
-        instructions.append(render_lines(
+        render_lines(
             &day_rect.move_by(day_width * i as f64, 0.0.mm()),
             abbrev,
             text_context,
@@ -202,19 +196,17 @@ fn render_days(
                     instructions.pop_state();
                 }
             },
-        )?);
+            instructions,
+        );
     }
-
-    Ok(())
 }
 
 fn render_weekly(
     _: &PdfDocumentReference,
     page_rect: &WRect,
     text_context: &TextContext,
-) -> Result<Instructions> {
-    let mut instructions = Instructions::default();
-
+    instructions: &mut Instructions,
+) {
     instructions.set_stroke_color(Colors::gray(0.66));
     instructions.set_stroke_width(1.0);
     instructions.clear_fill_color();
@@ -237,33 +229,21 @@ fn render_weekly(
         &priorities_rect,
         top_text_offset,
         text_context,
-        &mut instructions,
-    )?;
+        instructions,
+    );
 
     let tracker_rect = priorities_rect.move_by(grid_x * 2.0, Unit::zero());
-    render_tracker(
-        &tracker_rect,
-        top_text_offset,
-        text_context,
-        &mut instructions,
-    )?;
+    render_tracker(&tracker_rect, top_text_offset, text_context, instructions);
 
     let weekend_rect = tracker_rect
         .move_by(grid_x * 2.0, Unit::zero())
         .resize(grid_x, priorities_rect.height());
-    render_weekend(
-        &weekend_rect,
-        top_text_offset,
-        text_context,
-        &mut instructions,
-    )?;
+    render_weekend(&weekend_rect, top_text_offset, text_context, instructions);
 
     let calendar_rect = print_rect
         .resize(print_rect.width(), bottom_height)
         .move_by(Unit::zero(), -top_height);
-    render_days(&calendar_rect, text_context, &mut instructions)?;
-
-    Ok(instructions)
+    render_days(&calendar_rect, text_context, instructions);
 }
 
 fn render_weekend(
@@ -271,17 +251,16 @@ fn render_weekend(
     top_text_offset: Unit,
     text_context: &TextContext,
     instructions: &mut Instructions,
-) -> Result<()> {
-    instructions.append(render_lines(
+) {
+    render_lines(
         weekend_rect,
         "Weekend Plans",
         text_context,
         8,
         top_text_offset,
         |_, _, _| {},
-    )?);
-
-    Ok(())
+        instructions,
+    );
 }
 
 fn render_tracker(
@@ -289,8 +268,8 @@ fn render_tracker(
     top_text_offset: Unit,
     text_context: &TextContext,
     instructions: &mut Instructions,
-) -> Result<()> {
-    instructions.append(render_lines(
+) {
+    render_lines(
         tracker_rect,
         "Habit Tracker",
         text_context,
@@ -340,8 +319,8 @@ fn render_tracker(
                 instructions.pop_state();
             }
         },
-    )?);
-    Ok(())
+        instructions,
+    );
 }
 
 fn render_priorities(
@@ -349,8 +328,8 @@ fn render_priorities(
     top_text_offset: Unit,
     text_context: &TextContext,
     instructions: &mut Instructions,
-) -> Result<()> {
-    instructions.append(render_lines(
+) {
+    render_lines(
         priorities_rect,
         "Weekly Priorities",
         text_context,
@@ -361,13 +340,11 @@ fn render_priorities(
                 render_left_circle(rect, instructions)
             }
         },
-    )?);
-    Ok(())
+        instructions,
+    );
 }
 
-fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instructions> {
-    let mut instructions = Instructions::default();
-
+fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect, instructions: &mut Instructions) {
     instructions.push_state();
 
     instructions.clear_fill_color();
@@ -402,18 +379,18 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instru
         x = x + grid_spacing;
     }
     instructions.pop_state();
-    Ok(instructions)
 }
 
 fn render_weekly_page(doc: &PdfDocumentReference, page_rect: &WRect) -> Result<Instructions> {
+    let mut instructions = Instructions::default();
     let top_half = page_rect.resize(page_rect.width(), page_rect.height() / 2.0);
     let text_context = TextContext::helvetica();
-    let mut instructions = render_weekly(doc, &top_half, &text_context)?;
+    render_weekly(doc, &top_half, &text_context, &mut instructions);
 
     let bottom_half = top_half
         .move_by(Unit::zero(), -top_half.height())
         .inset_all_q1(0.25.inches(), 0.25.inches(), 0.25.inches(), 0.25.inches());
-    instructions.append(render_dotted(doc, &bottom_half)?);
+    render_dotted(doc, &bottom_half, &mut instructions);
 
     Ok(instructions)
 }

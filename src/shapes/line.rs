@@ -18,7 +18,7 @@ impl WLine {
 }
 
 impl AsPdfLine for WLine {
-    fn as_pdf_line(&self) -> Line {
+    fn as_pdf_line(self) -> Line {
         Line {
             points: vec![
                 point_pair(self.x1, self.y1, false),

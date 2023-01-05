@@ -125,7 +125,13 @@ impl WRect {
 }
 
 impl AsPdfLine for WRect {
-    fn as_pdf_line(&self) -> Line {
+    fn as_pdf_line(self) -> Line {
+        (&self).as_pdf_line()
+    }
+}
+
+impl AsPdfLine for &WRect {
+    fn as_pdf_line(self) -> Line {
         Line {
             // In Q1, rects grow downward toward the bottom.
             points: vec![
@@ -138,12 +144,5 @@ impl AsPdfLine for WRect {
             is_closed: true,
             ..Line::default()
         }
-    }
-}
-
-impl AsPdfLine for &WRect {
-    fn as_pdf_line(&self) -> Line {
-        // TODO: Can I eliminate this clone?
-        (*self).clone().as_pdf_line()
     }
 }

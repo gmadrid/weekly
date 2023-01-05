@@ -129,11 +129,12 @@ fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
     let line_space = rect.height() / TOTAL_TOP_LINES;
 
     let table_rect = rect.resize(rect.width(), rect.height() - line_space);
-    instructions.push_shape(table_rect.as_pdf_line().fill(false).stroke(true));
 
     let description = SimpleDescription::new(&table_rect, num_rows, text.as_ref(), render_func)
         .set_offset(offset);
     let tgrid = TGrid::with_description(description);
+
+    instructions.push_shape(table_rect.as_pdf_line().fill(false).stroke(true));
 
     tgrid.append_to_instructions(&mut instructions);
 
@@ -315,7 +316,7 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instru
         let mut y = dotted_rect.top() - grid_spacing;
 
         while y >= dotted_rect.bottom_q1() + grid_spacing {
-            instructions.push_shape(
+                instructions.push_shape(
                 base_circle
                     .move_to(x, y)
                     .as_pdf_line()

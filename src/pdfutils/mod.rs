@@ -1,3 +1,5 @@
+mod text_context;
+
 use crate::units::Unit;
 use crate::{Result, ToPdfLine, WRect};
 use printpdf::*;
@@ -6,6 +8,8 @@ use std::fs::File;
 use std::hash::Hash;
 use std::io::BufWriter;
 use std::path::Path;
+
+pub use text_context::TextContext;
 
 pub fn point_pair(x: Unit, y: Unit, next: bool) -> (Point, bool) {
     (Point::new(x.into(), y.into()), next)
@@ -145,11 +149,25 @@ pub enum FontProxy {
 }
 
 impl FontProxy {
+    pub fn times() -> FontProxy {
+        FontProxy::Times(false, false)
+    }
+    pub fn helvetica() -> FontProxy {
+        FontProxy::Helvetica(false, false)
+    }
     pub fn times_bold() -> FontProxy {
-        FontProxy::Times(true, false)
+        //FontProxy::Times(true, false)
+        FontProxy::times().bold(true)
     }
     pub fn helvetica_bold() -> FontProxy {
-        FontProxy::Helvetica(true, false)
+        //FontProxy::Helvetica(true, false)
+        FontProxy::helvetica().bold(true)
+    }
+    pub fn bold(&self, bold: bool) -> FontProxy {
+        match self {
+            FontProxy::Helvetica(_, it) => FontProxy::Helvetica(bold, *it),
+            FontProxy::Times(_, it) => FontProxy::Times(bold, *it),
+        }
     }
 }
 

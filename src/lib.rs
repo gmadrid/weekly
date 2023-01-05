@@ -3,7 +3,7 @@ use thiserror::Error;
 pub use datetools::{today, Datetools};
 pub use pdfutils::sizes;
 pub use pdfutils::{
-    save_one_page_document, Attributes, Colors, FontProxy, Instructions, LineModifiers,
+    save_one_page_document, Attributes, Colors, FontProxy, Instructions, LineModifiers, TextContext,
 };
 pub use shapes::circle::Circle;
 pub use shapes::line::WLine;

@@ -2,7 +2,8 @@ use argh::FromArgs;
 use printpdf::PdfDocumentReference;
 use weekly::{
     save_one_page_document, sizes, Attributes, Circle, Colors, FontProxy, GridDescription,
-    Instructions, LineModifiers, NumericUnit, Result, TGrid, ToPdfLine, Unit, WLine, WRect,
+    Instructions, LineModifiers, NumericUnit, Result, TGrid, TextContext, ToPdfLine, Unit, WLine,
+    WRect,
 };
 
 const GOLDEN_RATIO: f64 = 1.618033988749894;
@@ -253,8 +254,10 @@ fn render_tracker(
         8,
         top_text_offset,
         |rect, row, instructions| {
+            let text_context =
+                TextContext::helvetica().with_text_height((rect.height() - 1.0.mm()) * 1.9);
+
             let small_grid_left = rect.right() - rect.height() * 7.0;
-            let text_height = ((rect.height() - 1.0.mm()) * 1.9).to_mm();
             if row > 0 {
                 instructions.push_state();
                 instructions.set_stroke_color(Colors::gray(0.75));
@@ -269,14 +272,14 @@ fn render_tracker(
                 // Top row labels
                 instructions.push_state();
                 instructions.set_fill_color(Colors::white());
+                let bold_context = text_context.bold(true);
                 for (i, letter) in DAY_LETTERS.iter().enumerate() {
                     let l = small_grid_left + rect.height() * i as f64;
-                    instructions.push_text(
+                    bold_context.render(
                         letter,
-                        text_height,
                         l + 1.4.mm(),
                         rect.bottom_q1() + 1.5.mm(),
-                        FontProxy::Helvetica(true, false),
+                        instructions,
                     );
                 }
 
@@ -286,12 +289,11 @@ fn render_tracker(
             if row > 0 && row < HABITS.len() + 1 {
                 instructions.push_state();
                 instructions.set_fill_color(Colors::black());
-                instructions.push_text(
+                text_context.render(
                     HABITS[row - 1],
-                    text_height,
                     rect.left() + 1.5.mm(),
                     rect.bottom_q1() + 1.5.mm(),
-                    FontProxy::Helvetica(false, false),
+                    instructions,
                 );
                 instructions.pop_state();
             }
@@ -337,7 +339,6 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect) -> Result<Instru
     instructions.set_fill_color(Colors::gray(0.7));
     let grid_spacing = 0.25.inches();
 
-    //let radius = 0.25.mm();
     let base_circle = Circle::at_zero(0.25.mm());
     let mut x = dotted_rect.left() + grid_spacing;
     while x <= dotted_rect.right() - grid_spacing {

@@ -147,49 +147,46 @@ fn render_left_circle(rect: &WRect, instructions: &mut Instructions) {
 const DAY_ABBREVS: [&str; 5] = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const DAY_LETTERS: [&str; 7] = ["M", "T", "W", "T", "F", "S", "S"];
 
-fn render_days(rect: &WRect) -> Instructions {
+fn render_days(rect: &WRect) -> Result<Instructions> {
     let day_width = rect.width() / DAY_ABBREVS.len() as f64;
     let mut instructions = Instructions::default();
 
     let day_rect = rect.resize(day_width, rect.height());
     for (i, abbrev) in DAY_ABBREVS.iter().enumerate() {
-        instructions.append(
-            render_lines(
-                &day_rect.move_by(day_width * i as f64, 0.0.mm()),
-                abbrev,
-                14,
-                12.0.mm(),
-                |rect, idx, instructions| {
-                    if idx == 0 {
-                        let radius = rect.height() / 2.0 + 1.5.mm();
-                        instructions.push_state();
-                        instructions.set_fill_color(Colors::white());
-                        instructions.set_stroke_color(Colors::gray(0.6));
-                        instructions.set_stroke_width(1.0);
+        instructions.append(render_lines(
+            &day_rect.move_by(day_width * i as f64, 0.0.mm()),
+            abbrev,
+            14,
+            12.0.mm(),
+            |rect, idx, instructions| {
+                if idx == 0 {
+                    let radius = rect.height() / 2.0 + 1.5.mm();
+                    instructions.push_state();
+                    instructions.set_fill_color(Colors::white());
+                    instructions.set_stroke_color(Colors::gray(0.6));
+                    instructions.set_stroke_width(1.0);
 
-                        let points = printpdf::utils::calculate_points_for_circle(
-                            radius,
-                            rect.left() + radius + 2.0.mm(),
-                            rect.bottom_q1() + radius / 2.0 + 0.8.mm(),
-                        );
-                        let circle = Line {
-                            points,
-                            is_closed: true,
-                            has_fill: true,
-                            has_stroke: true,
-                            is_clipping_path: false,
-                        };
-                        instructions.push_shape(circle);
+                    let points = printpdf::utils::calculate_points_for_circle(
+                        radius,
+                        rect.left() + radius + 2.0.mm(),
+                        rect.bottom_q1() + radius / 2.0 + 0.8.mm(),
+                    );
+                    let circle = Line {
+                        points,
+                        is_closed: true,
+                        has_fill: true,
+                        has_stroke: true,
+                        is_clipping_path: false,
+                    };
+                    instructions.push_shape(circle);
 
-                        instructions.pop_state();
-                    }
-                },
-            )
-            .unwrap(),
-        );
+                    instructions.pop_state();
+                }
+            },
+        )?);
     }
 
-    instructions
+    Ok(instructions)
 }
 
 fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instructions> {
@@ -276,7 +273,7 @@ fn render_weekly(_: &PdfDocumentReference, page_rect: &WRect) -> Result<Instruct
     let calendar_rect = print_rect
         .resize(print_rect.width(), bottom_height)
         .move_by(Unit::zero(), -top_height);
-    instructions.append(render_days(&calendar_rect));
+    instructions.append(render_days(&calendar_rect)?);
 
     Ok(instructions)
 }

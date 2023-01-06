@@ -1,7 +1,7 @@
 use printpdf::*;
 use weekly::{
-    save_one_page_document, Attributes, GridDescription, Instructions, NumericUnit, TGrid,
-    ToPdfLine, Unit, WRect,
+    save_one_page_document, Attributes, GridDescription, HasRenderAttrs, Instructions, NumericUnit,
+    TGrid, Unit, WRect,
 };
 
 struct ActiveDescription {
@@ -51,7 +51,7 @@ impl GridDescription for ActiveDescription {
                 cell_rect.left() + self.task_height / 4,
                 cell_rect.top() - self.task_height / 4,
             );
-        instructions.push_shape(check_rect.to_stroked_line());
+        instructions.push_shape(check_rect.stroke());
     }
 }
 

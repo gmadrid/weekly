@@ -4,8 +4,8 @@ use printpdf::{Color, PdfDocumentReference};
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, sizes, Attributes, Colors, Datetools, NumericUnit, Result, TGrid,
-    ToPdfLine, Unit, WRect,
+    save_one_page_document, sizes, Attributes, Colors, Datetools, HasRenderAttrs, NumericUnit,
+    Result, TGrid, Unit, WRect,
 };
 use weekly::{GridDescription, Instructions};
 
@@ -252,7 +252,8 @@ impl GridDescription for DailyDescription {
                 let date = &self.dates_in_month[row];
                 if !day_set.contains(&date.weekday()) {
                     instructions.set_fill_color(Colors::gray(0.7));
-                    instructions.push_shape(cell_rect.to_filled_line());
+                    // TODO: can we get rid of this clone()?
+                    instructions.push_shape(cell_rect.clone().fill());
                     should_draw_checkbox = false;
                 }
             }
@@ -277,7 +278,7 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
     instructions.set_stroke_color(Colors::gray(0.25));
     instructions.set_stroke_width(0.0);
 
-    instructions.push_shape(checkbox_rect.to_stroked_line());
+    instructions.push_shape(checkbox_rect.stroke());
 }
 
 fn render_dailies(

@@ -1,11 +1,13 @@
 use crate::pdfutils::point_pair;
-use crate::shapes::ToPdfLine;
+use crate::shapes::{RenderAttrsImpl, ToPlainPdfLine};
 use crate::units::Unit;
 use printpdf::*;
 
 /// A representation of rectangles and operations on them.
 #[derive(Debug, Clone)]
 pub struct WRect {
+    render_attrs: RenderAttrsImpl,
+
     top: Unit,
     left: Unit,
     height: Unit,
@@ -15,6 +17,7 @@ pub struct WRect {
 impl WRect {
     pub const fn with_dimensions(width: Unit, height: Unit) -> WRect {
         WRect {
+            render_attrs: RenderAttrsImpl::new(),
             top: Unit::zero(),
             left: Unit::zero(),
             width,
@@ -24,6 +27,7 @@ impl WRect {
 
     pub fn at(left: Unit, top: Unit) -> WRect {
         WRect {
+            render_attrs: RenderAttrsImpl::default(),
             top,
             left,
             width: Unit::zero(),
@@ -93,6 +97,7 @@ impl WRect {
             top: self.top - top_inset,
             width: self.width - left_inset - right_inset,
             height: self.height - top_inset - bottom_inset,
+            ..*self
         }
     }
 
@@ -124,14 +129,20 @@ impl WRect {
     }
 }
 
-impl ToPdfLine for WRect {
-    fn to_pdf_line_basic(self) -> Line {
-        (&self).to_pdf_line_basic()
+impl AsRef<RenderAttrsImpl> for WRect {
+    fn as_ref(&self) -> &RenderAttrsImpl {
+        &self.render_attrs
     }
 }
 
-impl ToPdfLine for &WRect {
-    fn to_pdf_line_basic(self) -> Line {
+impl AsMut<RenderAttrsImpl> for WRect {
+    fn as_mut(&mut self) -> &mut RenderAttrsImpl {
+        &mut self.render_attrs
+    }
+}
+
+impl ToPlainPdfLine for WRect {
+    fn to_plain_pdf_line(self) -> Line {
         Line {
             // In Q1, rects grow downward toward the bottom.
             points: vec![

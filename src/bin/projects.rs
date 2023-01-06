@@ -1,6 +1,6 @@
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, Colors, Instructions, LineModifiers, NumericUnit, ToPdfLine, Unit,
+    save_one_page_document, Colors, HasRenderAttrs, Instructions, LineModifiers, NumericUnit, Unit,
     WLine, WRect,
 };
 
@@ -63,7 +63,7 @@ fn fill_project_into_rect(rect: WRect, instructions: &mut Instructions) {
             rect.right(),
             rect.top() - 0.25.inches(),
         )
-        .to_stroked_line(),
+        .stroke(),
     );
 
     instructions.set_stroke_color(Colors::gray(0.75));
@@ -80,7 +80,7 @@ fn fill_box_with_lines(boxx: &WRect, offset: Unit, gap: Unit, instructions: &mut
 
     while curr_y > boxx.bottom_q1() {
         let line = WLine::line(boxx.left(), curr_y, boxx.right(), curr_y);
-        instructions.push_shape(line.to_stroked_line());
+        instructions.push_shape(line.stroke());
         curr_y = curr_y - gap;
     }
 }

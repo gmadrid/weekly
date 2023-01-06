@@ -1,7 +1,7 @@
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, Attributes, Colors, GridDescription, Instructions, TGrid, ToPdfLine,
-    Unit, WLine, WRect,
+    save_one_page_document, Attributes, Colors, GridDescription, HasRenderAttrs, Instructions,
+    TGrid, Unit, WLine, WRect,
 };
 
 const NOTE_HORIZ_PCT: f64 = 70.0;
@@ -75,12 +75,12 @@ fn render_cornell(_: &PdfDocumentReference, device_rect: &WRect) -> weekly::Resu
         device_rect.right(),
         bottom_line_y,
     );
-    instructions.push_shape(notes_bottom_line.to_stroked_line());
+    instructions.push_shape(notes_bottom_line.stroke());
 
     let left_line_x = device_rect.width().pct(100.0 - NOTE_HORIZ_PCT);
 
     let notes_left_line = WLine::line(left_line_x, bottom_line_y, left_line_x, device_rect.top());
-    instructions.push_shape(notes_left_line.to_stroked_line());
+    instructions.push_shape(notes_left_line.stroke());
 
     let grid_rect = WRect::with_dimensions(
         device_rect.right() - left_line_x,

@@ -46,7 +46,7 @@ impl Instructions {
 
     pub fn push_shape(&mut self, shape: impl ToPdfLine) {
         self.instructions
-            .push(Instruction::Shape(shape.to_pdf_line_basic()))
+            .push(Instruction::Shape(shape.to_pdf_line()))
     }
 
     pub fn push_text(&mut self, s: &str, text_height: f64, x: Unit, y: Unit, font: FontProxy) {

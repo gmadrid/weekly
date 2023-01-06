@@ -3,9 +3,10 @@ use chrono::{Datelike, NaiveDate};
 use printpdf::*;
 use std::borrow::Cow;
 use std::path::PathBuf;
+use weekly::FontProxy;
 use weekly::{
-    save_one_page_document, Colors, Datetools, FontProxy, GridDescription, Instructions,
-    NumericUnit, TGrid, Unit, WRect,
+    save_one_page_document, Colors, Datetools, GridDescription, Instructions, NumericUnit, TGrid,
+    Unit, WRect,
 };
 
 #[derive(FromArgs)]

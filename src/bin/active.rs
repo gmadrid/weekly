@@ -51,10 +51,7 @@ impl GridDescription for ActiveDescription {
                 cell_rect.left() + self.task_height / 4,
                 cell_rect.top() - self.task_height / 4,
             );
-        let mut shape = check_rect.to_pdf_line();
-        shape.has_fill = false;
-        shape.has_stroke = true;
-        instructions.push_shape(shape);
+        instructions.push_shape(check_rect.to_stroked_line());
     }
 }
 

@@ -28,6 +28,3 @@ name = "magic"
 
 [[bin]]
 name = "weekly"
-
-[[bin]]
-name = "remtest"

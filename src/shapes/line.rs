@@ -18,13 +18,12 @@ impl WLine {
 }
 
 impl ToPdfLine for WLine {
-    fn to_pdf_line(self) -> Line {
+    fn to_pdf_line_basic(self) -> Line {
         Line {
             points: vec![
                 point_pair(self.x1, self.y1, false),
                 point_pair(self.x2, self.y2, false),
             ],
-            has_stroke: true,
             ..Line::default()
         }
     }

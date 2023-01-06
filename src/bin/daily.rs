@@ -4,8 +4,8 @@ use printpdf::{Color, PdfDocumentReference};
 use std::borrow::Cow;
 use std::path::PathBuf;
 use weekly::{
-    save_one_page_document, sizes, Attributes, Colors, Datetools, LineModifiers, NumericUnit,
-    Result, TGrid, ToPdfLine, Unit, WRect,
+    save_one_page_document, sizes, Attributes, Colors, Datetools, NumericUnit, Result, TGrid,
+    ToPdfLine, Unit, WRect,
 };
 use weekly::{GridDescription, Instructions};
 
@@ -252,7 +252,7 @@ impl GridDescription for DailyDescription {
                 let date = &self.dates_in_month[row];
                 if !day_set.contains(&date.weekday()) {
                     instructions.set_fill_color(Colors::gray(0.7));
-                    instructions.push_shape(cell_rect.to_pdf_line());
+                    instructions.push_shape(cell_rect.to_filled_line());
                     should_draw_checkbox = false;
                 }
             }
@@ -277,7 +277,7 @@ fn render_checkbox(cell_rect: &WRect, instructions: &mut Instructions) {
     instructions.set_stroke_color(Colors::gray(0.25));
     instructions.set_stroke_width(0.0);
 
-    instructions.push_shape(checkbox_rect.to_pdf_line().fill(false).stroke(true));
+    instructions.push_shape(checkbox_rect.to_stroked_line());
 }
 
 fn render_dailies(

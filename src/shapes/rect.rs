@@ -125,13 +125,13 @@ impl WRect {
 }
 
 impl ToPdfLine for WRect {
-    fn to_pdf_line(self) -> Line {
-        (&self).to_pdf_line()
+    fn to_pdf_line_basic(self) -> Line {
+        (&self).to_pdf_line_basic()
     }
 }
 
 impl ToPdfLine for &WRect {
-    fn to_pdf_line(self) -> Line {
+    fn to_pdf_line_basic(self) -> Line {
         Line {
             // In Q1, rects grow downward toward the bottom.
             points: vec![
@@ -140,7 +140,6 @@ impl ToPdfLine for &WRect {
                 point_pair(self.left + self.width, self.top - self.height, false),
                 point_pair(self.left, self.top - self.height, false),
             ],
-            has_fill: true,
             is_closed: true,
             ..Line::default()
         }

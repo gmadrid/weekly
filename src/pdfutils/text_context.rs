@@ -1,4 +1,5 @@
-use crate::{FontProxy, Instructions, NumericUnit, Unit};
+use crate::pdfutils::font_proxy::FontProxy;
+use crate::{Instructions, NumericUnit, Unit};
 
 #[derive(Debug, Clone)]
 pub struct TextContext {

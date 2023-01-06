@@ -35,11 +35,10 @@ impl Circle {
 }
 
 impl ToPdfLine for Circle {
-    fn to_pdf_line(self) -> Line {
+    fn to_pdf_line_basic(self) -> Line {
         let points = printpdf::calculate_points_for_circle(self.radius, self.x, self.y);
         Line {
             points,
-            has_stroke: true,
             is_closed: true,
             ..Line::default()
         }

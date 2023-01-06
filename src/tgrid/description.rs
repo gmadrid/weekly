@@ -1,7 +1,8 @@
 use printpdf::Color;
 use std::borrow::Cow;
 
-use crate::pdfutils::{Attributes, FontProxy};
+use crate::pdfutils::Attributes;
+use crate::pdfutils::FontProxy;
 use crate::{Instructions, NumericUnit, Unit, WRect};
 
 pub trait GridDescription {

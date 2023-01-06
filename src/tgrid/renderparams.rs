@@ -1,4 +1,5 @@
-use crate::pdfutils::{Attributes, FontProxy};
+use crate::pdfutils::Attributes;
+use crate::pdfutils::FontProxy;
 use crate::{GridDescription, Instructions, Unit, WRect};
 use printpdf::Color;
 use std::borrow::Cow;

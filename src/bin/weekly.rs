@@ -108,7 +108,7 @@ impl<F: Fn(&WRect, usize, &mut Instructions)> GridDescription for SimpleDescript
 
         if row == 0 {
             instructions.set_fill_color(Colors::black());
-            instructions.push_shape(cell_rect);
+            instructions.push_shape(cell_rect.to_filled_line());
 
             instructions.set_fill_color(Colors::white());
             self.text_context
@@ -151,7 +151,7 @@ fn render_lines<T: AsRef<str>, F: Fn(&WRect, usize, &mut Instructions)>(
     .set_offset(offset);
     let tgrid = TGrid::with_description(description);
 
-    instructions.push_shape(table_rect.to_pdf_line().fill(false).stroke(true));
+    instructions.push_shape(table_rect.to_stroked_line());
 
     tgrid.append_to_instructions(instructions);
 }
@@ -190,8 +190,8 @@ fn render_days(rect: &WRect, text_context: &TextContext, instructions: &mut Inst
                                 rect.left() + radius + 2.0.mm(),
                                 rect.bottom_q1() + radius / 2.0 + 0.8.mm(),
                             )
-                            .to_pdf_line()
-                            .fill(true),
+                            .to_filled_line()
+                            .stroke(true),
                     );
                     instructions.pop_state();
                 }
@@ -366,13 +366,7 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect, instructions: &m
         let mut y = dotted_rect.top() - grid_spacing;
 
         while y >= dotted_rect.bottom_q1() + grid_spacing {
-            instructions.push_shape(
-                base_circle
-                    .move_to(x, y)
-                    .to_pdf_line()
-                    .fill(true)
-                    .stroke(false),
-            );
+            instructions.push_shape(base_circle.move_to(x, y).to_filled_line());
 
             y = y - grid_spacing;
         }

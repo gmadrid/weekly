@@ -38,7 +38,7 @@ impl AsMut<RenderAttrsImpl> for WLine {
 }
 
 impl ToPlainPdfLine for WLine {
-    fn to_plain_pdf_line(self) -> Line {
+    fn to_plain_pdf_line(&self) -> Line {
         Line {
             points: vec![
                 point_pair(self.x1, self.y1, false),

@@ -52,7 +52,7 @@ impl AsMut<RenderAttrsImpl> for Circle {
 }
 
 impl ToPlainPdfLine for Circle {
-    fn to_plain_pdf_line(self) -> Line {
+    fn to_plain_pdf_line(&self) -> Line {
         Line {
             points: printpdf::calculate_points_for_circle(self.radius, self.x, self.y),
             is_closed: true,

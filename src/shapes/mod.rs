@@ -82,22 +82,20 @@ impl<T: AsMut<RenderAttrsImpl> + AsRef<RenderAttrsImpl>> HasRenderAttrs for T {
 trait ToPlainPdfLine {
     /// Converts a shape into an (unstroke, unfilled) printpdf::line.
     /// The implementor is responsible for setting the 'closed' flag.
-    // TODO: consider making this take &self and rename to AsPlainPdfLine.
-    fn to_plain_pdf_line(self) -> Line;
+    fn to_plain_pdf_line(&self) -> Line;
 }
 
 pub trait ToPdfLine {
     /// Converts a shape into a printpdf::Line that is marked for rendering as a stroke
     /// or a filled shape (or both).
-    // TODO: consider making this take &self and rename to AsPdfLine.
-    fn to_pdf_line(self) -> Line;
+    fn to_pdf_line(&self) -> Line;
 }
 
 impl<T> ToPdfLine for T
 where
     T: ToPlainPdfLine + HasRenderAttrs,
 {
-    fn to_pdf_line(self) -> Line {
+    fn to_pdf_line(&self) -> Line {
         // TODO: Do you want to check that plain pdf line is unstroked and unfilled?
         let stroked = self.is_stroked();
         let filled = self.is_filled();
@@ -114,7 +112,8 @@ where
 }
 
 impl ToPdfLine for Line {
-    fn to_pdf_line(self) -> Line {
-        self
+    fn to_pdf_line(&self) -> Line {
+        // TODO: make this thing go awqy! I think it's only used for rounded rects.
+        self.clone()
     }
 }

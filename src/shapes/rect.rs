@@ -142,7 +142,7 @@ impl AsMut<RenderAttrsImpl> for WRect {
 }
 
 impl ToPlainPdfLine for WRect {
-    fn to_plain_pdf_line(self) -> Line {
+    fn to_plain_pdf_line(&self) -> Line {
         Line {
             // In Q1, rects grow downward toward the bottom.
             points: vec![

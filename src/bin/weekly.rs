@@ -1,8 +1,9 @@
 use argh::FromArgs;
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_double_sided_document, sizes, Attributes, Circle, Colors, GridDescription, HasRenderAttrs,
-    Instructions, NumericUnit, Result, TGrid, TextContext, Unit, WLine, WRect,
+    save_double_sided_document, save_one_page_document, sizes, Attributes, Circle, Colors,
+    GridDescription, HasRenderAttrs, Instructions, NumericUnit, Result, TGrid, TextContext, Unit,
+    WLine, WRect,
 };
 
 const GOLDEN_RATIO: f64 = 1.618033988749894;
@@ -30,6 +31,14 @@ struct Args {
     /// name of the output file
     #[argh(positional, default = "String::from(\"weekly.pdf\")")]
     output_filename: String,
+
+    /// print twice on two pages
+    #[argh(switch, short = '2')]
+    twice: bool,
+
+    /// flip the second page
+    #[argh(switch, short = 'f')]
+    flip: bool,
 }
 
 #[derive(Debug)]
@@ -393,10 +402,20 @@ pub fn main() -> Result<()> {
 
     let page_rect = sizes::letter();
 
-    save_double_sided_document(
-        "Productivity Tracker",
-        args.output_filename,
-        &page_rect,
-        render_weekly_page,
-    )
+    if args.twice {
+        save_double_sided_document(
+            "Productivity Tracker",
+            args.output_filename,
+            &page_rect,
+            args.flip,
+            render_weekly_page,
+        )
+    } else {
+        save_one_page_document(
+            "Productivity Tracker",
+            args.output_filename,
+            &page_rect,
+            render_weekly_page,
+        )
+    }
 }

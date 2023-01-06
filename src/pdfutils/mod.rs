@@ -314,6 +314,7 @@ pub fn save_double_sided_document<F>(
     title: &str,
     filename: impl AsRef<Path>,
     page_bounds: &WRect,
+    flip_page_2: bool,
     callback: F,
 ) -> Result<()>
 where
@@ -335,7 +336,17 @@ where
         "Layer 1",
     );
 
-    instructions.draw_to_layer(&doc, &doc.get_page(page2).get_layer(layer1))?;
+    let layer1_ref = &doc.get_page(page2).get_layer(layer1);
+    layer1_ref.save_graphics_state();
+
+    if flip_page_2 {
+        let width_mm: Mm = page_bounds.width().into();
+        let height_mm: Mm = page_bounds.height().into();
+        let mat = CurTransMat::TranslateRotate(width_mm.into_pt(), height_mm.into_pt(), 180.0);
+        layer1_ref.set_ctm(mat);
+    }
+    instructions.draw_to_layer(&doc, layer1_ref)?;
+    layer1_ref.restore_graphics_state();
 
     doc.save(&mut BufWriter::new(File::create(filename)?))
         .map_err(|e| e.into())

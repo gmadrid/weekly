@@ -1,7 +1,6 @@
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, Colors, HasRenderAttrs, Instructions, LineModifiers, NumericUnit, Unit,
-    WLine, WRect,
+    save_one_page_document, Colors, HasRenderAttrs, Instructions, NumericUnit, Unit, WLine, WRect,
 };
 
 fn render_projects(_: &PdfDocumentReference, page_bounds: &WRect) -> weekly::Result<Instructions> {
@@ -49,11 +48,9 @@ fn fill_project_into_rect(rect: WRect, instructions: &mut Instructions) {
     instructions.set_stroke_width(1.0);
 
     // Outline
-    instructions.push_shape(
-        rect.as_rounded_rect_shape(0.125.inches())
-            .fill(false)
-            .stroke(true),
-    );
+    let mut outline = rect.clone();
+    outline.set_corner_radius(0.125.inches());
+    instructions.push_shape(outline.fill().stroke());
 
     // Project title line
     instructions.push_shape(

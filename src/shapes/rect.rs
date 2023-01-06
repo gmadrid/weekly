@@ -7,6 +7,7 @@ use printpdf::*;
 #[derive(Debug, Clone)]
 pub struct WRect {
     render_attrs: RenderAttrsImpl,
+    corner_radius: Option<Unit>,
 
     top: Unit,
     left: Unit,
@@ -18,6 +19,7 @@ impl WRect {
     pub const fn with_dimensions(width: Unit, height: Unit) -> WRect {
         WRect {
             render_attrs: RenderAttrsImpl::new(),
+            corner_radius: None,
             top: Unit::zero(),
             left: Unit::zero(),
             width,
@@ -28,6 +30,7 @@ impl WRect {
     pub fn at(left: Unit, top: Unit) -> WRect {
         WRect {
             render_attrs: RenderAttrsImpl::default(),
+            corner_radius: None,
             top,
             left,
             width: Unit::zero(),
@@ -84,6 +87,10 @@ impl WRect {
         self.inset_all_q1(xdelta, ydelta, xdelta, ydelta)
     }
 
+    pub fn set_corner_radius(&mut self, radius: Unit) {
+        self.corner_radius = Some(radius);
+    }
+
     pub fn inset_all_q1(
         &self,
         left_inset: Unit,
@@ -101,7 +108,7 @@ impl WRect {
         }
     }
 
-    pub fn as_rounded_rect_shape(&self, radius: Unit) -> Line {
+    fn as_rounded_rect_shape(&self, radius: Unit) -> Line {
         let pv = 1.0_f64 - 0.55228;
         Line {
             points: vec![
@@ -122,7 +129,6 @@ impl WRect {
                 point_pair(self.left() + radius * pv, self.top(), false),
                 point_pair(self.left() + radius, self.top(), false),
             ],
-            has_fill: true,
             is_closed: true,
             ..Line::default()
         }
@@ -143,16 +149,20 @@ impl AsMut<RenderAttrsImpl> for WRect {
 
 impl ToPlainPdfLine for WRect {
     fn to_plain_pdf_line(&self) -> Line {
-        Line {
-            // In Q1, rects grow downward toward the bottom.
-            points: vec![
-                point_pair(self.left, self.top, false),
-                point_pair(self.left + self.width, self.top, false),
-                point_pair(self.left + self.width, self.top - self.height, false),
-                point_pair(self.left, self.top - self.height, false),
-            ],
-            is_closed: true,
-            ..Line::default()
+        if let Some(radius) = self.corner_radius {
+            self.as_rounded_rect_shape(radius)
+        } else {
+            Line {
+                // In Q1, rects grow downward toward the bottom.
+                points: vec![
+                    point_pair(self.left, self.top, false),
+                    point_pair(self.left + self.width, self.top, false),
+                    point_pair(self.left + self.width, self.top - self.height, false),
+                    point_pair(self.left, self.top - self.height, false),
+                ],
+                is_closed: true,
+                ..Line::default()
+            }
         }
     }
 }

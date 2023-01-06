@@ -2,7 +2,7 @@ use argh::FromArgs;
 use printpdf::PdfDocumentReference;
 use weekly::{
     save_one_page_document, sizes, Attributes, Circle, Colors, GridDescription, HasRenderAttrs,
-    Instructions, LineModifiers, NumericUnit, Result, TGrid, TextContext, Unit, WLine, WRect,
+    Instructions, NumericUnit, Result, TGrid, TextContext, Unit, WLine, WRect,
 };
 
 const GOLDEN_RATIO: f64 = 1.618033988749894;
@@ -351,12 +351,10 @@ fn render_dotted(_: &PdfDocumentReference, dotted_rect: &WRect, instructions: &m
     instructions.clear_fill_color();
     instructions.set_stroke_color(Colors::gray(0.7));
     instructions.set_stroke_width(0.5);
-    instructions.push_shape(
-        dotted_rect
-            .as_rounded_rect_shape(2.0.mm())
-            .fill(false)
-            .stroke(true),
-    );
+
+    let mut rounded_rect = dotted_rect.clone();
+    rounded_rect.set_corner_radius(2.0.mm());
+    instructions.push_shape(rounded_rect.stroke());
 
     instructions.set_fill_color(Colors::gray(0.7));
     let grid_spacing = 0.25.inches();

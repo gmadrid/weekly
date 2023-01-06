@@ -110,10 +110,3 @@ where
         line
     }
 }
-
-impl ToPdfLine for Line {
-    fn to_pdf_line(&self) -> Line {
-        // TODO: make this thing go awqy! I think it's only used for rounded rects.
-        self.clone()
-    }
-}

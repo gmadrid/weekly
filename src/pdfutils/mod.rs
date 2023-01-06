@@ -309,3 +309,34 @@ where
     doc.save(&mut BufWriter::new(File::create(filename)?))?;
     Ok(())
 }
+
+pub fn save_double_sided_document<F>(
+    title: &str,
+    filename: impl AsRef<Path>,
+    page_bounds: &WRect,
+    callback: F,
+) -> Result<()>
+where
+    F: FnOnce(&PdfDocumentReference, &WRect) -> Result<Instructions>,
+{
+    let (doc, page, layer) = PdfDocument::new(
+        title,
+        page_bounds.width().into(),
+        page_bounds.height().into(),
+        "Layer 1",
+    );
+
+    let instructions = callback(&doc, page_bounds)?;
+    instructions.draw_to_layer(&doc, &doc.get_page(page).get_layer(layer))?;
+
+    let (page2, layer1) = doc.add_page(
+        page_bounds.width().into(),
+        page_bounds.height().into(),
+        "Layer 1",
+    );
+
+    instructions.draw_to_layer(&doc, &doc.get_page(page2).get_layer(layer1))?;
+
+    doc.save(&mut BufWriter::new(File::create(filename)?))
+        .map_err(|e| e.into())
+}

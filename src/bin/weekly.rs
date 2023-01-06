@@ -1,7 +1,7 @@
 use argh::FromArgs;
 use printpdf::PdfDocumentReference;
 use weekly::{
-    save_one_page_document, sizes, Attributes, Circle, Colors, GridDescription, HasRenderAttrs,
+    save_double_sided_document, sizes, Attributes, Circle, Colors, GridDescription, HasRenderAttrs,
     Instructions, NumericUnit, Result, TGrid, TextContext, Unit, WLine, WRect,
 };
 
@@ -393,7 +393,7 @@ pub fn main() -> Result<()> {
 
     let page_rect = sizes::letter();
 
-    save_one_page_document(
+    save_double_sided_document(
         "Productivity Tracker",
         args.output_filename,
         &page_rect,

@@ -4,7 +4,8 @@ pub use datetools::{today, Datetools};
 pub use pdfutils::sizes;
 pub use pdfutils::FontProxy;
 pub use pdfutils::{
-    save_one_page_document, Attributes, Colors, Instructions, LineModifiers, TextContext,
+    save_double_sided_document, save_one_page_document, Attributes, Colors, Instructions,
+    LineModifiers, TextContext,
 };
 pub use shapes::circle::Circle;
 pub use shapes::line::WLine;

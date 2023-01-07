@@ -83,7 +83,7 @@ impl Instructions {
         self.last_attr_mut().dash = Some((None, 0));
     }
 
-    pub fn last_attr_mut(&mut self) -> &mut Attributes {
+    fn last_attr_mut(&mut self) -> &mut Attributes {
         if !matches!(self.instructions.last(), Some(Instruction::Attrs(_))) {
             self.instructions
                 .push(Instruction::Attrs(Attributes::default()));

@@ -18,10 +18,6 @@ monthlies - Monthly checklist. _Years_ of months.
 projects - Project cards.
   Looks nice. Has some rounded lines.
 
-remtest - Random test app to explore Remarkable stuff.
-
-tester - A file for playing with stuff.
-
 
 Next tasks:
 

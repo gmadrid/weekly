@@ -1,8 +1,8 @@
-use std::default::Default;
 use crate::pdfutils::point_pair;
 use crate::shapes::{RenderAttrsImpl, ToPlainPdfLine};
 use crate::units::Unit;
 use printpdf::*;
+use std::default::Default;
 
 /// A representation of rectangles and operations on them.
 #[derive(Debug, Default, Clone)]

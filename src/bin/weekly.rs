@@ -296,7 +296,7 @@ fn render_tracker(
                 for i in 0..7 {
                     let l = small_grid_left + rect.height() * i;
                     let wline = WLine::line(l, rect.bottom_q1(), l, rect.top());
-                    instructions.push_shape(wline)
+                    instructions.push_shape(wline.stroke())
                 }
                 instructions.pop_state();
             } else {

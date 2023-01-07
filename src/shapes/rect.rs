@@ -133,6 +133,20 @@ impl WRect {
             ..Line::default()
         }
     }
+
+    fn as_rect_shape(&self) -> Line {
+        Line {
+            // In Q1, rects grow downward toward the bottom.
+            points: vec![
+                point_pair(self.left, self.top, false),
+                point_pair(self.left + self.width, self.top, false),
+                point_pair(self.left + self.width, self.top - self.height, false),
+                point_pair(self.left, self.top - self.height, false),
+            ],
+            is_closed: true,
+            ..Line::default()
+        }
+    }
 }
 
 impl AsRef<RenderAttrsImpl> for WRect {
@@ -152,17 +166,7 @@ impl ToPlainPdfLine for WRect {
         if let Some(radius) = self.corner_radius {
             self.as_rounded_rect_shape(radius)
         } else {
-            Line {
-                // In Q1, rects grow downward toward the bottom.
-                points: vec![
-                    point_pair(self.left, self.top, false),
-                    point_pair(self.left + self.width, self.top, false),
-                    point_pair(self.left + self.width, self.top - self.height, false),
-                    point_pair(self.left, self.top - self.height, false),
-                ],
-                is_closed: true,
-                ..Line::default()
-            }
+            self.as_rect_shape()
         }
     }
 }

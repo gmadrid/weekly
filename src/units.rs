@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
+#[derive(Debug, Default, PartialEq, PartialOrd, Copy, Clone)]
 // A `Unit` is a number of millimeters (mm) internally.
 pub struct Unit(f64);
 

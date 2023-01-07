@@ -2,7 +2,7 @@ use crate::shapes::{RenderAttrsImpl, ToPlainPdfLine};
 use crate::{NumericUnit, Unit};
 use printpdf::Line;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Circle {
     render_attrs: RenderAttrsImpl,
 
@@ -14,19 +14,19 @@ pub struct Circle {
 impl Circle {
     pub fn at_zero(radius: Unit) -> Circle {
         Circle {
-            render_attrs: RenderAttrsImpl::default(),
             radius,
             x: Unit::zero(),
             y: Unit::zero(),
+            ..Self::default()
         }
     }
 
     pub fn unit_at(x: Unit, y: Unit) -> Circle {
         Circle {
-            render_attrs: RenderAttrsImpl::default(),
             radius: 1.0.mm(),
             x,
             y,
+            ..Self::default()
         }
     }
 

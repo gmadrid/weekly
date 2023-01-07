@@ -1,10 +1,11 @@
+use std::default::Default;
 use crate::pdfutils::point_pair;
 use crate::shapes::{RenderAttrsImpl, ToPlainPdfLine};
 use crate::units::Unit;
 use printpdf::*;
 
 /// A representation of rectangles and operations on them.
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct WRect {
     render_attrs: RenderAttrsImpl,
     corner_radius: Option<Unit>,
@@ -29,12 +30,9 @@ impl WRect {
 
     pub fn at(left: Unit, top: Unit) -> WRect {
         WRect {
-            render_attrs: RenderAttrsImpl::default(),
-            corner_radius: None,
             top,
             left,
-            width: Unit::zero(),
-            height: Unit::zero(),
+            ..Self::default()
         }
     }
 

@@ -271,23 +271,6 @@ impl Colors {
     }
 }
 
-pub trait LineModifiers {
-    fn stroke(self, value: bool) -> Self;
-    fn fill(self, value: bool) -> Self;
-}
-
-impl LineModifiers for Line {
-    fn stroke(mut self, value: bool) -> Self {
-        self.has_stroke = value;
-        self
-    }
-
-    fn fill(mut self, value: bool) -> Self {
-        self.has_fill = value;
-        self
-    }
-}
-
 pub fn save_one_page_document<F>(
     title: &str,
     filename: impl AsRef<Path>,

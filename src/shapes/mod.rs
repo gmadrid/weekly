@@ -1,4 +1,3 @@
-use crate::LineModifiers;
 use printpdf::Line;
 
 pub(crate) mod circle;
@@ -101,12 +100,8 @@ where
         let filled = self.is_filled();
         let mut line = self.to_plain_pdf_line();
         // TODO: This is a little awkward.
-        if stroked {
-            line = line.stroke(true);
-        }
-        if filled {
-            line = line.fill(true);
-        }
+        line.has_stroke = stroked;
+        line.has_fill = filled;
         line
     }
 }

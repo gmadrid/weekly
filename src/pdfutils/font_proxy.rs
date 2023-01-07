@@ -15,11 +15,9 @@ impl FontProxy {
         FontProxy::Helvetica(false, false)
     }
     pub fn times_bold() -> FontProxy {
-        //FontProxy::Times(true, false)
         FontProxy::times().bold(true)
     }
     pub fn helvetica_bold() -> FontProxy {
-        //FontProxy::Helvetica(true, false)
         FontProxy::helvetica().bold(true)
     }
     pub fn bold(&self, bold: bool) -> FontProxy {

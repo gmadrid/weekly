@@ -200,7 +200,6 @@ impl Attributes {
         }
 
         f(instructions);
-
         if setting_something {
             instructions.pop_state();
         }

@@ -1,17 +1,14 @@
 use thiserror::Error;
 
 pub use datetools::{today, Datetools};
-pub use pdfutils::sizes;
-//pub use pdfutils::FontProxy;
 pub use pdfutils::{
-    save_double_sided_document, save_one_page_document, Attributes, Colors, FontProxy, Instructions,
-    TextContext,
+    save_double_sided_document, save_one_page_document, sizes, Attributes, Colors, FontProxy,
+    Instructions, TextContext,
 };
 pub use shapes::circle::Circle;
 pub use shapes::line::WLine;
 pub use shapes::rect::WRect;
-pub use shapes::HasRenderAttrs;
-pub use shapes::ToPdfLine;
+pub use shapes::{HasRenderAttrs, ToPdfLine};
 pub use tgrid::description::GridDescription;
 pub use tgrid::TGrid;
 pub use units::{NumericUnit, Unit};
